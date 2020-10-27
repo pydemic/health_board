@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  build:
+    image: pydemic/health_board:test
+    build:
+      context: ../../../../
+      dockerfile: .misc/docker/test/recursive/Dockerfile

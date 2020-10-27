@@ -1,0 +1,2 @@
+defmodule HealthBoard do
+end

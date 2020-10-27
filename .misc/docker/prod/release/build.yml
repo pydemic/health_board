@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  build:
+    image: pydemic/health_board:release
+    build:
+      context: ../../../../
+      dockerfile: .misc/docker/prod/release/Dockerfile

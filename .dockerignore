@@ -1,0 +1,15 @@
+_build
+
+.devcontainer
+.elixir_ls
+.git
+.misc
+
+.dockerignore
+.formatter.exs
+.gitignore
+
+deps
+priv/cert
+priv/static
+test

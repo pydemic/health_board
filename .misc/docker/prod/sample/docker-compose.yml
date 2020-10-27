@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  health_board:
+    image: pydemic/health_board:prod
+    restart: unless-stopped
+    environment:
+      HEALTH_BOARD__HTTPS: 'true'
+      HEALTH_BOARD__CACERTFILE_PATH: /app/chain.pem
+      HEALTH_BOARD__CERTFILE_PATH: /app/cert.pem
+      HEALTH_BOARD__KEYFILE_PATH: /app/privkey.pem
+      HEALTH_BOARD__HOSTNAME: YOUR_HOSTNAME
+      HEALTH_BOARD__ORIGIN_HOSTNAMES: '//YOUR_HOSTNAME'
+      HEALTH_BOARD__SECRET_KEY_BASE: GENERATE_ONE_WITH_MIX_PHX_GEN_SECRET
+    volumes:
+      - /etc/letsencrypt/live/YOUR_HOSTNAME/chain.pem:/app/chain.pem
+      - /etc/letsencrypt/live/YOUR_HOSTNAME/cert.pem:/app/cert.pem
+      - /etc/letsencrypt/live/YOUR_HOSTNAME/privkey.pem:/app/privkey.pem
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13.0
+    restart: unless-stopped
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.max=10000
+    environment:
+      POSTGRES_DB: health_board
+      POSTGRES_USER: health_board
+      POSTGRES_PASSWORD: health_board
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
+    name: health_board_postgres

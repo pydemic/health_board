@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  health_board:
+    image: pydemic/health_board:test
+    environment:
+      GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}
+      GITHUB_EVENT_PATH: /tmp/event.json
+      GITHUB_REF: ${GITHUB_REF}
+      GITHUB_SHA: ${GITHUB_SHA}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    volumes:
+      - ${GITHUB_EVENT_PATH}:/tmp/event.json
+      - ../../../.git:/app/.git
+      - ../../../assets/css:/app/assets/css
+      - ../../../assets/js:/app/assets/js
+      - ../../../assets/static:/app/assets/static
+      - ../../../assets/.babelrc:/app/assets/.babelrc
+      - ../../../assets/webpack.config.js:/app/assets/webpack.config.js
+      - ../../../lib:/app/lib
+      - ../../../priv:/app/priv
+      - ../../../test:/app/test
+      - ../../../.credo.exs:/app/.credo.exs
+      - ../../../.formatter.exs:/app/.formatter.exs
+      - ../../../coveralls.json:/app/coveralls.json
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13.0
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.max=10000
+    environment:
+      POSTGRES_DB: health_board_test
+      POSTGRES_USER: health_board
+      POSTGRES_PASSWORD: health_board

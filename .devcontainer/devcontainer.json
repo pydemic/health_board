@@ -1,0 +1,51 @@
+{
+  "name": "HealthBoard",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "health_board",
+  "workspaceFolder": "/app",
+  "shutdownAction": "none",
+  "extensions": [
+    "davidanson.vscode-markdownlint",
+    "jakebecker.elixir-ls",
+    "mechatroner.rainbow-csv",
+    "mrorz.language-gettext",
+    "stkb.rewrap",
+    "sysoev.language-stylus",
+    "yzhang.markdown-all-in-one"
+  ],
+  "settings": {
+    "beautify.language": {
+      "js": {
+        "type": [
+          "javascript",
+          "json",
+          "jsonc"
+        ],
+        "filename": [
+          ".jshintrc",
+          ".jsbeautifyrc"
+        ]
+      },
+      "css": [
+        "css",
+        "less",
+        "scss"
+      ],
+      "html": [
+        "htm",
+        "html",
+        "html-eex"
+      ]
+    },
+    "editor.formatOnSave": true,
+    "emmet.includeLanguages": {
+      "html-eex": "html"
+    },
+    "elixir.autoSpawnElixirSenseServers": true,
+    "elixir.useElixirSense": true,
+    "files.associations": {
+      "*.eex": "html-eex",
+      "*.leex": "html-eex"
+    }
+  }
+}
