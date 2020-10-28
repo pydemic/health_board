@@ -1,8 +1,4 @@
 defmodule HealthBoard.Release.Seeders.Contexts.Geo.City do
-  @moduledoc """
-  Seed `HealthBoard.Contexts.Geo.City` data.
-  """
-
   require Logger
   alias HealthBoard.Contexts.Geo.Cities
   alias HealthBoard.Release.Seeders.CSVSeeder

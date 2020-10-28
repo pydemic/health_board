@@ -1,4 +1,4 @@
-defmodule HealthRegion.Repo.Migrations.CreateRegions do
+defmodule HealthBoard.Repo.Migrations.CreateRegions do
   use Ecto.Migration
 
   def change do

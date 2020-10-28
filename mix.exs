@@ -53,7 +53,7 @@ defmodule HealthBoard.MixProject do
       {:ecto_sql, "~> 3.5.2"},
       {:ex_doc, "~> 0.23.0", only: :test, runtime: false},
       {:excoveralls, "~> 0.13.3", only: :test},
-      {:floki, "~> 0.29.0", only: :test},
+      {:floki, "~> 0.29.0", only: [:dev, :test]},
       {:gettext, "~> 0.18.2"},
       {:hackney, "~> 1.16.0"},
       {:jason, "~> 1.2.2"},
