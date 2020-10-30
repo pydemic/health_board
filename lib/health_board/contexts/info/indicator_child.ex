@@ -14,5 +14,6 @@ defmodule HealthBoard.Contexts.Info.IndicatorChild do
     indicator_child
     |> cast(attrs, [:indicator_id, :child_id])
     |> validate_required([:indicator_id, :child_id])
+    |> unique_constraint([:indicator_id, :child_id])
   end
 end

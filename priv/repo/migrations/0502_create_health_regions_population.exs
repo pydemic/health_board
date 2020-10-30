@@ -28,5 +28,7 @@ defmodule HealthBoard.Repo.Migrations.CreateHealthRegionsPopulation do
 
       add :health_region_id, references(:health_regions, on_delete: :delete_all), null: false
     end
+
+    create unique_index(:health_regions_population, [:year, :health_region_id])
   end
 end

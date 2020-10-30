@@ -10,7 +10,9 @@ defmodule HealthBoard.Contexts.Info.Indicator do
     field :description, :string
     field :math, :string
 
-    belongs_to :source, Info.Source
+    has_many :children, Info.IndicatorChild
+    has_many :filters, Info.IndicatorFilter
+    has_many :sources, Info.IndicatorSource
   end
 
   @spec changeset(%Indicator{}, map()) :: Ecto.Changeset.t()
@@ -18,5 +20,6 @@ defmodule HealthBoard.Contexts.Info.Indicator do
     indicator
     |> cast(attrs, [:id, :name, :description, :math])
     |> validate_required([:id, :name, :description])
+    |> unique_constraint([:id])
   end
 end

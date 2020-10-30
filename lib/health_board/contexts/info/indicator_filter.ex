@@ -14,5 +14,6 @@ defmodule HealthBoard.Contexts.Info.IndicatorFilter do
     indicator_filter
     |> cast(attrs, [:indicator_id, :filter_id])
     |> validate_required([:indicator_id, :filter_id])
+    |> unique_constraint([:indicator_id, :filter_id])
   end
 end

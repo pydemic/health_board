@@ -61,5 +61,6 @@ defmodule HealthBoard.Contexts.Demographic.StatePopulation do
     state_population
     |> cast(attrs, @cast_attrs)
     |> validate_required(@cast_attrs)
+    |> unique_constraint([:year, :state_id])
   end
 end

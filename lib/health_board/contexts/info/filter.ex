@@ -13,5 +13,6 @@ defmodule HealthBoard.Contexts.Info.Filter do
     filter
     |> cast(attrs, [:id, :name])
     |> validate_required([:id, :name])
+    |> unique_constraint([:id])
   end
 end

@@ -28,5 +28,7 @@ defmodule HealthBoard.Repo.Migrations.CreateCitiesPopulation do
 
       add :city_id, references(:cities, on_delete: :delete_all), null: false
     end
+
+    create unique_index(:cities_population, [:year, :city_id])
   end
 end

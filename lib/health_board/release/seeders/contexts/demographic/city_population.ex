@@ -1,14 +1,10 @@
 defmodule HealthBoard.Release.Seeders.Contexts.Demographic.CityPopulation do
   require Logger
-  alias HealthBoard.Contexts.Demographic.CitiesPopulation
-  alias HealthBoard.Release.Seeders.CSVSeeder
+  alias HealthBoard.Contexts.Demographic.CityPopulation
+  alias HealthBoard.Release.Seeders.InsertAllCSVSeeder
 
+  @batch_size 3_000
   @path "demographic/cities_population.csv"
-
-  @spec seed(keyword()) :: :ok
-  def seed(opts \\ []) do
-    CSVSeeder.seed(@path, &parse_and_seed/1, opts)
-  end
 
   @fields [
     :city_id,
@@ -34,17 +30,14 @@ defmodule HealthBoard.Release.Seeders.Contexts.Demographic.CityPopulation do
     :age_80_or_more
   ]
 
-  defp parse_and_seed(data) do
-    data = Enum.map(data, &String.to_integer/1)
+  @spec seed(keyword()) :: :ok
+  def seed(opts \\ []) do
+    InsertAllCSVSeeder.seed(@path, CityPopulation, &parse/1, Keyword.put(opts, :batch_size, @batch_size))
+  end
 
-    {:ok, _city_population} =
-      @fields
-      |> Enum.zip(data)
-      |> Map.new()
-      |> CitiesPopulation.create()
-
-    :ok
-  rescue
-    error -> Logger.error(Exception.message(error))
+  defp parse(data) do
+    @fields
+    |> Enum.zip(Enum.map(data, &String.to_integer/1))
+    |> Map.new()
   end
 end

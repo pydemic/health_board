@@ -1,31 +1,24 @@
 defmodule HealthBoard.Release.Seeders.Contexts.Geo.HealthRegion do
   require Logger
-  alias HealthBoard.Contexts.Geo.HealthRegions
-  alias HealthBoard.Release.Seeders.CSVSeeder
+  alias HealthBoard.Contexts.Geo.HealthRegion
+  alias HealthBoard.Release.Seeders.InsertAllCSVSeeder
 
   @path "geo/health_regions.csv"
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    CSVSeeder.seed(@path, &parse_and_seed/1, opts)
-    :ok
+    InsertAllCSVSeeder.seed(@path, HealthRegion, &parse/1, opts)
   end
 
-  defp parse_and_seed([id, name]) do
-    state_id =
-      id
-      |> String.slice(0, 2)
-      |> String.to_integer()
-
-    attrs = %{
+  defp parse([country_id, region_id, state_id, id, name, lat, lng]) do
+    %{
+      country_id: String.to_integer(country_id),
+      region_id: String.to_integer(region_id),
+      state_id: String.to_integer(state_id),
       id: String.to_integer(id),
       name: name,
-      state_id: state_id
+      lat: String.to_float(lat),
+      lng: String.to_float(lng)
     }
-
-    {:ok, _health_region} = HealthRegions.create(attrs)
-    :ok
-  rescue
-    error -> Logger.error(Exception.message(error))
   end
 end

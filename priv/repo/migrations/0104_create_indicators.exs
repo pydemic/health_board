@@ -9,7 +9,6 @@ defmodule HealthBoard.Repo.Migrations.CreateIndicators do
       add :description, :string
 
       add :math, :string
-      add :source_id, references(:sources, on_delete: :delete_all, type: :string), null: false
     end
   end
 end

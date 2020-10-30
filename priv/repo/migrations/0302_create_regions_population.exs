@@ -1,8 +1,8 @@
-defmodule HealthBoard.Repo.Migrations.CreateCountriesPopulation do
+defmodule HealthBoard.Repo.Migrations.CreateRegionsPopulation do
   use Ecto.Migration
 
   def change do
-    create table(:countries_population) do
+    create table(:regions_population) do
       add :year, :integer
 
       add :male, :integer
@@ -26,7 +26,9 @@ defmodule HealthBoard.Repo.Migrations.CreateCountriesPopulation do
       add :age_75_79, :integer
       add :age_80_or_more, :integer
 
-      add :country_id, references(:countries, on_delete: :delete_all), null: false
+      add :region_id, references(:regions, on_delete: :delete_all), null: false
     end
+
+    create unique_index(:regions_population, [:year, :region_id])
   end
 end

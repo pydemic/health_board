@@ -28,5 +28,7 @@ defmodule HealthBoard.Repo.Migrations.CreateStatesPopulation do
 
       add :state_id, references(:states, on_delete: :delete_all), null: false
     end
+
+    create unique_index(:states_population, [:year, :state_id])
   end
 end

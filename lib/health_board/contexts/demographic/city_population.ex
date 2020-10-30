@@ -61,5 +61,6 @@ defmodule HealthBoard.Contexts.Demographic.CityPopulation do
     city_population
     |> cast(attrs, @cast_attrs)
     |> validate_required(@cast_attrs)
+    |> unique_constraint([:year, :city_id])
   end
 end
