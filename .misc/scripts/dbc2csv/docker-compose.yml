@@ -5,4 +5,4 @@ services:
     image: pydemic/dbc2csv
     command: make
     volumes:
-      - ./dbcs:/usr/src/app/data
+      - ../../sandbox/dbcs:/usr/src/app/data
