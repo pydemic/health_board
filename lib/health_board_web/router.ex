@@ -3,18 +3,21 @@ defmodule HealthBoardWeb.Router do
   import Phoenix.LiveDashboard.Router
   import Plug.BasicAuth
 
-  # pipeline :live_browser do
-  #   plug :accepts, ["html"]
-  #   plug :fetch_session
-  #   plug :fetch_live_flash
-  #   plug :put_root_layout, {HealthBoardWeb.LayoutView, :root}
-  #   plug :protect_from_forgery
-  #   plug :put_secure_browser_headers
-  # end
+  pipeline :live_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, {HealthBoardWeb.LayoutView, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
 
-  # scope "/" do
-  #   pipe_through :live_browser
-  # end
+  scope "/" do
+    pipe_through :live_browser
+
+    live "/", HealthBoardWeb.HomeLive, :index
+    live "/:dashboard_id", HealthBoardWeb.DashboardLive, :index
+  end
 
   pipeline :live_dashboard_browser do
     plug :accepts, ["html"]
@@ -25,7 +28,7 @@ defmodule HealthBoardWeb.Router do
     plug :basic_auth, username: "admin", password: "pah02020"
   end
 
-  scope "/" do
+  scope "/admin/system" do
     pipe_through :live_dashboard_browser
 
     live_dashboard "/", ecto_repos: [HealthBoard.Repo]

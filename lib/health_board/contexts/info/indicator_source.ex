@@ -5,8 +5,8 @@ defmodule HealthBoard.Contexts.Info.IndicatorSource do
   alias HealthBoard.Contexts.Info.IndicatorSource
 
   schema "indicators_sources" do
-    belongs_to :indicator, Info.Indicator
-    belongs_to :source, Info.Source
+    belongs_to :indicator, Info.Indicator, type: :string
+    belongs_to :source, Info.Source, type: :string
   end
 
   @spec changeset(%IndicatorSource{}, map()) :: Ecto.Changeset.t()

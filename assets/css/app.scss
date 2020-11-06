@@ -1,3 +1,21 @@
 @import "../node_modules/leaflet/dist/leaflet.css";
 @import "../node_modules/nprogress/nprogress.css";
 @import "../node_modules/uikit/dist/css/uikit.min.css";
+@import "../node_modules/css.gg/icons/all.css";
+
+.hb-navbar {
+  background-color: #1D3A87;
+}
+
+.hb-clickable {
+  cursor: pointer;
+}
+
+.hb-va-center {
+  display: flex;
+  align-items: center;
+}
+
+i.hb-right {
+  margin-left: auto;
+}

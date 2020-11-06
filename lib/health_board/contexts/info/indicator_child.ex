@@ -5,8 +5,8 @@ defmodule HealthBoard.Contexts.Info.IndicatorChild do
   alias HealthBoard.Contexts.Info.IndicatorChild
 
   schema "indicators_children" do
-    belongs_to :indicator, Info.Indicator
-    belongs_to :child, Info.Indicator
+    belongs_to :indicator, Info.Indicator, type: :string
+    belongs_to :child, Info.Indicator, type: :string
   end
 
   @spec changeset(%IndicatorChild{}, map()) :: Ecto.Changeset.t()

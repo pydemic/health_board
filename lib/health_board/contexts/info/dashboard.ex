@@ -7,15 +7,18 @@ defmodule HealthBoard.Contexts.Info.Dashboard do
   @primary_key {:id, :string, autogenerate: false}
   schema "dashboards" do
     field :name, :string
+    field :description, :string
 
     has_many :filters, Info.DashboardFilter
-    has_many :indicators, Info.DashboardIndicator
+    has_many :indicators_visualizations, Info.DashboardIndicatorVisualization
+
+    timestamps()
   end
 
   @spec changeset(%Dashboard{}, map()) :: Ecto.Changeset.t()
   def changeset(dashboard, attrs) do
     dashboard
-    |> cast(attrs, [:id, :name])
+    |> cast(attrs, [:id, :name, :description])
     |> validate_required([:id, :name])
     |> unique_constraint([:id])
   end

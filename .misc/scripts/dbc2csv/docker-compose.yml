@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   dbc2csv:
-    image: pydemic/dbc2csv
-    command: make
+    image: pydemic/dbc2csv:r
     volumes:
-      - ../../sandbox/dbcs:/usr/src/app/data
+      - ../../sandbox/sources/dbcs:/app/input
+      - ../../sandbox/results/csvs:/app/output

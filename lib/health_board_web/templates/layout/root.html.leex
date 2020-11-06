@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="uk-background-muted" lang="en">
 
 <head>
   <meta charset="utf-8" />
@@ -12,9 +12,9 @@
 </head>
 
 <body>
-  <nav class="uk-navbar-container uk-navbar-transparent uk-light" uk-navbar>
+  <nav class="uk-navbar-container uk-navbar-transparent uk-light hb-navbar" uk-navbar>
     <div class="uk-navbar-center">
-      <a class="uk-navbar-item uk-logo" href="#">Painel Saúde</a>
+      <a class="uk-navbar-item uk-logo" href="<%= Routes.home_path(@conn, :index) %>">Painel Saúde</a>
     </div>
   </nav>
   <%= @inner_content %>

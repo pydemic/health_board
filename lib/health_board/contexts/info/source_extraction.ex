@@ -7,7 +7,7 @@ defmodule HealthBoard.Contexts.Info.SourceExtraction do
   schema "source_extractions" do
     field :date, :date
 
-    belongs_to :source, Info.Source
+    belongs_to :source, Info.Source, type: :string
   end
 
   @spec changeset(%SourceExtraction{}, map()) :: Ecto.Changeset.t()

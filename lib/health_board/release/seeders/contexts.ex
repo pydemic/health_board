@@ -14,6 +14,7 @@ defmodule HealthBoard.Release.Seeders.Contexts do
     Contexts.Geo.seed(opts)
     Contexts.Demographic.seed(opts)
     Contexts.Logistics.seed(opts)
+    Contexts.Info.seed(opts)
   end
 
   defp maybe_load_app(opts) do
