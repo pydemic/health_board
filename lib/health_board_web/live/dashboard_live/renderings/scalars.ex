@@ -1,56 +1,36 @@
 defmodule HealthBoardWeb.DashboardLive.Renderings.Scalars do
-  import Phoenix.LiveView.Helpers, only: [sigil_L: 2]
+  import Phoenix.LiveView.Helpers, only: [sigil_L: 2, live_component: 3, live_component: 4]
+  alias HealthBoardWeb.DashboardLive.{CardComponent, GridComponent}
   alias Phoenix.LiveView
-
-  @scalar_indicators_visualizations [:population]
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
-    indicators_visualizations =
-      assigns
-      |> Map.get(:indicators_visualizations, %{})
-      |> Map.take(@scalar_indicators_visualizations)
-
-    case scalar_cards(assigns, indicators_visualizations) do
-      nil -> ~L""
-      cards -> grid(assigns, cards)
-    end
-  end
-
-  defp grid(assigns, cards) do
     ~L"""
-    <div
-      class="uk-grid uk-grid-small uk-grid-match uk-text-center uk-margin-left uk-margin-right uk-animation-fade"
-      uk-grid
-    >
-      <%= cards %>
-    </div>
-    """
-  end
-
-  defp scalar_cards(assigns, indicators_visualizations) do
-    if Enum.any?(Map.keys(indicators_visualizations)) do
-      ~L"""
-      <%= for {key, data} <- indicators_visualizations do %>
-        <div class="uk-width-1-3@l uk-width-1-2@m uk-align-center">
-          <div class="uk-card uk-card-hover uk-card-default">
-            <div class="uk-card-header">
-              <h3 class="uk-card-title"><%= get_card_title(key) %></h3>
-            </div>
-
-            <div class="uk-card-body">
-              <h2><%= data %></h2>
-            </div>
-          </div>
-        </div>
+    <%= live_component @socket, GridComponent, id: :scalar_cards do %>
+      <%= if Map.has_key?(assigns, :population_data) do %>
+        <%= live_component @socket, CardComponent,
+          id: :population_data,
+          title: "População residente",
+          body: @population_data
+          %>
       <% end %>
-      """
-    else
-      nil
-    end
-  end
 
-  defp get_card_title(:population) do
-    "População Residente"
+      <%= if Map.has_key?(assigns, :births_data) do %>
+        <%= live_component @socket, CardComponent,
+          id: :births_data,
+          title: "Nascidos Vivos",
+          body: @births_data
+          %>
+      <% end %>
+
+      <%= if Map.has_key?(assigns, :crude_birth_rate_data) do %>
+        <%= live_component @socket, CardComponent,
+          id: :crude_birth_rate_data,
+          title: "Taxa Bruta de Natalidade",
+          body: @crude_birth_rate_data
+          %>
+      <% end %>
+    <% end %>
+    """
   end
 end

@@ -1,0 +1,2 @@
+defmodule HealthBoardWeb.DashboardLive.IndicatorsData do
+end

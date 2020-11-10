@@ -22,6 +22,12 @@ defmodule HealthBoardWeb.DashboardLive do
   end
 
   @impl Phoenix.LiveView
+  @spec handle_info(any(), LiveView.Socket.t()) :: {:noreply, LiveView.Socket.t()}
+  def handle_info(data, socket) do
+    {:noreply, DashboardLive.InfoManager.handle_info(socket, data)}
+  end
+
+  @impl Phoenix.LiveView
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     DashboardLive.RenderManager.render(assigns)

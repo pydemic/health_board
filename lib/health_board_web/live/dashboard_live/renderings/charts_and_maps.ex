@@ -1,59 +1,33 @@
 defmodule HealthBoardWeb.DashboardLive.Renderings.ChartsAndMaps do
-  import Phoenix.LiveView.Helpers, only: [sigil_L: 2]
+  import Phoenix.LiveView.Helpers, only: [sigil_L: 2, live_component: 3, live_component: 4]
+  alias HealthBoardWeb.DashboardLive.{CanvasCardComponent, GridComponent}
   alias Phoenix.LiveView
-
-  @charts_and_maps_indicators_visualizations [:population_growth, :population_per_age_group, :population_per_sex]
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
-    indicators_visualizations =
-      assigns
-      |> Map.get(:indicators_visualizations, %{})
-      |> Map.take(@charts_and_maps_indicators_visualizations)
-
-    case charts_and_maps_cards(assigns, indicators_visualizations) do
-      nil -> ~L""
-      cards -> grid(assigns, cards)
-    end
-  end
-
-  defp grid(assigns, cards) do
     ~L"""
-    <div
-      class="uk-grid uk-grid-small uk-grid-match uk-text-center uk-margin-left uk-margin-right uk-animation-fade"
-      uk-grid
-    >
-      <%= cards %>
-    </div>
-    """
-  end
-
-  defp charts_and_maps_cards(assigns, indicators_visualizations) do
-    if Enum.any?(Map.keys(indicators_visualizations)) do
-      ~L"""
-      <%= for {key, _data} <- indicators_visualizations do %>
-        <div class="uk-width-1-2@l">
-          <div class="uk-card uk-card-hover uk-card-default" phx-update="ignore">
-            <div class="uk-card-header">
-              <h3 class="uk-card-title uk-text-center"><%= get_card_title key %></h3>
-            </div>
-            <div class="uk-card-body" phx-update="ignore">
-              <canvas id="<%= Atom.to_string(key) %>" height="260"></canvas>
-            </div>
-          </div>
-        </div>
+    <%= live_component @socket, GridComponent, id: :charts_and_maps_cards do %>
+      <%= if Map.has_key?(assigns, :population_growth_data) do %>
+        <%= live_component @socket, CanvasCardComponent,
+          id: :population_growth,
+          title: "Crescimento populacional"
+          %>
       <% end %>
-      """
-    else
-      nil
-    end
-  end
 
-  defp get_card_title(key) do
-    case key do
-      :population_growth -> "Crescimento populacional"
-      :population_per_age_group -> "Pirâmidade etária"
-      :population_per_sex -> "Razão de sexo"
-    end
+      <%= if Map.has_key?(assigns, :population_per_age_group_data) do %>
+        <%= live_component @socket, CanvasCardComponent,
+          id: :population_per_age_group,
+          title: "Pirâmidade etária"
+          %>
+      <% end %>
+
+      <%= if Map.has_key?(assigns, :population_per_sex_data) do %>
+        <%= live_component @socket, CanvasCardComponent,
+          id: :population_per_sex,
+          title: "Razão de sexo"
+          %>
+      <% end %>
+    <% end %>
+    """
   end
 end
