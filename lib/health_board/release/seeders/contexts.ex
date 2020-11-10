@@ -12,8 +12,8 @@ defmodule HealthBoard.Release.Seeders.Contexts do
 
   defp do_seed_all(opts) do
     Contexts.Geo.seed(opts)
-    Contexts.Demographic.seed(opts)
     Contexts.Logistics.seed(opts)
+    Contexts.Demographic.seed(opts)
     Contexts.Info.seed(opts)
   end
 

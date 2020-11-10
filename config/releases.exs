@@ -41,7 +41,7 @@ defmodule HealthBoard.Releases.Helper do
 
   def repo_settings do
     settings = [
-      pool_size: get_env("DATABASE_POOL_SIZE", :integer, 10),
+      pool_size: get_env("DATABASE_POOL_SIZE", :integer, 16),
       ssl: get_env("DATABASE_SSL", :boolean, false)
     ]
 

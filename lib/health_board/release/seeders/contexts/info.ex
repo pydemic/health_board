@@ -13,6 +13,5 @@ defmodule HealthBoard.Release.Seeders.Contexts.Info do
     Info.IndicatorVisualization.seed(opts)
 
     Info.DashboardIndicatorVisualization.seed(opts)
-    Info.IndicatorVisualizationFilter.seed(opts)
   end
 end

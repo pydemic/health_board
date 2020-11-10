@@ -1,17 +1,17 @@
 defmodule HealthBoard.Release.Seeders.Contexts.Info.Dashboard do
   require Logger
   alias HealthBoard.Contexts.Info.Dashboard
-  alias HealthBoard.Release.Seeders.InsertAllCSVSeeder
+  alias HealthBoard.Release.Seeders.Seeder
 
-  @path "info/dashboards.csv"
+  @path "info/dashboards.zip"
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
     naive_datetime = NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
-    InsertAllCSVSeeder.seed(@path, Dashboard, &parse(&1, naive_datetime), opts)
+    Seeder.seed(@path, Dashboard, &parse(&1, &2, naive_datetime), Keyword.put(opts, :skip_headers, true))
   end
 
-  defp parse([id, name, description], naive_datetime) do
+  defp parse([id, name, description], _file_name, naive_datetime) do
     %{
       id: id,
       name: name,

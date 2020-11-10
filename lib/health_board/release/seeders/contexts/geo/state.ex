@@ -1,16 +1,17 @@
 defmodule HealthBoard.Release.Seeders.Contexts.Geo.State do
   require Logger
   alias HealthBoard.Contexts.Geo.State
-  alias HealthBoard.Release.Seeders.InsertAllCSVSeeder
+  alias HealthBoard.Release.Seeders.Seeder
 
-  @path "geo/states.csv"
+  @path "geo/states.zip"
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    InsertAllCSVSeeder.seed(@path, State, &parse/1, opts)
+    opts = Keyword.put(opts, :skip_headers, true)
+    Seeder.seed(@path, State, &parse/2, opts)
   end
 
-  defp parse([country_id, region_id, id, name, abbr, lat, lng]) do
+  defp parse([country_id, region_id, id, name, abbr, lat, lng], _file_name) do
     %{
       country_id: String.to_integer(country_id),
       region_id: String.to_integer(region_id),

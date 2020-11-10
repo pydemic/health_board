@@ -41,10 +41,10 @@ networks:
 
 volumes:
   mix:
-    name: heath_board_mix
+    name: health_board_mix
 
   postgres:
-    name: heath_board_postgres
+    name: health_board_postgres
 
   vscode:
-    name: heath_board_vscode
+    name: health_board_vscode

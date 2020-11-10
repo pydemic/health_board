@@ -27,15 +27,15 @@ defmodule HealthBoard.Scripts.DATASUS.SINASC.HealthInstitutionsConsolidator do
     files
   end
 
-  defp consolidate({heath_institution_file_name, file_index}, buckets_dir, results_dir) do
-    Logger.info("[#{file_index}] Extracting #{heath_institution_file_name}")
+  defp consolidate({health_institution_file_name, file_index}, buckets_dir, results_dir) do
+    Logger.info("[#{file_index}] Extracting #{health_institution_file_name}")
 
     buckets_dir
-    |> Path.join(heath_institution_file_name)
+    |> Path.join(health_institution_file_name)
     |> File.stream!()
     |> NimbleCSV.RFC4180.parse_stream(skip_headers: false)
     |> Enum.reduce(%{}, &do_consolidate/2)
-    |> append_to_csv(Path.join(results_dir, heath_institution_file_name))
+    |> append_to_csv(Path.join(results_dir, health_institution_file_name))
   end
 
   defp do_consolidate(data, consolidations) do
@@ -66,18 +66,18 @@ defmodule HealthBoard.Scripts.DATASUS.SINASC.HealthInstitutionsConsolidator do
     |> Enum.map(&(elem(&1, 0) + elem(&1, 1)))
   end
 
-  defp append_to_csv(heath_institution_data, heath_institution_file_path) do
-    heath_institution_file = File.open!(heath_institution_file_path, [:append])
+  defp append_to_csv(health_institution_data, health_institution_file_path) do
+    health_institution_file = File.open!(health_institution_file_path, [:append])
 
-    heath_institution_data
+    health_institution_data
     |> Enum.sort(&(Date.compare(elem(&1, 0), elem(&2, 0)) == :gt))
-    |> Enum.each(&write_line(&1, heath_institution_file))
+    |> Enum.each(&write_line(&1, health_institution_file))
 
-    File.close(heath_institution_file)
+    File.close(health_institution_file)
   end
 
-  defp write_line({date, %{non_metric: non_metric_data, metric: metric_data}}, heath_institution_file) do
-    IO.write(heath_institution_file, Enum.join([date] ++ non_metric_data ++ metric_data, ",") <> "\n")
+  defp write_line({date, %{non_metric: non_metric_data, metric: metric_data}}, health_institution_file) do
+    IO.write(health_institution_file, Enum.join([date] ++ non_metric_data ++ metric_data, ",") <> "\n")
   end
 end
 

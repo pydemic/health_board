@@ -1,16 +1,16 @@
 defmodule HealthBoard.Release.Seeders.Contexts.Info.Visualization do
   require Logger
   alias HealthBoard.Contexts.Info.Visualization
-  alias HealthBoard.Release.Seeders.InsertAllCSVSeeder
+  alias HealthBoard.Release.Seeders.Seeder
 
-  @path "info/visualizations.csv"
+  @path "info/visualizations.zip"
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    InsertAllCSVSeeder.seed(@path, Visualization, &parse/1, opts)
+    Seeder.seed(@path, Visualization, &parse/2, Keyword.put(opts, :skip_headers, true))
   end
 
-  defp parse([id, name, description]) do
+  defp parse([id, name, description], _file_name) do
     %{
       id: id,
       name: name,

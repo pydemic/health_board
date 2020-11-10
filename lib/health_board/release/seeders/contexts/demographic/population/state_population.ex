@@ -1,12 +1,12 @@
-defmodule HealthBoard.Release.Seeders.Contexts.Demographic.CountryPopulation do
+defmodule HealthBoard.Release.Seeders.Contexts.Demographic.StatePopulation do
   require Logger
-  alias HealthBoard.Contexts.Demographic.CountryPopulation
-  alias HealthBoard.Release.Seeders.InsertAllCSVSeeder
+  alias HealthBoard.Contexts.Demographic.StatePopulation
+  alias HealthBoard.Release.Seeders.Seeder
 
-  @path "demographic/countries_population.csv"
+  @path "demographic/population/states_population.zip"
 
   @fields [
-    :country_id,
+    :state_id,
     :year,
     :male,
     :female,
@@ -31,10 +31,10 @@ defmodule HealthBoard.Release.Seeders.Contexts.Demographic.CountryPopulation do
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    InsertAllCSVSeeder.seed(@path, CountryPopulation, &parse/1, opts)
+    Seeder.seed(@path, StatePopulation, &parse/2, Keyword.put(opts, :skip_headers, true))
   end
 
-  defp parse(data) do
+  defp parse(data, _file_name) do
     @fields
     |> Enum.zip(Enum.map(data, &String.to_integer/1))
     |> Map.new()

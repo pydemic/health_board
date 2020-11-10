@@ -650,10 +650,10 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :prenatal_consultations_7_or_more, :integer, default: 0
       add :ignored_prenatal_consultations, :integer, default: 0
 
-      add :region_id, references(:health_regions, on_delete: :delete_all), null: false
+      add :health_region_id, references(:health_regions, on_delete: :delete_all), null: false
     end
 
-    create unique_index(:health_regions_resident_births, [:date, :region_id])
+    create unique_index(:health_regions_resident_births, [:date, :health_region_id])
 
     create table(:health_regions_source_births) do
       add :date, :date
@@ -714,10 +714,10 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :prenatal_consultations_7_or_more, :integer, default: 0
       add :ignored_prenatal_consultations, :integer, default: 0
 
-      add :region_id, references(:health_regions, on_delete: :delete_all), null: false
+      add :health_region_id, references(:health_regions, on_delete: :delete_all), null: false
     end
 
-    create unique_index(:health_regions_source_births, [:date, :region_id])
+    create unique_index(:health_regions_source_births, [:date, :health_region_id])
 
     create table(:cities_resident_births) do
       add :date, :date
@@ -906,10 +906,10 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :prenatal_consultations_7_or_more, :integer, default: 0
       add :ignored_prenatal_consultations, :integer, default: 0
 
-      add :institution_id, references(:health_institutions, on_delete: :delete_all), null: false
+      add :health_institution_id, references(:health_institutions, on_delete: :delete_all), null: false
     end
 
-    create unique_index(:health_institutions_source_births, [:date, :institution_id])
+    create unique_index(:health_institutions_source_births, [:date, :health_institution_id])
 
     create table(:countries_resident_yearly_births) do
       add :year, :integer
@@ -1340,10 +1340,10 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :prenatal_consultations_7_or_more, :integer, default: 0
       add :ignored_prenatal_consultations, :integer, default: 0
 
-      add :region_id, references(:health_regions, on_delete: :delete_all), null: false
+      add :health_region_id, references(:health_regions, on_delete: :delete_all), null: false
     end
 
-    create unique_index(:health_regions_resident_yearly_births, [:year, :region_id])
+    create unique_index(:health_regions_resident_yearly_births, [:year, :health_region_id])
 
     create table(:health_regions_source_yearly_births) do
       add :year, :integer
@@ -1402,10 +1402,10 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :prenatal_consultations_7_or_more, :integer, default: 0
       add :ignored_prenatal_consultations, :integer, default: 0
 
-      add :region_id, references(:health_regions, on_delete: :delete_all), null: false
+      add :health_region_id, references(:health_regions, on_delete: :delete_all), null: false
     end
 
-    create unique_index(:health_regions_source_yearly_births, [:year, :region_id])
+    create unique_index(:health_regions_source_yearly_births, [:year, :health_region_id])
 
     create table(:cities_resident_yearly_births) do
       add :year, :integer
@@ -1588,10 +1588,10 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :prenatal_consultations_7_or_more, :integer, default: 0
       add :ignored_prenatal_consultations, :integer, default: 0
 
-      add :institution_id, references(:health_institutions, on_delete: :delete_all), null: false
+      add :health_institution_id, references(:health_institutions, on_delete: :delete_all), null: false
     end
 
-    create unique_index(:health_institutions_source_yearly_births, [:year, :institution_id])
+    create unique_index(:health_institutions_source_yearly_births, [:year, :health_institution_id])
 
     create table(:dashboards, primary_key: false) do
       add :id, :string, primary_key: true
@@ -1665,8 +1665,6 @@ defmodule HealthBoard.Repo.Migrations.CreateRootTables do
       add :visualization_id, references(:visualizations, on_delete: :delete_all, type: :string),
         null: false
     end
-
-    create unique_index(:indicators_visualizations, [:indicator_id, :visualization_id])
 
     create table(:indicators_sources) do
       add :indicator_id, references(:indicators, on_delete: :delete_all, type: :string),

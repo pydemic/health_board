@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Seed do
   use Mix.Task
 
   alias HealthBoard.Release.Seeders.Contexts
-  alias HealthBoard.Release.Seeders.Contexts.Geo
+  alias HealthBoard.Release.Seeders.Contexts.{Geo, Demographic}
 
   @spec run(list(String.t())) :: none
   def run(args) do
@@ -40,6 +40,7 @@ defmodule Mix.Tasks.Seed do
       "geo.state" -> Geo.State.seed(opts)
       "geo.health_region" -> Geo.HealthRegion.seed(opts)
       "geo.city" -> Geo.City.seed(opts)
+      "demographic.city_source_births" -> Demographic.CitySourceBirths.seed(opts)
       _ -> :ok
     end
 

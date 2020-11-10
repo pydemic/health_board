@@ -15,7 +15,7 @@ defmodule HealthBoard.Contexts.Geo.State do
     belongs_to :region, Geo.Region
     belongs_to :country, Geo.Country
 
-    has_many :heath_regions, Geo.HealthRegion
+    has_many :health_regions, Geo.HealthRegion
     has_many :cities, Geo.City
   end
 
