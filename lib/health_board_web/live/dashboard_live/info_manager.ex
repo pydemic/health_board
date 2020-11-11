@@ -6,6 +6,9 @@ defmodule HealthBoardWeb.DashboardLive.InfoManager do
   def handle_info(socket, {:fetch_indicator_visualization_data, indicator_visualization, filters}) do
     case Map.get(indicator_visualization, :indicator_visualization_id) do
       "births" -> IndicatorsData.Births.fetch(socket, filters)
+      "births_per_year" -> IndicatorsData.BirthsPerYear.fetch(socket, filters)
+      "births_per_child_mass" -> IndicatorsData.BirthsPerChildMass.fetch(socket, filters)
+      "births_per_child_sex" -> IndicatorsData.BirthsPerChildSex.fetch(socket, filters)
       "crude_birth_rate" -> IndicatorsData.CrudeBirthRate.fetch(socket, filters)
       "population" -> IndicatorsData.Population.fetch(socket, filters)
       "population_growth" -> IndicatorsData.PopulationGrowth.fetch(socket, filters)

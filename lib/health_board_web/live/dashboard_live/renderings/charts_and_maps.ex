@@ -27,6 +27,27 @@ defmodule HealthBoardWeb.DashboardLive.Renderings.ChartsAndMaps do
           title: "Razão de sexo"
           %>
       <% end %>
+
+      <%= if Map.has_key?(assigns, :births_per_year_data) do %>
+        <%= live_component @socket, CanvasCardComponent,
+          id: :births_per_year,
+          title: "Nascidos vivos por ano"
+          %>
+      <% end %>
+
+      <%= if Map.has_key?(assigns, :births_per_child_mass_data) do %>
+        <%= live_component @socket, CanvasCardComponent,
+          id: :births_per_child_mass,
+          title: "Razão de peso da criança no nascimento"
+          %>
+      <% end %>
+
+      <%= if Map.has_key?(assigns, :births_per_child_sex_data) do %>
+        <%= live_component @socket, CanvasCardComponent,
+          id: :births_per_child_sex,
+          title: "Razão de sexo da criança no nascimento"
+          %>
+      <% end %>
     <% end %>
     """
   end

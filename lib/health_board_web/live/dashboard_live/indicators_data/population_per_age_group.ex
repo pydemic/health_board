@@ -76,7 +76,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.PopulationPerAgeGroup do
 
   defp build_js_data(%{data: year_population, fields: fields}) do
     label = "População residente"
-    labels = Enum.map(fields, &fields_labels/1)
+    labels = Enum.map(fields, &field_label/1)
 
     data = %{
       label: label,
@@ -118,7 +118,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.PopulationPerAgeGroup do
     }
   end
 
-  defp fields_labels(field) do
+  defp field_label(field) do
     case field do
       :age_0_4 -> "Entre 0 e 4 anos"
       :age_5_9 -> "Entre 5 e 9 anos"
