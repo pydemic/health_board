@@ -10,6 +10,7 @@ RUN apt-get update && \
     apt-get install -y \
       git \
       inotify-tools \
+      zip \
       && \
     apt-get clean && \
     mix local.hex --force && \

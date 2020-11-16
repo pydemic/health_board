@@ -6,12 +6,10 @@ defmodule HealthBoardWeb.DashboardLive.RenderManager do
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~L"""
-    <div class="uk-section uk-section-xsmall">
-      <%= Renderings.Header.render assigns %>
-      <%= Renderings.Scalars.render assigns %>
-      <%= Renderings.ChartsAndMaps.render assigns %>
-    </div>
-    <%= Renderings.JS.render assigns %>
+    <%= Renderings.Header.render assigns %>
+    <%= Renderings.maybe_render assigns, :demographic, &Renderings.Demographic.render/1 %>
+    <%= Renderings.maybe_render assigns, :dengue, &Renderings.Dengue.render/1 %>
+    <%= Renderings.maybe_render assigns, :violence, &Renderings.Violence.render/1 %>
     """
   end
 end

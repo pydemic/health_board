@@ -1,20 +1,18 @@
 defmodule HealthBoardWeb.DashboardLive.Renderings.Header do
   import Phoenix.LiveView.Helpers, only: [sigil_L: 2]
+  alias HealthBoardWeb.DashboardLive.Renderings
   alias Phoenix.LiveView
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
-    case Map.get(assigns, :dashboard) do
-      nil -> ~L""
-      dashboard -> title(assigns, Map.get(dashboard, :name, ""))
-    end
+    Renderings.maybe_render(assigns, :dashboard, &title/1)
   end
 
-  defp title(assigns, name) do
+  defp title(assigns) do
     ~L"""
-    <h2 class="uk-heading-divider uk-margin-left uk-margin-right hb-va-center">
-      Painel: <%= name %>
-    </h2>
+    <nav class="uk-navbar-container uk-navbar-transparent uk-light hb-page-navbar" uk-navbar>
+      <a class="uk-navbar-item uk-logo" href=""><%= @dashboard.name %></a>
+    </nav>
     """
   end
 end

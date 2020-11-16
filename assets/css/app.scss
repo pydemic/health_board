@@ -3,12 +3,36 @@
 @import "../node_modules/uikit/dist/css/uikit.min.css";
 @import "../node_modules/css.gg/icons/all.css";
 
-.hb-navbar {
-  background-color: #1D3A87;
+.hb-map {
+  min-height: 500px;
+}
+
+.hb-no-padding {
+  padding: 0 0;
+}
+
+i.hb-right {
+  margin-left: auto;
 }
 
 .hb-clickable {
   cursor: pointer;
+}
+
+.hb-hide {
+  visibility: hidden;
+}
+
+.hb-root-navbar {
+  background-color: #1D3A87;
+}
+
+.hb-page-navbar {
+  background-color: #3653a1;
+}
+
+.hb-section-navbar {
+  background-color: #546cac;
 }
 
 .hb-va-center {
@@ -16,6 +40,35 @@
   align-items: center;
 }
 
-i.hb-right {
-  margin-left: auto;
+.hb-map {
+  min-height: 400px;
+}
+
+.hb-map-info {
+  padding: 6px 8px;
+  background: white;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+
+  &.h5 {
+    color: #777;
+  }
+}
+
+.hb-map-legend {
+  text-align: start;
+  color: #555;
+
+  i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+  }
+}
+
+.hb-offcanvas {
+  background-color: #3b56a3;
 }

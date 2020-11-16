@@ -39,10 +39,19 @@ defmodule HealthBoard.Releases.Helper do
     end
   end
 
+  def health_board_settings do
+    [
+      data_path: get_env!("DATA_PATH")
+    ]
+  end
+
   def repo_settings do
     settings = [
       pool_size: get_env("DATABASE_POOL_SIZE", :integer, 16),
-      ssl: get_env("DATABASE_SSL", :boolean, false)
+      ssl: get_env("DATABASE_SSL", :boolean, false),
+      timeout: 600_000,
+      queue_target: 10_000,
+      queue_interval: 100_000
     ]
 
     case get_env("DATABASE_URL", nil) do
@@ -84,3 +93,4 @@ alias HealthBoard.Releases.Helper
 
 config :health_board, HealthBoardWeb.Endpoint, Helper.endpoint_settings()
 config :health_board, HealthBoard.Repo, Helper.repo_settings()
+config :health_board, Helper.health_board_settings()

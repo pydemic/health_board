@@ -1,21 +1,21 @@
 defmodule HealthBoardWeb.DashboardLive.InfoManager do
+  require Logger
   alias Phoenix.LiveView
   alias HealthBoardWeb.DashboardLive.IndicatorsData
 
   @spec handle_info(LiveView.Socket.t(), any()) :: LiveView.Socket.t()
-  def handle_info(socket, {:fetch_indicator_visualization_data, indicator_visualization, filters}) do
-    case Map.get(indicator_visualization, :indicator_visualization_id) do
-      "births" -> IndicatorsData.Births.fetch(socket, filters)
-      "births_per_year" -> IndicatorsData.BirthsPerYear.fetch(socket, filters)
-      "births_per_child_mass" -> IndicatorsData.BirthsPerChildMass.fetch(socket, filters)
-      "births_per_child_sex" -> IndicatorsData.BirthsPerChildSex.fetch(socket, filters)
-      "crude_birth_rate" -> IndicatorsData.CrudeBirthRate.fetch(socket, filters)
-      "population" -> IndicatorsData.Population.fetch(socket, filters)
-      "population_growth" -> IndicatorsData.PopulationGrowth.fetch(socket, filters)
-      "population_per_age_group" -> IndicatorsData.PopulationPerAgeGroup.fetch(socket, filters)
-      "population_per_sex" -> IndicatorsData.PopulationPerSex.fetch(socket, filters)
-      _nil -> socket
-    end
+  def handle_info(socket, {:fetch_card_data, dashboard_card, params}) do
+    %{card: %{id: id} = card} = dashboard_card
+
+    socket
+    |> IndicatorsData.new(String.to_atom(id), card, params)
+    |> IndicatorsData.fetch()
+    |> IndicatorsData.assign()
+  rescue
+    error ->
+      Logger.error(Exception.message(error))
+      Logger.error(Exception.format_stacktrace(__STACKTRACE__))
+      socket
   end
 
   def handle_info(socket, _data) do

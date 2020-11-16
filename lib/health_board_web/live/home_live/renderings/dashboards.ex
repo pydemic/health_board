@@ -1,5 +1,6 @@
 defmodule HealthBoardWeb.HomeLive.Renderings.Dashboards do
   import Phoenix.LiveView.Helpers, only: [sigil_L: 2]
+  alias HealthBoardWeb.Cldr
   alias HealthBoardWeb.Router.Helpers, as: Routes
   alias Phoenix.LiveView
 
@@ -57,7 +58,7 @@ defmodule HealthBoardWeb.HomeLive.Renderings.Dashboards do
               <%= name %>
             </h3>
             <p class="uk-text-meta uk-margin-remove-top">
-              <time datetime="<%= updated_at %>"><%= updated_at %></time>
+              <time datetime="<%= updated_at %>"><%= Cldr.DateTime.to_string! updated_at %></time>
             </p>
           </div>
           <div class="uk-card-body">

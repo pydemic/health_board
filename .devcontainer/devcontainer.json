@@ -5,6 +5,7 @@
   "workspaceFolder": "/app",
   "shutdownAction": "none",
   "extensions": [
+    "coenraads.bracket-pair-colorizer-2",
     "davidanson.vscode-markdownlint",
     "jakebecker.elixir-ls",
     "mechatroner.rainbow-csv",

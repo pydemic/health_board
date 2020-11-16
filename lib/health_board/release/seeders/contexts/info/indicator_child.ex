@@ -7,7 +7,7 @@ defmodule HealthBoard.Release.Seeders.Contexts.Info.IndicatorChild do
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    Seeder.seed(@path, IndicatorChild, &parse/2, Keyword.put(opts, :skip_headers, true))
+    Seeder.seed(@path, IndicatorChild, &parse/2, opts)
   end
 
   defp parse([indicator_id, child_id], _file_name) do

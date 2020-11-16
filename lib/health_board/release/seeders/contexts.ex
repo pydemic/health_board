@@ -3,14 +3,14 @@ defmodule HealthBoard.Release.Seeders.Contexts do
 
   alias HealthBoard.Release.Seeders.Contexts
 
-  @spec seed_all(keyword()) :: :ok
-  def seed_all(opts \\ []) do
+  @spec seed(keyword()) :: :ok
+  def seed(opts \\ []) do
     opts
     |> maybe_load_app()
-    |> do_seed_all()
+    |> seed_all()
   end
 
-  defp do_seed_all(opts) do
+  defp seed_all(opts) do
     Contexts.Geo.seed(opts)
     Contexts.Logistics.seed(opts)
     Contexts.Demographic.seed(opts)

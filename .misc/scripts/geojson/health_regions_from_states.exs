@@ -2,7 +2,7 @@ defmodule HealthBoard.Scripts.GeoJSON.HealthRegionsFromStates do
   require Logger
 
   @dir Path.join(File.cwd!(), ".misc/sandbox")
-  @geojson Path.join(@dir, "health_regions.geojson")
+  @geojson Path.join(@dir, "source/health_regions.geojson")
   @states_ids [
     11,
     12,
@@ -68,7 +68,7 @@ defmodule HealthBoard.Scripts.GeoJSON.HealthRegionsFromStates do
 
   defp sanitize_feature(%{"geometry" => geometry, "properties" => properties}) do
     %{"regiao_saude_health_region_id" => health_region_id} = properties
-    %{"geometry" => geometry, "id" => health_region_id}
+    %{"geometry" => geometry, "type" => "Feature", "id" => health_region_id}
   end
 
   defp write_geojson(geojson, file_path) do

@@ -1,21 +1,24 @@
 import "../css/app.scss"
 
-import UIkit from "uikit"
-
-window.UIkit = UIkit
-
 import ChartJS from 'chart.js'
-
-window.ChartJS = ChartJS
-
 import L from 'leaflet'
-
-window.L = L
+import UIkit from "uikit"
+import Icons from "uikit/dist/js/uikit-icons"
 
 import "phoenix_html"
 import { Socket } from "phoenix"
 import NProgress from "nprogress"
 import { LiveSocket } from "phoenix_live_view"
+
+import { renderMap } from "./map_render"
+
+window.UIkit = UIkit
+window.UIkit.use(Icons)
+
+window.ChartJS = ChartJS
+
+window.L = L
+window.MathJax = { MathML: { extensions: ["mml3.js", "content-mathml.js"] } }
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
@@ -24,6 +27,12 @@ let Hooks = {}
 Hooks.Chart = {
   mounted() {
     this.handleEvent("chart_data", ({ id, data }) => new ChartJS(id, data))
+  }
+}
+
+Hooks.Map = {
+  mounted() {
+    this.handleEvent("map_data", (data) => renderMap(L, data))
   }
 }
 

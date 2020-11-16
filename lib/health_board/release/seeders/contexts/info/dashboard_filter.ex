@@ -7,10 +7,10 @@ defmodule HealthBoard.Release.Seeders.Contexts.Info.DashboardFilter do
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    Seeder.seed(@path, DashboardFilter, &parse/2, Keyword.put(opts, :skip_headers, true))
+    Seeder.seed(@path, DashboardFilter, &parse/2, opts)
   end
 
-  defp parse([dashboard_id, filter_id, value], _file_name) do
+  defp parse([filter_id, value], dashboard_id) do
     %{
       value: value,
       dashboard_id: dashboard_id,

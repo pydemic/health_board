@@ -2,9 +2,9 @@ defmodule HealthBoard.Scripts.GeoJSON.StatesFromRegion do
   require Logger
 
   @dir Path.join(File.cwd!(), ".misc/sandbox")
-  @geojson Path.join(@dir, "states.geojson")
+  @geojson Path.join(@dir, "source/states.geojson")
   @region_id "5"
-  @region_geojson Path.join(@dir, "#{@region_id}_states.geojson")
+  @region_geojson Path.join(@dir, "#{@region_id}/states.geojson")
 
   @spec run :: :ok
   def run do
@@ -31,10 +31,11 @@ defmodule HealthBoard.Scripts.GeoJSON.StatesFromRegion do
   end
 
   defp sanitize_feature(%{"geometry" => geometry, "properties" => %{"CD_GEOCUF" => state_id}}) do
-    %{"geometry" => geometry, "id" => String.to_integer(state_id)}
+    %{"geometry" => geometry, "type" => "Feature", "id" => String.to_integer(state_id)}
   end
 
   defp write_geojson(geojson) do
+    File.mkdir_p!(Path.dirname(@region_geojson))
     File.write!(@region_geojson, geojson)
   end
 end

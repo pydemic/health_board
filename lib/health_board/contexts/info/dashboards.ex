@@ -18,7 +18,7 @@ defmodule HealthBoard.Contexts.Info.Dashboards do
   @spec get(String.t(), keyword()) :: {:ok, %Dashboard{}} | {:error, :not_found}
   def get(id, opts) do
     if Keyword.get(opts, :preload_all?, false) do
-      case Repo.preload(Repo.get(Dashboard, id), [:filters, :indicators_visualizations]) do
+      case Repo.preload(Repo.get(Dashboard, id), [:filters, [cards: [card: [:indicator, :format]]]]) do
         nil -> {:error, :not_found}
         dashboard -> {:ok, dashboard}
       end

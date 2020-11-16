@@ -7,10 +7,10 @@ defmodule HealthBoard.Release.Seeders.Contexts.Info.IndicatorVisualization do
 
   @spec seed(keyword()) :: :ok
   def seed(opts \\ []) do
-    Seeder.seed(@path, IndicatorVisualization, &parse/2, Keyword.put(opts, :skip_headers, true))
+    Seeder.seed(@path, IndicatorVisualization, &parse/2, opts)
   end
 
-  defp parse([indicator_id, visualization_id, id, name, description], _file_name) do
+  defp parse([id, visualization_id, name, description], indicator_id) do
     %{
       id: id,
       name: name,
