@@ -50,19 +50,6 @@ defmodule HealthBoardWeb.DashboardLive.Renderings.Violence do
         </div>
       <% end %>
 
-      <h2 class="uk-margin-left">Óbitos - Violência Sexual</h2>
-
-      <%= live_component @socket, GridComponent, id: :violence_sexual_deaths_grid do %>
-        <%= Renderings.maybe_render_map assigns, :violence_sexual_deaths_map, width_l: 2, width_m: 1 %>
-
-        <div class="uk-width-1-2@l uk-grid-match uk-grid-small" uk-grid uk-height-match=".hb-match-1">
-          <%= Renderings.maybe_render_chart assigns, :violence_sexual_deaths_per_year, match_group: 1 %>
-          <%= Renderings.maybe_render_chart assigns, :violence_sexual_deaths_per_sex, match_group: 1 %>
-          <%= Renderings.maybe_render_chart assigns, :violence_sexual_deaths_per_age_group, match_group: 1 %>
-          <%= Renderings.maybe_render_chart assigns, :violence_sexual_deaths_per_race, match_group: 1 %>
-        </div>
-      <% end %>
-
       <h2 class="uk-margin-left">Óbitos - Suicídio</h2>
 
       <%= live_component @socket, GridComponent, id: :violence_suicide_deaths_grid do %>

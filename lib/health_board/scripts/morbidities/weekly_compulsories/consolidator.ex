@@ -75,7 +75,7 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.Consolidator do
       "2" -> :race_african
       "3" -> :race_asian
       "4" -> :race_brown
-      "5" -> :race_indigenous
+      "5" -> :race_native
       _race -> :ignored_race
     end
   end
@@ -109,11 +109,7 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.Consolidator do
     WeeklyCompulsories.WhoopingCoughConsolidator.run()
   end
 
-  @spec run(
-          String.t(),
-          (list(String.t()), list(Locations.schema()) ->
-             {Locations.schema() | nil, Locations.schema() | nil, integer(), list(integer())})
-        ) :: :ok
+  @spec run(String.t(), function()) :: :ok
   def run(name, parse_function) do
     Logger.info("Consolidating #{name}")
 

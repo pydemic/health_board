@@ -11,8 +11,8 @@ defmodule HealthBoardWeb.DashboardLive.CanvasCardComponent do
           <h3 class="uk-card-title"><%= @payload.card.name %></h3>
         </div>
 
-        <div class="uk-card-body <%= match_group @options %>">
-          <canvas id="<%= @id %>" height="260" phx-hook="Chart"></canvas>
+        <div class="uk-card-body hb-card-body <%= match_group @options %>">
+          <canvas id="<%= @id %>" height="400" phx-hook="Chart"></canvas>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
+defmodule HealthBoard.Repo.Migrations.SeedMorbiditiesCases do
   use Ecto.Migration
 
   @context "morbidities"
@@ -7,18 +7,37 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
   @weekly_compulsories Path.join(@context, "weekly_compulsories")
 
   def up do
-    seed_table(@immediates, "botulism", botulism_fields())
-    seed_table(@immediates, "chikungunya", chikungunya_fields())
-    seed_table(@immediates, "cholera", cholera_fields())
-    seed_table(@immediates, "hantavirus", hantavirus_fields())
-    seed_table(@immediates, "human_rabies", human_rabies_fields())
-    seed_table(@immediates, "malaria_from_extra_amazon", malaria_from_extra_amazon_fields())
-    seed_table(@immediates, "plague", plague_fields())
-    seed_table(@immediates, "spotted_fever", spotted_fever_fields())
-    seed_table(@immediates, "yellow_fever", yellow_fever_fields())
-    seed_table(@immediates, "zika", zika_fields())
+    @context
+    |> Path.join("yearly_morbidities_cases")
+    |> HealthBoard.DataManager.copy_from_dir!(
+      "yearly_morbidities_cases",
+      yearly_morbidities_cases_columns()
+    )
 
-    seed_table(@weekly_compulsories, "american_tegumentary_leishmaniasis", american_tegumentary_leishmaniasis_fields())
+    @context
+    |> Path.join("weekly_morbidities_cases")
+    |> HealthBoard.DataManager.copy_from_dir!(
+      "weekly_morbidities_cases",
+      weekly_morbidities_cases_columns()
+    )
+
+    seed_immediate("botulism", botulism_fields())
+    seed_immediate("chikungunya", chikungunya_fields())
+    seed_immediate("cholera", cholera_fields())
+    seed_immediate("hantavirus", hantavirus_fields())
+    seed_immediate("human_rabies", human_rabies_fields())
+    seed_immediate("malaria", malaria_fields())
+    seed_immediate("plague", plague_fields())
+    seed_immediate("spotted_fever", spotted_fever_fields())
+    seed_immediate("yellow_fever", yellow_fever_fields())
+    seed_immediate("zika", zika_fields())
+
+    seed_table(
+      @weekly_compulsories,
+      "american_tegumentary_leishmaniasis",
+      american_tegumentary_leishmaniasis_fields()
+    )
+
     seed_table(@weekly_compulsories, "chagas", chagas_fields())
     seed_table(@weekly_compulsories, "dengue", dengue_fields())
     seed_table(@weekly_compulsories, "diphtheria", diphtheria_fields())
@@ -27,7 +46,13 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
     seed_table(@weekly_compulsories, "leptospirosis", leptospirosis_fields())
     seed_table(@weekly_compulsories, "meningitis", meningitis_fields())
     seed_table(@weekly_compulsories, "neonatal_tetanus", neonatal_tetanus_fields())
-    seed_table(@weekly_compulsories, "poisonous_animals_accidents", poisonous_animals_accidents_fields())
+
+    seed_table(
+      @weekly_compulsories,
+      "poisonous_animals_accidents",
+      poisonous_animals_accidents_fields()
+    )
+
     seed_table(@weekly_compulsories, "schistosomiasis", schistosomiasis_fields())
     seed_table(@weekly_compulsories, "tetanus_accidents", tetanus_accidents_fields())
     seed_table(@weekly_compulsories, "tuberculosis", tuberculosis_fields())
@@ -39,16 +64,16 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
   end
 
   def down do
-    drop_table("botulism")
-    drop_table("chikungunya")
-    drop_table("cholera")
-    drop_table("hantavirus")
-    drop_table("human_rabies")
-    drop_table("malaria_from_extra_amazon")
-    drop_table("plague")
-    drop_table("spotted_fever")
-    drop_table("yellow_fever")
-    drop_table("zika")
+    drop_immediate("botulism")
+    drop_immediate("chikungunya")
+    drop_immediate("cholera")
+    drop_immediate("hantavirus")
+    drop_immediate("human_rabies")
+    drop_immediate("malaria")
+    drop_immediate("plague")
+    drop_immediate("spotted_fever")
+    drop_immediate("yellow_fever")
+    drop_immediate("zika")
 
     drop_table("american_tegumentary_leishmaniasis")
     drop_table("chagas")
@@ -67,11 +92,23 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
     drop_table("visceral_leishmaniasis")
     drop_table("whooping_cough")
 
+    HealthBoard.Repo.query!("TRUNCATE weekly_morbidities_cases CASCADE;")
     HealthBoard.Repo.query!("TRUNCATE yearly_mortalities_cases CASCADE;")
+    HealthBoard.Repo.query!("TRUNCATE yearly_morbidities_cases CASCADE;")
   end
 
   defp seed_table(context, table_name, fields) do
     HealthBoard.DataManager.copy!(context, "#{table_name}_yearly_cases", fields)
+  end
+
+  defp seed_immediate(table_name, fields) do
+    @immediates
+    |> Path.join("#{table_name}_yearly_cases.csv")
+    |> HealthBoard.DataManager.copy_from_path!("yearly_#{table_name}_cases", fields)
+  end
+
+  defp drop_immediate(table_name) do
+    HealthBoard.Repo.query!("TRUNCATE yearly_#{table_name}_cases CASCADE;")
   end
 
   defp drop_table(table_name) do
@@ -80,37 +117,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp botulism_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -128,37 +137,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp chikungunya_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :other_classification,
@@ -173,37 +154,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp cholera_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -222,37 +175,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp hantavirus_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -270,37 +195,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp human_rabies_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -318,39 +215,11 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
     ]
   end
 
-  defp malaria_from_extra_amazon_fields do
+  defp malaria_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -367,37 +236,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp plague_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -419,37 +260,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp spotted_fever_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -462,37 +275,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp yellow_fever_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed_wild,
       :confirmed_urban,
       :discarded,
@@ -509,37 +294,9 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
 
   defp zika_fields do
     [
-      :location_context,
+      :context,
       :location_id,
       :year,
-      :cases,
-      :age_0_4,
-      :age_5_9,
-      :age_10_14,
-      :age_15_19,
-      :age_20_24,
-      :age_25_29,
-      :age_30_34,
-      :age_35_39,
-      :age_40_44,
-      :age_45_49,
-      :age_50_54,
-      :age_55_59,
-      :age_60_64,
-      :age_64_69,
-      :age_70_74,
-      :age_75_79,
-      :age_80_or_more,
-      :ignored_age_group,
-      :male,
-      :female,
-      :ignored_sex,
-      :race_caucasian,
-      :race_african,
-      :race_asian,
-      :race_brown,
-      :race_native,
-      :ignored_race,
       :confirmed,
       :discarded,
       :ignored_classification,
@@ -1351,6 +1108,107 @@ defmodule HealthBoard.Repo.Migrations.SeedYearlyMorbiditiesCases do
       :investigated,
       :not_investigated,
       :ignored_investigation
+    ]
+  end
+
+  defp weekly_morbidities_cases_columns do
+    [
+      :context,
+      :location_id,
+      :year,
+      :week,
+      :cases,
+      :age_0_4_female,
+      :age_0_4_male,
+      :age_10_14_female,
+      :age_10_14_male,
+      :age_15_19_female,
+      :age_15_19_male,
+      :age_20_24_female,
+      :age_20_24_male,
+      :age_25_29_female,
+      :age_25_29_male,
+      :age_30_34_female,
+      :age_30_34_male,
+      :age_35_39_female,
+      :age_35_39_male,
+      :age_40_44_female,
+      :age_40_44_male,
+      :age_45_49_female,
+      :age_45_49_male,
+      :age_5_9_female,
+      :age_5_9_male,
+      :age_50_54_female,
+      :age_50_54_male,
+      :age_55_59_female,
+      :age_55_59_male,
+      :age_60_64_female,
+      :age_60_64_male,
+      :age_64_69_female,
+      :age_64_69_male,
+      :age_70_74_female,
+      :age_70_74_male,
+      :age_75_79_female,
+      :age_75_79_male,
+      :age_80_or_more_female,
+      :age_80_or_more_male,
+      :ignored_sex_age_group,
+      :race_caucasian,
+      :race_african,
+      :race_asian,
+      :race_brown,
+      :race_native,
+      :ignored_race
+    ]
+  end
+
+  defp yearly_morbidities_cases_columns do
+    [
+      :context,
+      :location_id,
+      :year,
+      :cases,
+      :age_0_4_female,
+      :age_0_4_male,
+      :age_10_14_female,
+      :age_10_14_male,
+      :age_15_19_female,
+      :age_15_19_male,
+      :age_20_24_female,
+      :age_20_24_male,
+      :age_25_29_female,
+      :age_25_29_male,
+      :age_30_34_female,
+      :age_30_34_male,
+      :age_35_39_female,
+      :age_35_39_male,
+      :age_40_44_female,
+      :age_40_44_male,
+      :age_45_49_female,
+      :age_45_49_male,
+      :age_5_9_female,
+      :age_5_9_male,
+      :age_50_54_female,
+      :age_50_54_male,
+      :age_55_59_female,
+      :age_55_59_male,
+      :age_60_64_female,
+      :age_60_64_male,
+      :age_64_69_female,
+      :age_64_69_male,
+      :age_70_74_female,
+      :age_70_74_male,
+      :age_75_79_female,
+      :age_75_79_male,
+      :age_80_or_more_female,
+      :age_80_or_more_male,
+      :ignored_sex_age_group,
+      :race_caucasian,
+      :race_african,
+      :race_asian,
+      :race_brown,
+      :race_native,
+      :ignored_race
     ]
   end
 end

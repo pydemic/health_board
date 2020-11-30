@@ -7,6 +7,7 @@ defmodule HealthBoardWeb.DashboardLive.RenderManager do
   def render(assigns) do
     ~L"""
     <%= Renderings.Header.render assigns %>
+    <%= Renderings.maybe_render assigns, :analytic, &Renderings.Analytic.render/1 %>
     <%= Renderings.maybe_render assigns, :demographic, &Renderings.Demographic.render/1 %>
     <%= Renderings.maybe_render assigns, :dengue, &Renderings.Dengue.render/1 %>
     <%= Renderings.maybe_render assigns, :violence, &Renderings.Violence.render/1 %>

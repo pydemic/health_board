@@ -70,11 +70,7 @@ defmodule HealthBoard.Scripts.Morbidities.Mortalities.Consolidator do
     Mortalities.YearlyConsolidator.run()
   end
 
-  @spec run(
-          String.t(),
-          (list(String.t()), list(Locations.schema()) ->
-             {atom() | nil, Locations.schema() | nil, Locations.schema() | nil, integer(), list(integer())})
-        ) :: :ok
+  @spec run(String.t(), function()) :: :ok
   def run(name, parse_function) do
     Logger.info("Consolidating #{name}")
 

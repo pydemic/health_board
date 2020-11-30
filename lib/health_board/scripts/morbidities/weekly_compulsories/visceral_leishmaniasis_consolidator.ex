@@ -44,15 +44,13 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.VisceralLeishmanias
 
   @spec run :: :ok
   def run do
-    Consolidator.run("visceral_leishmaniasis", &parse_line/2)
+    Consolidator.run("visceral_leishmaniasis", &parse_line/1)
   end
 
-  defp parse_line(line, cities) do
+  defp parse_line(line) do
     [year, source_city_id, resident_city_id, age_code, sex, race, classification, hiv_coinfection, entry] = line
 
     year = String.to_integer(year)
-    resident_city = Consolidator.find_city(cities, resident_city_id)
-    source_city = Consolidator.find_city(cities, source_city_id)
 
     fields = [
       :cases,
@@ -65,8 +63,8 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.VisceralLeishmanias
     ]
 
     {
-      resident_city,
-      source_city,
+      resident_city_id,
+      source_city_id,
       year,
       Enum.map(@columns, &if(&1 in fields, do: 1, else: 0))
     }

@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.Renderings do
   import Phoenix.LiveView.Helpers, only: [sigil_L: 2, live_component: 3]
-  alias HealthBoardWeb.DashboardLive.{CanvasCardComponent, MapCardComponent, ScalarCardComponent}
+  alias HealthBoardWeb.DashboardLive.{CanvasCardComponent, MapCardComponent, ScalarCardComponent, TableCardComponent}
   alias Phoenix.LiveView
 
   @spec maybe_render(map(), atom(), (map() -> LiveView.Rendered.t())) :: LiveView.Rendered.t()
@@ -25,6 +25,14 @@ defmodule HealthBoardWeb.DashboardLive.Renderings do
     case assigns[key] do
       nil -> ~L""
       payload -> live_component(assigns.socket, MapCardComponent, id: payload.id, payload: payload, options: options)
+    end
+  end
+
+  @spec maybe_render_table(map(), atom(), keyword()) :: LiveView.Rendered.t()
+  def maybe_render_table(assigns, key, options \\ []) do
+    case assigns[key] do
+      nil -> ~L""
+      payload -> live_component(assigns.socket, TableCardComponent, id: payload.id, payload: payload, options: options)
     end
   end
 

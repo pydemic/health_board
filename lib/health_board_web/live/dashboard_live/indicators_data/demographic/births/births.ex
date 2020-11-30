@@ -6,6 +6,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.Births do
 
   @default_birth_year 2018
   @minimum_year 2000
+  @maximum_year 2018
   @default_location_context @context.resident_location_context()
 
   @fields_filters [
@@ -76,7 +77,11 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.Births do
       @default_birth_year
     else
       if year > @minimum_year do
-        year - 1
+        if year < @maximum_year do
+          year - 1
+        else
+          @maximum_year
+        end
       else
         @minimum_year
       end

@@ -19,6 +19,16 @@ defmodule HealthBoardWeb.Router do
     live "/:dashboard_id", HealthBoardWeb.DashboardLive, :index
   end
 
+  pipeline :api do
+    plug :accepts, ["json"]
+  end
+
+  scope "/api" do
+    pipe_through :api
+
+    get "/geojson/:path", HealthBoardWeb.GeoJSONController, :show
+  end
+
   pipeline :live_dashboard_browser do
     plug :accepts, ["html"]
     plug :fetch_session

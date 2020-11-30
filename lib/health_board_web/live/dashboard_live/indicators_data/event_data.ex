@@ -2,6 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
   alias HealthBoard.Contexts.Geo.Locations
   alias HealthBoardWeb.Router.Helpers, as: Routes
   alias HealthBoardWeb.DashboardLive.IndicatorsData
+  alias HealthBoardWeb.Helpers.Humanize
 
   @grey "#aaaaaa"
   @blue "rgba(54, 162, 235, 0.2)"
@@ -17,11 +18,41 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
 
   defp build_chart_data(indicators_data, sub_type) do
     case sub_type do
+      :combo -> combo_chart_data(indicators_data)
       :horizontal_bar -> horizontal_bar_chart_data(indicators_data)
       :line -> line_chart_data(indicators_data)
+      :multiline -> multiline_chart_data(indicators_data)
       :pie -> pie_chart_data(indicators_data)
       :vertical_bar -> vertical_bar_chart_data(indicators_data)
     end
+  end
+
+  defp combo_chart_data(indicators_data) do
+    %{id: id, card: %{indicator: %{name: name}}, extra: %{labels: labels}, result: datasets} = indicators_data
+
+    %{
+      id: id,
+      data: %{
+        type: "line",
+        data: %{
+          labels: labels,
+          datasets: datasets
+        },
+        options: %{
+          maintainAspectRatio: false,
+          scales: %{
+            yAxes: [
+              %{
+                scaleLabel: %{
+                  display: true,
+                  labelString: name
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
   end
 
   defp horizontal_bar_chart_data(indicators_data) do
@@ -47,6 +78,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
           ]
         },
         options: %{
+          maintainAspectRatio: false,
           legend: false,
           scales: %{
             xAxes: [
@@ -83,10 +115,37 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
           ]
         },
         options: %{
+          maintainAspectRatio: false,
           legend: false
         }
       }
     }
+  end
+
+  defp multiline_chart_data(%{id: id, extra: %{labels: labels}, result: result}) do
+    colors = get_color_list(Enum.count(result), :divergent)
+    datasets = Enum.map(Enum.zip(result, colors), &colorize_dataset/1)
+
+    %{
+      id: id,
+      data: %{
+        type: "line",
+        data: %{
+          labels: labels,
+          datasets: datasets
+        },
+        options: %{
+          maintainAspectRatio: false
+        }
+      }
+    }
+  end
+
+  defp colorize_dataset({dataset, color}) do
+    dataset
+    |> Map.put(:backgroundColor, color)
+    |> Map.put(:borderColor, color)
+    |> Map.put(:fill, false)
   end
 
   defp pie_chart_data(%{id: id, extra: %{labels: labels}, result: result}) do
@@ -102,9 +161,12 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
           datasets: [
             %{
               data: data,
-              backgroundColor: get_color_list(Enum.count(labels))
+              backgroundColor: get_color_list(Enum.count(labels), :gradative)
             }
           ]
+        },
+        options: %{
+          maintainAspectRatio: false
         }
       }
     }
@@ -133,6 +195,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
           ]
         },
         options: %{
+          maintainAspectRatio: false,
           legend: false,
           scales: %{
             yAxes: [
@@ -183,37 +246,37 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
   defp do_build_map_data(location, values) do
     %{id: id, name: name} = location
     %{color: color, value: value} = Enum.find(values, %{color: @grey, value: 0}, &(&1.location_id == id))
-    %{id: id, name: name, value: value, formatted_value: IndicatorsData.format_number(value), color: color}
+    %{id: id, name: name, value: value, formatted_value: Humanize.number(value), color: color}
   end
 
   defp get_geojson_path(%{socket: socket}, %{parent_id: parent_id, level: level}) do
-    Routes.static_path(socket, get_geojson_relative_path(level, parent_id))
+    Routes.geo_json_path(socket, :show, get_geojson_relative_path(level, parent_id))
   end
 
   defp get_geojson_relative_path(level, parent_id) do
     cond do
       level == Locations.city_level() -> get_cities_geojson_path(parent_id)
       level == Locations.health_region_level() -> get_health_regions_geojson_path(parent_id)
-      level == Locations.state_level() -> get_states_geojson_path(parent_id)
+      level == Locations.state_level() -> get_states_geojson_path()
       level == Locations.region_level() -> get_regions_geojson_path()
       true -> ""
     end
   end
 
   defp get_cities_geojson_path(parent_id) do
-    "/geojson/76/#{div(parent_id, 10_000)}/#{div(parent_id, 1_000)}/#{parent_id}/cities.geojson"
+    "76/#{div(parent_id, 10_000)}/#{div(parent_id, 1_000)}/#{parent_id}/cities.geojson"
   end
 
   defp get_health_regions_geojson_path(parent_id) do
-    "/geojson/76/#{div(parent_id, 10)}/#{parent_id}/health_regions.geojson"
+    "76/#{div(parent_id, 10)}/#{parent_id}/health_regions.geojson"
   end
 
-  defp get_states_geojson_path(parent_id) do
-    "/geojson/76/#{parent_id}/states.geojson"
+  defp get_states_geojson_path do
+    "76/states.geojson"
   end
 
   defp get_regions_geojson_path do
-    "/geojson/76/regions.geojson"
+    "76/regions.geojson"
   end
 
   defp on_boundary?(value, boundary) do
@@ -248,7 +311,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
         _error -> {0, 0, 0, 0, 0}
       end
 
-    [c1, c2, c3, c4, c5] = get_color_list(5)
+    [c1, c2, c3, c4, c5] = get_color_list(5, :gradative)
 
     [
       %{text: create_quintile_text(nil, q0), from: nil, to: q0, color: @grey},
@@ -264,7 +327,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
   defp create_quintile_text(from, to) do
     case {from, to} do
       {nil, to} ->
-        IndicatorsData.format_number(to)
+        Humanize.number(to)
 
       {0, nil} ->
         nil
@@ -276,18 +339,27 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
         nil
 
       {from, nil} ->
-        "Maior que " <> IndicatorsData.format_number(from)
+        "Maior que " <> Humanize.number(from)
 
       {from, to} ->
-        "Maior que " <> IndicatorsData.format_number(from) <> " e menor ou igual a " <> IndicatorsData.format_number(to)
+        "Maior que " <> Humanize.number(from) <> " e menor ou igual a " <> Humanize.number(to)
     end
   end
 
-  defp get_color_list(amount) do
+  defp get_color_list(amount, :gradative) do
     case amount do
       2 -> ~w[#003f5c #bc5090]
       3 -> ~w[#003f5c #bc5090 #ffa600]
       5 -> ~w[#003f5c #58508d #bc5090 #ff6361 #ffa600]
+      6 -> ~w[#003f5c #58508d #e4537d #bc5090 #ff6361 #ffa600]
+      10 -> ~w[#003f5c #3f4d84 #8b5196 #d15088 #e4537d #ff6361 #ff7150 #ff813d #ff9327 #ffa600]
+    end
+  end
+
+  defp get_color_list(amount, :divergent) do
+    case amount do
+      6 -> ~w[#00aaaa #3d914b #7c6800 #aa0000 #b00038 #920072]
+      10 -> ~w[#00aaaa #3d914b #7c6800 #aa0000 #b00038 #920072 #4655aa #b2438a #d6544c #bb8811]
     end
   end
 end

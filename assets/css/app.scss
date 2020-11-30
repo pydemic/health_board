@@ -3,6 +3,28 @@
 @import "../node_modules/uikit/dist/css/uikit.min.css";
 @import "../node_modules/css.gg/icons/all.css";
 
+$success: #4aac63;
+$warning: #ffee00;
+$danger: #af1038;
+$disabled: #777;
+
+.hb-border {
+  border-style: solid;
+  border-width: 1.5px;
+
+  &.hb-border-bottom {
+    border-width: 0;
+    border-bottom-width: 1.5px;
+  }
+
+  &.hb-border-color {
+    &.hb-success { border-color: $success; }
+    &.hb-warning { border-color: $warning; }
+    &.hb-danger { border-color: $danger; }
+    &.hb-disabled { border-color: $disabled; }
+  }
+}
+
 .hb-map {
   min-height: 500px;
 }
@@ -33,6 +55,10 @@ i.hb-right {
 
 .hb-section-navbar {
   background-color: #546cac;
+}
+
+.hb-sub-section-navbar {
+  background-color: #5675ca;
 }
 
 .hb-va-center {
@@ -71,4 +97,62 @@ i.hb-right {
 
 .hb-offcanvas {
   background-color: #3b56a3;
+}
+
+.hb-empty {
+  padding: 0 0 !important;
+  width: 10px !important;
+}
+
+.hb-table {
+  width: auto;
+  margin: auto;
+  font-size: 11px;
+}
+
+.hb-table-header {
+  height: 80px;
+}
+
+.hb-table-header > div {
+  width: 30px;
+  white-space: nowrap;
+  transform-origin: top left;
+  transform: rotate(-45deg) translate(-13px, 13px);
+}
+
+.hb-table-header > div > span {
+  font-size: 11px !important;
+  border-bottom: 1px solid #222;
+}
+
+.hb-table-item {
+  border: 1px solid #222;
+  font-size: 10px;
+  width: 25px;
+  height: 25px;
+}
+
+.hb-table-label {
+  border-radius: 25px;
+}
+
+.hb-table-quartile-0 {
+  background-color: #cccccc;
+}
+
+.hb-table-quartile-1 {
+  background-color: #6dac6d;
+}
+
+.hb-table-quartile-2 {
+  background-color: #c5cc69;
+}
+
+.hb-table-quartile-3 {
+  background-color: #dbcb37;
+}
+
+.hb-table-quartile-4 {
+  background-color: #e47f7f;
 }

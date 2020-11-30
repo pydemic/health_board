@@ -57,7 +57,6 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.ViolenceDeaths do
   def list_cases(%{modifiers: modifiers}) do
     modifiers
     |> Enum.to_list()
-    |> IO.inspect()
     |> @context.list_by()
   end
 

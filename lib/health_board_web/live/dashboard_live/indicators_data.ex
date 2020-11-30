@@ -1,6 +1,5 @@
 defmodule HealthBoardWeb.DashboardLive.IndicatorsData do
   alias HealthBoard.Contexts.Info.Card
-  alias HealthBoardWeb.Cldr
   alias HealthBoardWeb.DashboardLive.IndicatorsData
   alias Phoenix.LiveView
 
@@ -62,14 +61,6 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData do
     IndicatorsData
     |> Module.concat(sub_module)
     |> apply(:fetch, [indicators_data])
-  end
-
-  @spec format_number(integer() | float(), keyword()) :: String.t()
-  def format_number(number, options \\ []) do
-    case Cldr.Number.to_string(number, options) do
-      {:ok, string} -> string
-      {:error, _reason} -> "--"
-    end
   end
 
   @spec new(LiveView.Socket.t(), atom(), Card.t(), map()) :: IndicatorsData.t()

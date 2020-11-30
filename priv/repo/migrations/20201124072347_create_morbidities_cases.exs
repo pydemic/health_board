@@ -1,235 +1,29 @@
-defmodule HealthBoard.Repo.Migrations.CreateYearlyMorbiditiesCases do
+defmodule HealthBoard.Repo.Migrations.CreateMorbiditiesCases do
   use Ecto.Migration
 
   def change do
+    create_morbidities()
     create_immediates()
     create_weekly_compulsories()
     create_mortalities()
   end
 
+  defp create_morbidities do
+    create table(:yearly_morbidities_cases), do: yearly_morbidities()
+    create table(:weekly_morbidities_cases), do: weekly_morbidities()
+  end
+
   defp create_immediates do
-    create table(:botulism_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-      evolution()
-
-      add :type_food, :integer, default: 0
-      add :type_intestinal, :integer, default: 0
-      add :type_wound, :integer, default: 0
-      add :other_type, :integer, default: 0
-      add :ignored_type, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:chikungunya_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-
-      classification()
-      add :other_classification, :integer, default: 0
-
-      evolution()
-      add :evolution_in_investigation, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:cholera_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-      evolution()
-
-      add :type_unclean_water, :integer, default: 0
-      add :type_sewer_exposure, :integer, default: 0
-      add :type_food, :integer, default: 0
-      add :type_displacement, :integer, default: 0
-      add :other_type, :integer, default: 0
-      add :ignored_type, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:hantavirus_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-      evolution()
-
-      add :type_home, :integer, default: 0
-      add :type_work, :integer, default: 0
-      add :type_leisure, :integer, default: 0
-      add :other_type, :integer, default: 0
-      add :ignored_type, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:human_rabies_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-
-      add :type_canine, :integer, default: 0
-      add :type_feline, :integer, default: 0
-      add :type_chiroptera, :integer, default: 0
-      add :type_primate, :integer, default: 0
-      add :type_fox, :integer, default: 0
-      add :type_herbivore, :integer, default: 0
-      add :other_type, :integer, default: 0
-      add :ignored_type, :integer, default: 0
-
-      add :applied_serum, :integer, default: 0
-      add :not_applied_serum, :integer, default: 0
-      add :ignored_serum_application, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:malaria_from_extra_amazon_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-
-      add :exam_result_negative, :integer, default: 0
-      add :exam_result_f, :integer, default: 0
-      add :exam_result_f_plus_fg, :integer, default: 0
-      add :exam_result_v, :integer, default: 0
-      add :exam_result_f_plus_v, :integer, default: 0
-      add :exam_result_v_plus_fg, :integer, default: 0
-      add :exam_result_fg, :integer, default: 0
-      add :ignored_exam_result, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:plague_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-      evolution()
-
-      add :bubonic_form, :integer, default: 0
-      add :pneumonic_form, :integer, default: 0
-      add :septisemic_form, :integer, default: 0
-      add :other_form, :integer, default: 0
-      add :ignored_form, :integer, default: 0
-
-      add :low_gravity, :integer, default: 0
-      add :moderate_gravity, :integer, default: 0
-      add :high_gravity, :integer, default: 0
-      add :ignored_gravity, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:spotted_fever_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-      evolution()
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:yellow_fever_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-
-      add :confirmed_wild, :integer, default: 0
-      add :confirmed_urban, :integer, default: 0
-      add :discarded, :integer, default: 0
-      add :ignored_classification, :integer, default: 0
-
-      evolution()
-
-      add :applied_vaccine, :integer, default: 0
-      add :not_applied_vaccine, :integer, default: 0
-      add :ignored_vaccine_application, :integer, default: 0
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
-
-    create table(:zika_yearly_cases) do
-      add :location_context, :integer, null: false
-
-      add :year, :integer, null: false
-
-      add :cases, :integer, default: 0
-
-      age_groups()
-      sex()
-      race()
-      classification()
-      evolution()
-
-      add :location_id, references(:locations, on_delete: :delete_all), null: false
-    end
+    create table(:yearly_botulism_cases), do: yearly_botulism()
+    create table(:yearly_chikungunya_cases), do: yearly_chikungunya()
+    create table(:yearly_cholera_cases), do: yearly_cholera()
+    create table(:yearly_hantavirus_cases), do: yearly_hantavirus()
+    create table(:yearly_human_rabies_cases), do: yearly_human_rabies()
+    create table(:yearly_malaria_cases), do: yearly_malaria()
+    create table(:yearly_plague_cases), do: yearly_plague()
+    create table(:yearly_spotted_fever_cases), do: yearly_spotted_fever()
+    create table(:yearly_yellow_fever_cases), do: yearly_yellow_fever()
+    create table(:yearly_zika_cases), do: yearly_zika()
   end
 
   defp create_weekly_compulsories do
@@ -713,6 +507,12 @@ defmodule HealthBoard.Repo.Migrations.CreateYearlyMorbiditiesCases do
     add :ignored_classification, :integer, default: 0
   end
 
+  defp common_columns do
+    add :context, :integer, null: false
+    add :year, :integer, null: false
+    add :location_id, references(:locations, on_delete: :delete_all), null: false
+  end
+
   defp evolution do
     add :healed, :integer, default: 0
     add :died_from_disease, :integer, default: 0
@@ -733,5 +533,182 @@ defmodule HealthBoard.Repo.Migrations.CreateYearlyMorbiditiesCases do
     add :male, :integer, default: 0
     add :female, :integer, default: 0
     add :ignored_sex, :integer, default: 0
+  end
+
+  defp sex_age_groups do
+    add :age_0_4_female, :integer, default: 0
+    add :age_0_4_male, :integer, default: 0
+    add :age_10_14_female, :integer, default: 0
+    add :age_10_14_male, :integer, default: 0
+    add :age_15_19_female, :integer, default: 0
+    add :age_15_19_male, :integer, default: 0
+    add :age_20_24_female, :integer, default: 0
+    add :age_20_24_male, :integer, default: 0
+    add :age_25_29_female, :integer, default: 0
+    add :age_25_29_male, :integer, default: 0
+    add :age_30_34_female, :integer, default: 0
+    add :age_30_34_male, :integer, default: 0
+    add :age_35_39_female, :integer, default: 0
+    add :age_35_39_male, :integer, default: 0
+    add :age_40_44_female, :integer, default: 0
+    add :age_40_44_male, :integer, default: 0
+    add :age_45_49_female, :integer, default: 0
+    add :age_45_49_male, :integer, default: 0
+    add :age_5_9_female, :integer, default: 0
+    add :age_5_9_male, :integer, default: 0
+    add :age_50_54_female, :integer, default: 0
+    add :age_50_54_male, :integer, default: 0
+    add :age_55_59_female, :integer, default: 0
+    add :age_55_59_male, :integer, default: 0
+    add :age_60_64_female, :integer, default: 0
+    add :age_60_64_male, :integer, default: 0
+    add :age_64_69_female, :integer, default: 0
+    add :age_64_69_male, :integer, default: 0
+    add :age_70_74_female, :integer, default: 0
+    add :age_70_74_male, :integer, default: 0
+    add :age_75_79_female, :integer, default: 0
+    add :age_75_79_male, :integer, default: 0
+    add :age_80_or_more_female, :integer, default: 0
+    add :age_80_or_more_male, :integer, default: 0
+    add :ignored_sex_age_group, :integer, default: 0
+  end
+
+  defp week do
+    add :week, :integer, default: 0
+  end
+
+  defp weekly_morbidities do
+    yearly_morbidities()
+    week()
+  end
+
+  defp yearly_botulism do
+    common_columns()
+    classification()
+    evolution()
+
+    add :type_food, :integer, default: 0
+    add :type_intestinal, :integer, default: 0
+    add :type_wound, :integer, default: 0
+    add :other_type, :integer, default: 0
+    add :ignored_type, :integer, default: 0
+  end
+
+  defp yearly_chikungunya do
+    common_columns()
+
+    classification()
+    add :other_classification, :integer, default: 0
+
+    evolution()
+    add :evolution_in_investigation, :integer, default: 0
+  end
+
+  defp yearly_cholera do
+    common_columns()
+    classification()
+    evolution()
+
+    add :type_unclean_water, :integer, default: 0
+    add :type_sewer_exposure, :integer, default: 0
+    add :type_food, :integer, default: 0
+    add :type_displacement, :integer, default: 0
+    add :other_type, :integer, default: 0
+    add :ignored_type, :integer, default: 0
+  end
+
+  defp yearly_hantavirus do
+    common_columns()
+    classification()
+    evolution()
+
+    add :type_home, :integer, default: 0
+    add :type_work, :integer, default: 0
+    add :type_leisure, :integer, default: 0
+    add :other_type, :integer, default: 0
+    add :ignored_type, :integer, default: 0
+  end
+
+  defp yearly_human_rabies do
+    common_columns()
+    classification()
+
+    add :type_canine, :integer, default: 0
+    add :type_feline, :integer, default: 0
+    add :type_chiroptera, :integer, default: 0
+    add :type_primate, :integer, default: 0
+    add :type_fox, :integer, default: 0
+    add :type_herbivore, :integer, default: 0
+    add :other_type, :integer, default: 0
+    add :ignored_type, :integer, default: 0
+
+    add :applied_serum, :integer, default: 0
+    add :not_applied_serum, :integer, default: 0
+    add :ignored_serum_application, :integer, default: 0
+  end
+
+  defp yearly_malaria do
+    common_columns()
+    classification()
+
+    add :exam_result_negative, :integer, default: 0
+    add :exam_result_f, :integer, default: 0
+    add :exam_result_f_plus_fg, :integer, default: 0
+    add :exam_result_v, :integer, default: 0
+    add :exam_result_f_plus_v, :integer, default: 0
+    add :exam_result_v_plus_fg, :integer, default: 0
+    add :exam_result_fg, :integer, default: 0
+    add :ignored_exam_result, :integer, default: 0
+  end
+
+  defp yearly_morbidities do
+    common_columns()
+    add :cases, :integer, null: false
+    sex_age_groups()
+    race()
+  end
+
+  defp yearly_plague do
+    common_columns()
+    classification()
+    evolution()
+
+    add :bubonic_form, :integer, default: 0
+    add :pneumonic_form, :integer, default: 0
+    add :septisemic_form, :integer, default: 0
+    add :other_form, :integer, default: 0
+    add :ignored_form, :integer, default: 0
+
+    add :low_gravity, :integer, default: 0
+    add :moderate_gravity, :integer, default: 0
+    add :high_gravity, :integer, default: 0
+    add :ignored_gravity, :integer, default: 0
+  end
+
+  defp yearly_spotted_fever do
+    common_columns()
+    classification()
+    evolution()
+  end
+
+  defp yearly_yellow_fever do
+    common_columns()
+
+    add :confirmed_wild, :integer, default: 0
+    add :confirmed_urban, :integer, default: 0
+    add :discarded, :integer, default: 0
+    add :ignored_classification, :integer, default: 0
+
+    evolution()
+
+    add :applied_vaccine, :integer, default: 0
+    add :not_applied_vaccine, :integer, default: 0
+    add :ignored_vaccine_application, :integer, default: 0
+  end
+
+  defp yearly_zika do
+    common_columns()
+    classification()
+    evolution()
   end
 end
