@@ -1,8 +1,8 @@
 defmodule HealthBoard.Contexts.Morbidities.YearVaccineCoverages do
   use Ecto.Schema
   import Ecto.Changeset
-  alias HealthBoard.Contexts.Morbidities.YearVaccineCoverages
   alias HealthBoard.Contexts.Geo
+  alias HealthBoard.Contexts.Morbidities.YearVaccineCoverages
 
   schema "yearly_vaccines_coverages" do
     field :location_context, :integer, null: false

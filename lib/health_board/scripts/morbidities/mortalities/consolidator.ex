@@ -16,6 +16,7 @@ defmodule HealthBoard.Scripts.Morbidities.Mortalities.Consolidator do
   end
 
   @spec identify_age_group(String.t()) :: atom()
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def identify_age_group(age_code) do
     if age_code != "" do
       age_code = String.to_integer(age_code)
@@ -172,6 +173,7 @@ defmodule HealthBoard.Scripts.Morbidities.Mortalities.Consolidator do
     end
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.FunctionArity
   defp append_to_bucket(
          disease_context,
          location_context,

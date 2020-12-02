@@ -16,6 +16,7 @@ defmodule HealthBoard.Contexts.Info.DataPeriods do
     |> where(^filter_where(params))
     |> Repo.one!()
     |> @schema.fetch_years()
+    |> @schema.fetch_weeks()
   end
 
   @spec list_by(keyword()) :: list(schema())
@@ -28,6 +29,7 @@ defmodule HealthBoard.Contexts.Info.DataPeriods do
   end
 
   @spec morbidity_context(atom(), integer()) :: integer()
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def morbidity_context(morbidity, location_context) do
     value = 10_000 + location_context
 

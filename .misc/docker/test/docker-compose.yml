@@ -10,7 +10,7 @@ services:
       GITHUB_SHA: ${GITHUB_SHA}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
     volumes:
-      - ${GITHUB_EVENT_PATH}:/tmp/event.json
+      - ${GITHUB_EVENT_PATH:-./}:/tmp/event.json
       - ../../../.git:/app/.git
       - ../../../assets/css:/app/assets/css
       - ../../../assets/js:/app/assets/js

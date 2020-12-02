@@ -1,7 +1,8 @@
 defmodule HealthBoardWeb.DashboardLive.InfoManager do
   require Logger
-  alias Phoenix.LiveView
+
   alias HealthBoardWeb.DashboardLive.IndicatorsData
+  alias Phoenix.LiveView
 
   @spec handle_info(LiveView.Socket.t(), any()) :: LiveView.Socket.t()
   def handle_info(socket, {:fetch_card_data, dashboard_card, params}) do

@@ -1,8 +1,8 @@
 defmodule HealthBoard.Contexts.Morbidities.DengueYearCases do
   use Ecto.Schema
   import Ecto.Changeset
-  alias HealthBoard.Contexts.Morbidities.DengueYearCases
   alias HealthBoard.Contexts.Geo
+  alias HealthBoard.Contexts.Morbidities.DengueYearCases
 
   schema "dengue_yearly_cases" do
     field :location_context, :integer, null: false

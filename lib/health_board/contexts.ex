@@ -8,6 +8,7 @@ defmodule HealthBoard.Contexts do
   end
 
   @spec morbidity_context(atom()) :: integer()
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def morbidity_context(atom) do
     base_value = 10_000
     base_multiplier = 100

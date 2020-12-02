@@ -1,5 +1,8 @@
 # HealthBoard
 
+![Test badge](https://github.com/pydemic/health_board/workflows/Test/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/pydemic/health_board/badge.svg)](https://coveralls.io/github/pydemic/health_board)
+
 ## Development using docker
 
 Build the development image:
@@ -26,18 +29,6 @@ Use:
 
 ```bash
 mix setup
-```
-
-## Seeding data
-
-The data used for development and production is managed outside of this repo.
-
-Ask for instructions in order to generate a sample of the data or to create your own.
-
-With the data available at `priv/data/`, use:
-
-```bash
-mix seed
 ```
 
 ## Start the development server

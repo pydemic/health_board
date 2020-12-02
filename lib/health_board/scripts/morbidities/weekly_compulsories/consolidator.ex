@@ -21,6 +21,7 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.Consolidator do
   end
 
   @spec identify_age_group(String.t()) :: atom()
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def identify_age_group(age_code) do
     if age_code != "" do
       age_code = String.to_integer(age_code)
@@ -432,6 +433,7 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.Consolidator do
     |> File.write!(Enum.join(fields, ",") <> "\n", [:append])
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.FunctionArity
   defp write_to_files(fields, location_context, country_id, region_id, state_id, health_region_id, city_id, year, file) do
     write_to_file(fields, location_context, city_id, year, file)
 

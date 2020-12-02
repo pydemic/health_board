@@ -33,6 +33,7 @@ defmodule HealthBoard.Contexts.Morbidities.WeeklyMorbiditiesCases do
     |> Kernel.+(Contexts.morbidity_context(morbidity_context))
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
       {:context, context}, dynamic -> dynamic([row], ^dynamic and row.context == ^context)

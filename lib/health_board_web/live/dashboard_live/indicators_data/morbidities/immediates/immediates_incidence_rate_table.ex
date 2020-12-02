@@ -6,16 +6,16 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.ImmediatesIncidenceRateTab
   @population IndicatorsData.Population
 
   @columns [
-    10000,
-    10100,
-    10200,
-    10800,
-    10700,
-    10300,
-    10500,
-    10600,
-    10400,
-    10900
+    10_000,
+    10_100,
+    10_200,
+    10_800,
+    10_700,
+    10_300,
+    10_500,
+    10_600,
+    10_400,
+    10_900
   ]
 
   @spec fetch(IndicatorsData.t()) :: IndicatorsData.t()

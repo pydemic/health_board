@@ -2,17 +2,30 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.ImmediatesIncidenceRatePer
   alias HealthBoardWeb.DashboardLive.IndicatorsData
 
   @contexts [
-    {10000, "Botulismo"},
-    {10100, "Chikungunya"},
-    {10200, "Cólera"},
-    {10300, "Hantavirus"},
-    {10400, "Raiva Humana"},
-    {10500, "Malária"},
-    {10600, "Peste"},
-    {10700, "Febre Maculosa"},
-    {10800, "Febre Amarela"},
-    {10900, "Zika"}
+    {10_000, "Botulismo"},
+    {10_100, "Chikungunya"},
+    {10_200, "Cólera"},
+    {10_300, "Hantavirus"},
+    {10_400, "Raiva Humana"},
+    {10_500, "Malária"},
+    {10_600, "Peste"},
+    {10_700, "Febre Maculosa"},
+    {10_800, "Febre Amarela"},
+    {10_900, "Zika"}
   ]
+
+  @contexts_names %{
+    10_000 => "Botulismo",
+    10_100 => "Chikungunya",
+    10_200 => "Cólera",
+    10_300 => "Hantavirus",
+    10_400 => "Raiva Humana",
+    10_500 => "Malária",
+    10_600 => "Peste",
+    10_700 => "Febre Maculosa",
+    10_800 => "Febre Amarela",
+    10_900 => "Zika"
+  }
 
   @cases IndicatorsData.MorbidityIncidence
   @population IndicatorsData.Population
@@ -62,19 +75,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.ImmediatesIncidenceRatePer
   end
 
   defp get_context_name(context) do
-    case context do
-      10000 -> "Botulismo"
-      10100 -> "Chikungunya"
-      10200 -> "Cólera"
-      10300 -> "Hantavirus"
-      10400 -> "Raiva Humana"
-      10500 -> "Malária"
-      10600 -> "Peste"
-      10700 -> "Febre Maculosa"
-      10800 -> "Febre Amarela"
-      10900 -> "Zika"
-      _context -> "N/A"
-    end
+    Map.get(@contexts_names, context, "N/A")
   end
 
   defp get_year_result(year, cases, populations) do

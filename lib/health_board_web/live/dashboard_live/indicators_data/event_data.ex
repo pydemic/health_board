@@ -1,8 +1,8 @@
 defmodule HealthBoardWeb.DashboardLive.IndicatorsData.EventData do
   alias HealthBoard.Contexts.Geo.Locations
-  alias HealthBoardWeb.Router.Helpers, as: Routes
   alias HealthBoardWeb.DashboardLive.IndicatorsData
   alias HealthBoardWeb.Helpers.Humanize
+  alias HealthBoardWeb.Router.Helpers, as: Routes
 
   @grey "#aaaaaa"
   @blue "rgba(54, 162, 235, 0.2)"

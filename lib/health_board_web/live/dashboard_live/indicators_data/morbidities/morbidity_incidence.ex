@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.IndicatorsData.MorbidityIncidence do
-  alias HealthBoard.Contexts.Morbidities.YearlyMorbiditiesCases
   alias HealthBoard.Contexts.Info.DataPeriods
+  alias HealthBoard.Contexts.Morbidities.YearlyMorbiditiesCases
   alias HealthBoardWeb.DashboardLive.IndicatorsData
 
   @context YearlyMorbiditiesCases
@@ -15,7 +15,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.MorbidityIncidence do
     |> IndicatorsData.CommonData.fetch_location()
     |> IndicatorsData.exec_and_put(:extra, :all_cases, &list_cases/1)
     |> IndicatorsData.exec_and_put(:data, :data_period, &get_data_period/1)
-    |> IndicatorsData.CommonData.fetch_year()
+    |> IndicatorsData.CommonData.fetch_year(2020)
     |> IndicatorsData.exec_and_put(:extra, :cases, &get_cases!/1)
     |> IndicatorsData.exec_and_put(:data, :fields, &get_fields/1)
     |> IndicatorsData.exec_and_put(:data, :average, &get_average/1)

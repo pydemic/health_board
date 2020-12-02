@@ -135,6 +135,7 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.ExogenousIntoxicati
     end
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp identify_toxic_agent(toxic_agent) do
     case toxic_agent do
       "1" -> :medicine_intoxication

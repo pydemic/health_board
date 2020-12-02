@@ -40,6 +40,7 @@ defmodule HealthBoardWeb.DashboardLive.IndicatorsData.CommonData do
     )
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp get_locations(filters, default) do
     case filters do
       %{"geo_city" => id} -> Locations.list_siblings_by(id)

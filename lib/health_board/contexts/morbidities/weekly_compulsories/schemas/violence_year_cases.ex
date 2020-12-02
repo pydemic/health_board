@@ -1,8 +1,8 @@
 defmodule HealthBoard.Contexts.Morbidities.ViolenceYearCases do
   use Ecto.Schema
   import Ecto.Changeset
-  alias HealthBoard.Contexts.Morbidities.ViolenceYearCases
   alias HealthBoard.Contexts.Geo
+  alias HealthBoard.Contexts.Morbidities.ViolenceYearCases
 
   schema "violence_yearly_cases" do
     field :location_context, :integer, null: false

@@ -1,8 +1,8 @@
 defmodule HealthBoard.Contexts.Morbidities.YearMortalityCases do
   use Ecto.Schema
   import Ecto.Changeset
-  alias HealthBoard.Contexts.Morbidities.YearMortalityCases
   alias HealthBoard.Contexts.Geo
+  alias HealthBoard.Contexts.Morbidities.YearMortalityCases
 
   schema "yearly_mortalities_cases" do
     field :disease_context, :integer, null: false

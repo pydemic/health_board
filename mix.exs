@@ -36,10 +36,10 @@ defmodule HealthBoard.MixProject do
       reseed: ["ecto.reset", "seed"],
       setup: ["update.deps", "ecto.setup"],
       start: ["phx.server"],
-      test: ["ecto.setup", "test"],
+      test: ["ecto.create", "test"],
       "test.all": ["test.static", "test.coverage"],
-      "test.ci": ["test.static", "ecto.reset", "coveralls.github"],
-      "test.coverage": ["ecto.reset", "coveralls"],
+      "test.ci": ["test.static", "coveralls.github"],
+      "test.coverage": ["coveralls"],
       "test.static": ["format --check-formatted", "credo list --all"],
       "update.deps": ["deps.get", "cmd yarn install --cwd assets"]
     ]

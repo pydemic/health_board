@@ -69,7 +69,7 @@ defmodule HealthBoard.Release.Seeders.Seeder do
         Enum.reduce(summary, 0, &(&2 + elem(elem(&1, 1), 0)))
 
       error ->
-        Logger.error("Error received: #{IO.inspect(error)}")
+        Logger.error("Error received: #{inspect(error)}")
         raise "failed to seed"
     end
   end

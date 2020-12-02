@@ -130,6 +130,7 @@ defmodule HealthBoard.Scripts.Morbidities.WeeklyCompulsories.TetanusAccidentsCon
     end
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp identify_likely_cause(likely_cause) do
     case likely_cause do
       "1" -> :injection_likely_cause

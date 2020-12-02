@@ -26,6 +26,7 @@ defmodule HealthBoardWeb.Router do
   scope "/api" do
     pipe_through :api
 
+    get "/alive", HealthBoardWeb.AliveController, :list
     get "/geojson/:path", HealthBoardWeb.GeoJSONController, :show
   end
 
