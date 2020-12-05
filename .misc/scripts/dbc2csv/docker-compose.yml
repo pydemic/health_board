@@ -1,8 +1,0 @@
-version: '3.8'
-
-services:
-  dbc2csv:
-    image: pydemic/dbc2csv:r
-    volumes:
-      - ../../sandbox/dbcs:/app/input
-      - ../../sandbox/dbcs_output:/app/output

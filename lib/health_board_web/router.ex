@@ -15,8 +15,8 @@ defmodule HealthBoardWeb.Router do
   scope "/" do
     pipe_through :live_browser
 
-    live "/", HealthBoardWeb.HomeLive, :index
-    live "/:dashboard_id", HealthBoardWeb.DashboardLive, :index
+    live "/:id", HealthBoardWeb.DashboardLive, :index
+    live "/", HealthBoardWeb.DashboardLive, :index
   end
 
   pipeline :api do

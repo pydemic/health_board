@@ -1,8 +1,0 @@
-version: '3.8'
-
-services:
-  build:
-    image: pydemic/dbc2csv:r
-    build:
-      context: src
-      dockerfile: ../Dockerfile

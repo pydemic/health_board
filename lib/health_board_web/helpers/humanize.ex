@@ -24,4 +24,16 @@ defmodule HealthBoardWeb.Helpers.Humanize do
       end
     end
   end
+
+  @spec date_time(DateTime.t() | nil) :: String.t()
+  def date_time(date_time) do
+    if is_nil(date_time) do
+      "N/A"
+    else
+      case Cldr.DateTime.to_string(date_time) do
+        {:ok, humanized_date_time} -> humanized_date_time
+        {:error, _reason} -> "N/A"
+      end
+    end
+  end
 end

@@ -10,19 +10,21 @@ $disabled: #777;
 
 .hb-border {
   border-style: solid;
-  border-width: 1.5px;
+  border-width: 3px;
 
   &.hb-border-bottom {
     border-width: 0;
-    border-bottom-width: 1.5px;
+    border-bottom-width: 3px;
   }
 
-  &.hb-border-color {
-    &.hb-success { border-color: $success; }
-    &.hb-warning { border-color: $warning; }
-    &.hb-danger { border-color: $danger; }
-    &.hb-disabled { border-color: $disabled; }
-  }
+  &.hb-border-success { border-color: $success; }
+  &.hb-border-warning { border-color: $warning; }
+  &.hb-border-danger { border-color: $danger; }
+  &.hb-border-disabled { border-color: $disabled; }
+}
+
+.hb-title-link, .hb-title-link:link, .hb-title-link:hover {
+  color:inherit;
 }
 
 .hb-map {

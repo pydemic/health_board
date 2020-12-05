@@ -3,7 +3,7 @@ defmodule HealthBoard.Repo.Migrations.CreateLocations do
 
   def change do
     create table(:locations) do
-      add :level, :integer, null: false
+      add :context, :integer, null: false
 
       add :name, :string, null: false
       add :abbr, :string

@@ -67,12 +67,12 @@ defmodule HealthBoardWeb do
       use Phoenix.HTML
 
       import Phoenix.LiveView.Helpers
-      import HealthBoardWeb.LiveHelpers
 
       import Phoenix.View
 
       import HealthBoardWeb.ErrorHelpers
       import HealthBoardWeb.Gettext
+
       alias HealthBoardWeb.Router.Helpers, as: Routes
     end
   end

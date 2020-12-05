@@ -23,6 +23,10 @@ Access `health_board` service:
 docker-compose -f .misc/docker/dev/docker-compose.yml exec health_board bash
 ```
 
+## Preparing the data
+
+Get with one of the developers the data required to use the system. Extract the directory at `.misc/data`.
+
 ## Preparing the system
 
 Use:
