@@ -61,7 +61,9 @@ defmodule HealthBoard.Release.DataManager.WeeklyDeaths do
 
   @spec up :: :ok
   def up do
-    DataManager.copy!(@context, @table_name, @columns)
+    @context
+    |> Path.join(@table_name)
+    |> DataManager.copy_from_dir!(@table_name, @columns)
   end
 
   @spec down :: :ok

@@ -13,12 +13,15 @@ defmodule HealthBoard.Release.DataManager do
     data_path()
     |> Path.join(path)
     |> File.ls!()
+    |> Enum.sort()
     |> Enum.map(&Path.join(path, &1))
     |> Enum.each(&copy_from_path!(&1, table_name, fields))
   end
 
   @spec copy_from_path!(String.t(), String.t(), list(atom)) :: :ok
   def copy_from_path!(path, table_name, fields) do
+    Logger.info("Seeding #{path} for table #{table_name}")
+
     data_path()
     |> Path.join(path)
     |> copy_query(table_name, fields)

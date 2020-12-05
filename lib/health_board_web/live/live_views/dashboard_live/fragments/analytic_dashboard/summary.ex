@@ -1,4 +1,4 @@
-defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.ImmediateSummary do
+defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Summary do
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
@@ -15,7 +15,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.ImmediateSumm
 
       <Grid>
         <IncidenceCard
-          :for={{ {_id, card} <- @section.cards }}
+          :for={{ card <- Enum.sort(Map.values(@section.cards), &(&1.name <= &2.name)) }}
           card={{ card }}
         />
       </Grid>
