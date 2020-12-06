@@ -3,6 +3,8 @@ defmodule HealthBoardWeb.DashboardLive do
 
   alias HealthBoard.Contexts.Info
 
+  alias HealthBoardWeb.LiveComponents.Offcanvas
+
   alias HealthBoardWeb.DashboardLive.Fragments.{
     AnalyticDashboard,
     DemographicDashboard,

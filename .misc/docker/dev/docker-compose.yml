@@ -1,19 +1,6 @@
 version: '3.8'
 
 services:
-  health_board:
-    image: pydemic/health_board:dev
-    container_name: health_board
-    volumes:
-      - ../../..:/app
-    ports:
-      - 4000:4000
-      - 4001:4001
-    networks:
-      - network
-    depends_on:
-      - postgres
-
   postgres:
     image: postgres:13.0
     command: >
@@ -27,15 +14,10 @@ services:
       POSTGRES_USER: health_board
       POSTGRES_PASSWORD: health_board
     volumes:
+      - ../../data:/Users/laercios/Projects/OPAS/health_board/.misc/data/
       - postgres:/var/lib/postgresql/data
     ports:
       - 5432:5432
-    networks:
-      - network
-
-networks:
-  network:
-    name: health_board
 
 volumes:
   postgres:

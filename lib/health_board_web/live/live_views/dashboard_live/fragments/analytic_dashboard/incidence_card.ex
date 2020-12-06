@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.Card
+  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardHeaderTitle}
   alias Phoenix.LiveView
 
   alias HealthBoardWeb.Helpers.Humanize
@@ -11,7 +11,10 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <Card :if={{ Enum.any?(@card.data) }} title={{ @card.name }} link={{ @card.link }} border_color={{ @card.data[:color] }}>
+    <Card :if={{ Enum.any?(@card.data) }} border_color={{ @card.data[:color] }}>
+      <template slot="header">
+        <CardHeaderMenu title={{ @card.name }} link={{ @card.link }} border_color={{ @card.data[:color] }}/>
+      </template>
       <template slot="body">
         <div class="uk-card-body">
           <h2>{{ Humanize.number @card.data.morbidity.total }}</h2>

@@ -12,7 +12,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Summary do
     ~H"""
     <Section>
       <SubSectionHeader title={{ @section.name }} description={{ @section.description }} />
-
       <Grid>
         <IncidenceCard
           :for={{ card <- Enum.sort(Map.values(@section.cards), &(&1.name <= &2.name)) }}

@@ -17,14 +17,24 @@ $disabled: #777;
     border-bottom-width: 3px;
   }
 
-  &.hb-border-success { border-color: $success; }
-  &.hb-border-warning { border-color: $warning; }
-  &.hb-border-danger { border-color: $danger; }
-  &.hb-border-disabled { border-color: $disabled; }
+  &.hb-border-success {
+    border-color: $success;
+  }
+  &.hb-border-warning {
+    border-color: $warning;
+  }
+  &.hb-border-danger {
+    border-color: $danger;
+  }
+  &.hb-border-disabled {
+    border-color: $disabled;
+  }
 }
 
-.hb-title-link, .hb-title-link:link, .hb-title-link:hover {
-  color:inherit;
+.hb-title-link,
+.hb-title-link:link,
+.hb-title-link:hover {
+  color: inherit;
 }
 
 .hb-map {
@@ -48,7 +58,7 @@ i.hb-right {
 }
 
 .hb-root-navbar {
-  background-color: #1D3A87;
+  background-color: #1d3a87;
 }
 
 .hb-page-navbar {
@@ -75,8 +85,8 @@ i.hb-right {
 .hb-map-info {
   padding: 6px 8px;
   background: white;
-  background: rgba(255,255,255,0.8);
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
 
   &.h5 {
@@ -157,4 +167,12 @@ i.hb-right {
 
 .hb-table-quartile-4 {
   background-color: #e47f7f;
+}
+
+.show-when-not-hover {
+  display: block;
+}
+
+.show-when-not-hover-container:hover .show-when-not-hover {
+  display: none;
 }

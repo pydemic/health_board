@@ -44,3 +44,4 @@ window.addEventListener("phx:page-loading-stop", info => NProgress.done())
 liveSocket.connect()
 
 window.liveSocket = liveSocket
+

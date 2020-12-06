@@ -28,7 +28,7 @@ defmodule HealthBoard.Contexts.Info.Dashboards do
               card: [
                 indicator: [
                   [children: :child],
-                  :sources
+                  [sources: :source]
                 ]
               ]
             ],
