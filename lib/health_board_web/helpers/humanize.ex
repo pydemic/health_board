@@ -1,5 +1,19 @@
 defmodule HealthBoardWeb.Helpers.Humanize do
   alias HealthBoardWeb.Cldr
+  alias Phoenix.Naming
+
+  @keys_name %{
+    extraction_date: "Data de extração",
+    last_case_date: "Data do último caso",
+    year_deaths: "Óbitos anuais",
+    year_morbidity: "Casos anuais",
+    average: "Média",
+    color: "",
+    morbidity_context: "Código da doença, agravo ou evento de saúde pública de notificação compulsória",
+    time_from_year: "Início do período anual",
+    time_to_year: "Término do período anual",
+    time_year: "Ano"
+  }
 
   @spec number(integer | float | Decimal.t() | nil, keyword) :: String.t()
   def number(number, options \\ []) do
@@ -35,5 +49,15 @@ defmodule HealthBoardWeb.Helpers.Humanize do
         {:error, _reason} -> "N/A"
       end
     end
+  end
+
+  @spec translate_key(String.t()) :: String.t()
+  def translate_key(key) when is_binary(key) do
+    translate_key(String.to_atom(key))
+  end
+
+  @spec translate_key(atom) :: String.t()
+  def translate_key(key) do
+    Map.get(@keys_name, key, Naming.humanize(key))
   end
 end

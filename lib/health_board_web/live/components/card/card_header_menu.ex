@@ -10,7 +10,7 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
   prop show_info, :boolean, default: true
   prop show_filters, :boolean, default: true
   prop show_sources, :boolean, default: true
-  prop show_labels, :boolean, default: true
+  prop show_labels, :boolean, default: false
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
