@@ -31,9 +31,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
                 </td>
 
                 <td
-                  :for={{ cell <- line.cells }}
+                  :for={{ {cell, header} <- Enum.zip(line.cells, @card.data.headers) }}
                   class={{ "hb-table-item", "uk-text-center", "uk-text-secondary", "hb-table-choropleth-#{cell.color}" }}
-                  uk-tooltip={{ "Casos de #{line.name} - #{cell.cases}" }}>
+                  uk-tooltip={{ "Casos de #{header} em #{line.name} - #{cell.cases}" }}>
                   {{ if not is_nil(cell.value), do: Humanize.number(cell.value), else: "" }}
                 </td>
               </tr>

@@ -1,8 +1,8 @@
 defmodule HealthBoard.Contexts do
   @data_contexts %{
-    births: 1_000_000,
-    morbidity: 2_000_000,
-    deaths: 3_000_000
+    births: 1,
+    morbidity: 2,
+    deaths: 3
   }
 
   @spec data_context!(integer, atom) :: integer

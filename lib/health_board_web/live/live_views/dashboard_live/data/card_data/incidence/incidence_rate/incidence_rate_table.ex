@@ -4,6 +4,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
 
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = card_data) do
+    IO.inspect(filters["time_year"])
+
     case fetch_morbidity_contexts(filters) do
       {:ok, morbidity_contexts} -> Map.put(card_data, :view_data, fetch_table(data, morbidity_contexts))
       _error -> card_data
@@ -32,7 +34,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
 
     incidence_rates_per_location = Enum.group_by(incidence_rates, & &1.location_id)
 
-    lines = Enum.map(locations, &fetch_line(&1, Map.get(incidence_rates_per_location, &1.id), columns))
+    lines = Enum.map(locations, &fetch_line(&1, Map.get(incidence_rates_per_location, &1.id, []), columns))
 
     %{
       headers: headers,
@@ -42,18 +44,17 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
 
   defp fetch_incidence_rates(year_morbidities, year_populations) do
     populations_per_location = Enum.group_by(year_populations, & &1.location_id)
-    {rates, _populations} = Enum.reduce(year_morbidities, {[], populations_per_location}, &fetch_incidence_rate/2)
+    {rates, _populations} = Enum.reduce(year_morbidities, [], &fetch_incidence_rate(&1, &2, populations_per_location))
     rates
   end
 
-  defp fetch_incidence_rate(%{context: context, location_id: location_id, total: cases}, {rates, populations}) do
-    {[%{total: population}], populations} = Map.pop(populations, location_id, [%{total: 0}])
+  defp fetch_incidence_rate(%{context: context, location_id: location_id, total: cases}, rates, populations) do
+    [%{total: population}] = Map.get(populations, location_id, [%{total: 0}])
 
     if population > 0 and cases > 0 do
-      {[%{context: context, location_id: location_id, cases: cases, rate: cases * 100_000 / population}] ++ rates,
-       populations}
+      [%{context: context, location_id: location_id, cases: cases, rate: cases * 100_000 / population}] ++ rates
     else
-      {rates, populations}
+      rates
     end
   end
 
@@ -70,7 +71,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
   defp fetch_headers(morbidity_contexts) do
     morbidity_contexts
     |> Enum.map(fn context -> {Contexts.morbidity_name(context), context} end)
-    |> Enum.sort(&(elem(&1, 1) <= elem(&2, 1)))
+    |> Enum.sort(&(elem(&1, 0) <= elem(&2, 0)))
     |> Enum.unzip()
   end
 

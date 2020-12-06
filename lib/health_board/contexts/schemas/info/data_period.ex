@@ -6,12 +6,11 @@ defmodule HealthBoard.Contexts.Info.DataPeriod do
   @type schema :: %__MODULE__{}
 
   schema "data_periods" do
+    field :data_context, :integer, null: false
     field :context, :integer, null: false
 
     field :from_date, :date, null: false
     field :to_date, :date, null: false
-
-    field :extraction_date, :date, null: false
 
     belongs_to :location, Geo.Location
 

@@ -2,7 +2,7 @@ defmodule HealthBoard.Repo.Migrations.AddInfoIndexes do
   use Ecto.Migration
 
   def change do
-    create unique_index(:data_periods, [:context, :location_id])
+    create unique_index(:data_periods, [:data_context, :context, :location_id])
     create unique_index(:cards, [:id, :indicator_id])
     create unique_index(:dashboards_disabled_filters, [:filter, :dashboard_id])
     create unique_index(:dashboards_sections, [:dashboard_id, :section_id])

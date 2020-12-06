@@ -4,7 +4,7 @@ defmodule HealthBoard.Release.DataManager.DataPeriods do
 
   @context "info"
   @table_name "data_periods"
-  @columns ~w[context location_id from_date to_date extraction_date]a
+  @columns ~w[data_context context location_id from_date to_date]a
 
   @spec up :: :ok
   def up do
