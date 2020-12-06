@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardHeaderTitle}
+  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu}
   alias Phoenix.LiveView
 
   alias HealthBoardWeb.Helpers.Humanize

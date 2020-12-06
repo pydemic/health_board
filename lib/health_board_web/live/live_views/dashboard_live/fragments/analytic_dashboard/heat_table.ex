@@ -4,6 +4,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
   alias HealthBoardWeb.LiveComponents.Card
   alias Phoenix.LiveView
 
+  alias HealthBoardWeb.Helpers.Humanize
+
   prop card, :map, required: true
 
   @spec render(map()) :: LiveView.Rendered.t()
@@ -21,6 +23,15 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
                 </th>
               </tr>
             </thead>
+
+            <tbody>
+              <tr :for={{ line <- @card.data.lines }}>
+                <td class="uk-text-right uk-text-emphasis uk-text-nowrap">{{ line.name }}</td>
+                <td :for={{ cell <- line.cells }}>
+                  {{ if cell.color != "0", do: Humanize.number(cell.value), else: "" }}
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </template>
