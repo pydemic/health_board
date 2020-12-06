@@ -42,18 +42,16 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateTable do
 
   defp fetch_death_rates(year_deaths, year_populations) do
     populations_per_location = Enum.group_by(year_populations, & &1.location_id)
-    {rates, _populations} = Enum.reduce(year_deaths, {[], populations_per_location}, &fetch_death_rate/2)
-    rates
+    Enum.reduce(year_deaths, [], &fetch_death_rate(&1, &2, populations_per_location))
   end
 
-  defp fetch_death_rate(%{context: context, location_id: location_id, total: cases}, {rates, populations}) do
-    {[%{total: population}], populations} = Map.pop(populations, location_id, [%{total: 0}])
+  defp fetch_death_rate(%{context: context, location_id: location_id, total: cases}, rates, populations) do
+    [%{total: population}] = Map.get(populations, location_id, [%{total: 0}])
 
     if population > 0 and cases > 0 do
-      {[%{context: context, location_id: location_id, cases: cases, rate: cases * 100 / population}] ++ rates,
-       populations}
+      [%{context: context, location_id: location_id, cases: cases, rate: cases * 100 / population}] ++ rates
     else
-      {rates, populations}
+      rates
     end
   end
 

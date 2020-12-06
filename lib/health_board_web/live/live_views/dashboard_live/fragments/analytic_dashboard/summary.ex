@@ -9,13 +9,16 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Summary do
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
+    section_cards = Enum.sort(assigns.section.cards, &(elem(&1, 1).name <= elem(&2, 1).name))
+
     ~H"""
     <Section>
       <SubSectionHeader title={{ @section.name }} description={{ @section.description }} />
+
       <Grid>
         <IncidenceCard
-          :for={{ {id, card} <- Enum.sort(@section.cards, &(elem(&1, 1).name <= elem(&2, 1).name)) }}
-          id={{ id }}
+          :for={{ {id, card} <- section_cards }}
+          card_id={{ id }}
           card={{ card }}
         />
       </Grid>

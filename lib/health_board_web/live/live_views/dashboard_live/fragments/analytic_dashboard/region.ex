@@ -10,14 +10,17 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Region do
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
+    section_cards = assigns.section.cards
+
     ~H"""
     <Section>
       <SubSectionHeader title={{ @section.name }} description={{ @section.description }} />
       <Grid>
         <HeatTable
-          :if={{ @section.cards[section_card_id] }}
+          :if={{ section_cards[section_card_id] }}
           :for={{ section_card_id <- @section_cards_ids }}
-          card={{ @section.cards[section_card_id] }}
+          card_id={{ section_card_id }}
+          card={{ section_cards[section_card_id] }}
         />
       </Grid>
     </Section>

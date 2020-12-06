@@ -1,16 +1,18 @@
 defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
-  use Surface.LiveComponent, slot: "header"
+  use Surface.Component
 
   alias HealthBoardWeb.Helpers.Humanize
+  alias HealthBoardWeb.LiveComponents.CardOffcanvasDescription
   alias Phoenix.LiveView
 
+  prop card_id, :atom, required: true
   prop card, :map, required: true
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="hb-none">
-      <div id={{"offcanvas-info-#{@id}"}} uk-modal>
+    <div :show={{ false }}>
+      <div id={{"offcanvas-info-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -32,7 +34,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
 
-      <div id={{"offcanvas-data-#{@id}"}} uk-modal>
+      <div id={{"offcanvas-data-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -40,12 +42,11 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Dados de {{ @card.name }}
           </h3>
 
-          {{ humanize_value(assigns, @card.data) }}
-
+         <CardOffcanvasDescription data={{ @card.data }} />
         </div>
       </div>
 
-      <div id={{"offcanvas-filters-#{@id}"}} uk-modal>
+      <div id={{"offcanvas-filters-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -53,12 +54,11 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Filtros de {{ @card.name }}
           </h3>
 
-          {{ humanize_value(assigns, @card.filters) }}
-
+         <CardOffcanvasDescription data={{ @card.filters }} />
         </div>
       </div>
 
-      <div id={{"offcanvas-sources-#{@id}"}} uk-modal>
+      <div id={{"offcanvas-sources-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -84,7 +84,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
 
-      <div id={{"offcanvas-labels-#{@id}"}} uk-modal>
+      <div id={{"offcanvas-labels-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -94,48 +94,6 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
     </div>
-    """
-  end
-
-  def humanize_value(assigns, %Date{} = value) do
-    ~H"""
-    <dd>{{ Humanize.date(value) }}</dd>
-    """
-  end
-
-  def humanize_value(assigns, map_or_list) when is_map(map_or_list) or is_list(map_or_list) do
-    ~H"""
-    <div class={{ "uk-description-list", "hb-description-list" }} :for={{ value <- map_or_list }}>
-      {{ humanize_value(assigns, value) }}
-    </div>
-    """
-  end
-
-  def humanize_value(assigns, {key, value}) do
-    case key do
-      :color ->
-        ~H""
-
-      _key ->
-        ~H"""
-          <br/>
-          <dt>{{ Humanize.translate_key(key) }} </dt>
-          <dd>{{ humanize_value(assigns, value) }} </dd>
-        """
-    end
-  end
-
-  def humanize_value(assigns, value) do
-    value =
-      cond do
-        is_nil(value) -> "N/A"
-        is_integer(value) -> Humanize.number(value)
-        is_float(value) -> Humanize.number(value)
-        true -> value
-      end
-
-    ~H"""
-    {{ value }}
     """
   end
 end

@@ -4,8 +4,6 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
 
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = card_data) do
-    IO.inspect(filters["time_year"])
-
     case fetch_morbidity_contexts(filters) do
       {:ok, morbidity_contexts} -> Map.put(card_data, :view_data, fetch_table(data, morbidity_contexts))
       _error -> card_data
@@ -44,8 +42,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
 
   defp fetch_incidence_rates(year_morbidities, year_populations) do
     populations_per_location = Enum.group_by(year_populations, & &1.location_id)
-    {rates, _populations} = Enum.reduce(year_morbidities, [], &fetch_incidence_rate(&1, &2, populations_per_location))
-    rates
+    Enum.reduce(year_morbidities, [], &fetch_incidence_rate(&1, &2, populations_per_location))
   end
 
   defp fetch_incidence_rate(%{context: context, location_id: location_id, total: cases}, rates, populations) do

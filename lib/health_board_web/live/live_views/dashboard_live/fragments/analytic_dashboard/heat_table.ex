@@ -1,17 +1,22 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.Card
+  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardOffcanvasMenu}
   alias Phoenix.LiveView
 
   alias HealthBoardWeb.Helpers.Humanize
 
+  prop card_id, :atom, required: true
   prop card, :map, required: true
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <Card :if={{ Enum.any?(@card.data) }} title={{ @card.name }} link={{ @card.link }} width_l={{ 1 }} width_m={{ 1 }} >
+    <Card :if={{ Enum.any?(@card.data) }} width_l={{ 1 }} width_m={{ 1 }} >
+      <template slot="header">
+        <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} />
+      </template>
+
       <template slot="body">
         <div class="uk-card-body uk-overflow-auto">
           <table class="uk-table uk-table-small uk-table-middle uk-text-small hb-table">
@@ -41,6 +46,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
           </table>
         </div>
       </template>
+
+      <CardOffcanvasMenu card_id={{ @card_id }} card={{ @card }} />
     </Card>
     """
   end

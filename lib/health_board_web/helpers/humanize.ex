@@ -8,12 +8,26 @@ defmodule HealthBoardWeb.Helpers.Humanize do
     year_deaths: "Óbitos anuais",
     year_morbidity: "Casos anuais",
     average: "Média",
-    color: "",
+    color: "Situação",
+    success: "Abaixo da média",
+    warning: "Na faixa média",
+    danger: "Acima da média",
     morbidity_context: "Código da doença, agravo ou evento de saúde pública de notificação compulsória",
     time_from_year: "Início do período anual",
     time_to_year: "Término do período anual",
     time_year: "Ano"
   }
+
+  @spec format(any) :: String.t()
+  def format(value) do
+    case value do
+      %Date{} -> date(value)
+      %DateTime{} -> date_time(value)
+      value when is_integer(value) or is_float(value) -> number(value)
+      value when is_nil(value) -> "N/A"
+      value -> translate_key(value)
+    end
+  end
 
   @spec number(integer | float | Decimal.t() | nil, keyword) :: String.t()
   def number(number, options \\ []) do

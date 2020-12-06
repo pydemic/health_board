@@ -24,7 +24,8 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
   end
 
   defp fetch_default_filters(filters) do
-    current_year = Date.utc_today().year
+    # current_year = Date.utc_today().year
+    current_year = 2019
 
     filters
     |> Map.put("time_year", current_year)

@@ -36,6 +36,32 @@ defmodule HealthBoardWeb.DashboardLive do
     {:noreply, __MODULE__.InfoManager.handle_info(socket, data)}
   end
 
+  @impl LiveView
+  @spec render(map) :: LiveView.Rendered.t()
+  def render(assigns) do
+    case assigns[:dashboard] do
+      %{id: "analytic"} = dashboard ->
+        ~H"""
+        <AnalyticDashboard dashboard={{ dashboard }}/>
+        """
+
+      %{id: "demographic"} = dashboard ->
+        ~H"""
+        <DemographicDashboard dashboard={{ dashboard }}/>
+        """
+
+      %{id: "morbidity"} = dashboard ->
+        ~H"""
+        <MorbidityDashboard dashboard={{ dashboard }}/>
+        """
+
+      _nil ->
+        ~H"""
+        <NoDashboard />
+        """
+    end
+  end
+
   @spec request_dashboard_data(Info.Dashboard.t(), map) :: :ok
   def request_dashboard_data(dashboard, filters) do
     send(self(), {:fetch_dashboard_data, dashboard, filters})

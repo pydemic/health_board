@@ -18,7 +18,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.History do
       <Grid>
         <HistoryChart
           :for={{ section_card_id <- @section_cards_ids }}
-          id={{ section_card_id }}
+          card_id={{ section_card_id }}
           card={{ @section.cards[section_card_id] }}
         />
       </Grid>
