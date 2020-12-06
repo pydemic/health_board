@@ -17,7 +17,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Region do
         <HeatTable
           :if={{ @section.cards[section_card_id] }}
           :for={{ section_card_id <- @section_cards_ids }}
-          id={{ section_card_id }}
           card={{ @section.cards[section_card_id] }}
         />
       </Grid>

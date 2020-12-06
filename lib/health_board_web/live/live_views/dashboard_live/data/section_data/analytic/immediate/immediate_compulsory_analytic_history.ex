@@ -1,6 +1,13 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.ImmediateCompulsoryAnalyticHistory do
+  @dashboard_data_keys [
+    :location,
+    :yearly_deaths,
+    :yearly_morbidities,
+    :yearly_populations
+  ]
+
   @spec fetch(map()) :: map()
-  def fetch(section_data) do
-    section_data
+  def fetch(%{data: data} = section_data) do
+    Map.put(section_data, :data, Map.take(data, @dashboard_data_keys))
   end
 end

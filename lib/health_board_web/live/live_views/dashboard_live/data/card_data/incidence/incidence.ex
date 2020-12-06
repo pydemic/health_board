@@ -25,7 +25,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
     Map.put(view_data, :year_deaths, %{total: 0, average: 0, color: nil})
   end
 
-  defp fetch_from_yearly_cases(yearly_cases, %{"morbidity_context" => context}) when is_list(yearly_cases) do
+  defp fetch_from_yearly_cases(yearly_cases, %{"morbidity_context" => context} = filters) when is_list(yearly_cases) do
     yearly_context_cases = Enum.filter(yearly_cases, &(&1.context == context))
     years = Enum.count(yearly_context_cases)
 
@@ -33,8 +33,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
       if years == 0 do
         {0, 0}
       else
-        # year = Date.utc_today().year
-        year = 2019
+        year = Map.get_lazy(filters, "time_year", fn -> Date.utc_today().year end)
         total = Enum.find_value(yearly_context_cases, 0, &if(&1.year == year, do: &1.total))
         average = div(Enum.sum(Enum.map(yearly_context_cases, & &1.total)), years)
         {total, average}

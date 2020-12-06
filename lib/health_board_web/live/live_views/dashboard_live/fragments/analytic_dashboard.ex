@@ -28,7 +28,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
       />
 
       <Summary
-        :if={{ false and Map.has_key?(@dashboard.sections, weekly_summary_key) }}
+        :if={{ Map.has_key?(@dashboard.sections, weekly_summary_key) }}
         section={{ @dashboard.sections[weekly_summary_key] }}
       />
 
@@ -56,16 +56,16 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
       />
 
       <Region
-        :if={{ Map.has_key?(@dashboard.sections, immediate_region_key) }}
+        :if={{ false and Map.has_key?(@dashboard.sections, immediate_region_key) }}
         section={{ @dashboard.sections[immediate_region_key] }}
         section_cards_ids={{[
-          :imediate_compulsory_incidence_rate_table,
-          :imediate_compulsory_death_rate_table
+          :immediate_compulsory_incidence_rate_table,
+          :immediate_compulsory_death_rate_table
         ]}}
       />
 
       <Region
-        :if={{ Map.has_key?(@dashboard.sections, weekly_region_key) }}
+        :if={{ false and Map.has_key?(@dashboard.sections, weekly_region_key) }}
         section={{ @dashboard.sections[weekly_region_key] }}
         section_cards_ids={{[
           :weekly_compulsory_incidence_rate_table,

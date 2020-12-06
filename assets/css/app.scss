@@ -122,8 +122,8 @@ i.hb-right {
   font-size: 11px;
 }
 
-.hb-table-header {
-  height: 80px;
+.hb-table-row:hover {
+  border: 2px solid #1d3a87;
 }
 
 .hb-table-header > div {
@@ -149,23 +149,23 @@ i.hb-right {
   border-radius: 25px;
 }
 
-.hb-table-quartile-0 {
+.hb-table-choropleth-0 {
   background-color: #cccccc;
 }
 
-.hb-table-quartile-1 {
+.hb-table-choropleth-1 {
   background-color: #6dac6d;
 }
 
-.hb-table-quartile-2 {
+.hb-table-choropleth-2 {
   background-color: #c5cc69;
 }
 
-.hb-table-quartile-3 {
+.hb-table-choropleth-3 {
   background-color: #dbcb37;
 }
 
-.hb-table-quartile-4 {
+.hb-table-choropleth-4 {
   background-color: #e47f7f;
 }
 
