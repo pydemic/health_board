@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   use Surface.Component
 
-  alias HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.{History, Summary}
+  alias HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.{History, Region, Summary}
   alias HealthBoardWeb.LiveComponents.{Section, SectionHeader}
   alias Phoenix.LiveView
 
@@ -14,6 +14,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
 
     immediate_history_key = :immediate_compulsory_analytic_history
     weekly_history_key = :weekly_compulsory_analytic_history
+
+    immediate_region_key = :immediate_compulsory_analytic_region
+    weekly_region_key = :weekly_compulsory_analytic_region
 
     ~H"""
     <Section>
@@ -29,8 +32,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
         section={{ @dashboard.sections[weekly_summary_key] }}
       />
 
+
       <History
-        :if={{ Map.has_key?(@dashboard.sections, immediate_history_key) }}
+        :if={{ false and Map.has_key?(@dashboard.sections, immediate_history_key) }}
         section={{ @dashboard.sections[immediate_history_key] }}
         section_cards_ids={{[
           :country_immediate_compulsory_incidence_rate_per_year,
@@ -43,13 +47,33 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
       />
 
       <History
-        :if={{ Map.has_key?(@dashboard.sections, weekly_history_key) }}
+        :if={{ false and Map.has_key?(@dashboard.sections, weekly_history_key) }}
         section={{ @dashboard.sections[weekly_history_key] }}
         section_cards_ids={{[
           :weekly_compulsory_incidence_rate_per_year,
           :weekly_compulsory_death_rate_per_year
         ]}}
       />
+
+      <Region
+        :if={{ Map.has_key?(@dashboard.sections, immediate_region_key) }}
+        section={{ @dashboard.sections[immediate_region_key] }}
+        section_cards_ids={{[
+          :imediate_compulsory_incidence_rate_table,
+          :imediate_compulsory_death_rate_table
+        ]}}
+      />
+
+      <Region
+        :if={{ Map.has_key?(@dashboard.sections, weekly_region_key) }}
+        section={{ @dashboard.sections[weekly_region_key] }}
+        section_cards_ids={{[
+          :weekly_compulsory_incidence_rate_table,
+          :weekly_compulsory_death_rate_table
+        ]}}
+      />
+
+
     </Section>
     """
   end

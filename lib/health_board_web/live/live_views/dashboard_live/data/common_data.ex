@@ -22,9 +22,17 @@ defmodule HealthBoardWeb.DashboardLive.CommonData do
     end
   end
 
-  @spec fetch_locations(map, keyword) :: list(Locations.t())
+  @spec children_locations(Locations.t()) :: list(Locations.t())
+  def children_locations(%{id: id, context: context}) do
+    case context do
+      0 -> Locations.list_by(parents_ids: @regions)
+      _context -> Locations.list_by(parent_id: id)
+    end
+  end
+
+  @spec locations(map, keyword) :: list(Locations.t())
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
-  def fetch_locations(filters, default \\ @default_locations) do
+  def locations(filters, default \\ @default_locations) do
     case filters do
       %{"geo_city" => id} -> Locations.list_siblings_by(id)
       %{"geo_cities" => ids} -> Locations.list_by(context: Locations.context!(:city), ids: ids)
