@@ -18,8 +18,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData do
     |> apply(:fetch, [card_data])
   end
 
-  @spec new(Info.Card.t(), map, map) :: map
-  def new(card, data, filters) do
-    %{card: card, data: data, filters: filters, view_data: %{}}
+  @spec new(Info.Card.t(), atom, map, map) :: map
+  def new(card, section_card_id, data, filters) do
+    %{id: section_card_id, card: card, data: data, filters: filters, view_data: %{}}
   end
 end

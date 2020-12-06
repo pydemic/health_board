@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData do
   alias HealthBoard.Contexts.Info
-  alias HealthBoardWeb.DashboardLive.CardData
+  alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
   @cards_links %{
     "births" => "demographic",
@@ -25,14 +25,18 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
       } = section_card
 
       section_card_filters = for %{filter: filter, value: value} <- section_card_filters, into: %{}, do: {filter, value}
+      section_card_filters = DataManager.parse_filters(section_card_filters)
+
       filters = Map.merge(filters, section_card_filters)
 
       name = section_card_name || card_name
       link = if link?, do: Map.get(@cards_links, indicator.id), else: nil
 
+      section_card_id = String.to_atom(section_card_id)
+
       %{data: data, filters: filters} =
         card
-        |> CardData.new(data, filters)
+        |> CardData.new(section_card_id, data, filters)
         |> CardData.fetch()
         |> CardData.assign()
 
@@ -45,7 +49,7 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
         filters: filters
       }
 
-      {String.to_atom(section_card_id), card_data}
+      {section_card_id, card_data}
     end
   end
 

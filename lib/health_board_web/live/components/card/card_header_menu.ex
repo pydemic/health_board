@@ -3,8 +3,6 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
 
   alias Phoenix.LiveView
 
-  alias HealthBoardWeb.LiveComponents.Modal
-
   @doc "The card title"
   prop title, :string
 

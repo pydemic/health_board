@@ -2,32 +2,30 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = card_data) do
     %{}
-    |> fetch_morbidity(data, filters)
-    |> fetch_deaths(data, filters)
+    |> fetch_year_morbidity(data, filters)
+    |> fetch_year_deaths(data, filters)
     |> select_color()
     |> fetch_dates(data)
     |> update(card_data)
   end
 
-  defp fetch_morbidity(view_data, %{morbidities: morbidities}, filters) do
-    Map.put(view_data, :morbidity, fetch_from_yearly_cases(morbidities, filters))
+  defp fetch_year_morbidity(view_data, %{yearly_morbidities: morbidities}, filters) do
+    Map.put(view_data, :year_morbidity, fetch_from_yearly_cases(morbidities, filters))
   end
 
-  defp fetch_morbidity(view_data, _data, _filters) do
-    view_data
+  defp fetch_year_morbidity(view_data, _data, _filters) do
+    Map.put(view_data, :year_morbidity, %{total: 0, average: 0, color: nil})
   end
 
-  defp fetch_deaths(view_data, %{deaths: deaths}, filters) when is_list(deaths) do
-    Map.put(view_data, :deaths, fetch_from_yearly_cases(deaths, filters))
+  defp fetch_year_deaths(view_data, %{yearly_deaths: deaths}, filters) when is_list(deaths) do
+    Map.put(view_data, :year_deaths, fetch_from_yearly_cases(deaths, filters))
   end
 
-  defp fetch_deaths(view_data, _data, _filters) do
-    view_data
+  defp fetch_year_deaths(view_data, _data, _filters) do
+    Map.put(view_data, :year_deaths, %{total: 0, average: 0, color: nil})
   end
 
   defp fetch_from_yearly_cases(yearly_cases, %{"morbidity_context" => context}) when is_list(yearly_cases) do
-    context = String.to_integer(context)
-
     yearly_context_cases = Enum.filter(yearly_cases, &(&1.context == context))
     years = Enum.count(yearly_context_cases)
 
@@ -57,7 +55,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
     %{}
   end
 
-  defp select_color(%{morbidity: %{color: morbidity_color}, deaths: %{color: deaths_color}} = view_data) do
+  defp select_color(%{year_morbidity: %{color: morbidity_color}, year_deaths: %{color: deaths_color}} = view_data) do
     colors = [morbidity_color, deaths_color]
 
     cond do

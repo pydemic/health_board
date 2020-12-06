@@ -17,12 +17,12 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
       </template>
       <template slot="body">
         <div class="uk-card-body">
-          <h2>{{ Humanize.number @card.data.morbidity.total }}</h2>
-          <small>{{ Humanize.number @card.data.deaths.total }} óbitos</small>
+          <h2>{{ Humanize.number @card.data.year_morbidity.total }}</h2>
+          <small>{{ Humanize.number @card.data.year_deaths.total }} óbitos</small>
           <br/>
-          <small>{{ Humanize.number @card.data.morbidity.average }} média de casos</small>
+          <small>{{ Humanize.number @card.data.year_morbidity.average }} média de casos</small>
           <br/>
-          <small>{{ Humanize.number @card.data.deaths.average }} média de óbitos</small>
+          <small>{{ Humanize.number @card.data.year_deaths.average }} média de óbitos</small>
           <br/>
           <small> Último caso em {{ Humanize.date @card.data.last_case_date }} </small>
           <br/>

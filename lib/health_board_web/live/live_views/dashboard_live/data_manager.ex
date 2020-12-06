@@ -4,28 +4,6 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
   alias Phoenix.LiveView
 
   @params %{
-    "births_child_mass" => :atom,
-    "births_child_masses" => {:list, :atom},
-    "births_child_sex" => :atom,
-    "births_deliveries" => {:list, :atom},
-    "births_delivery" => :atom,
-    "births_gestation_duration" => :atom,
-    "births_gestation_durations" => {:list, :atom},
-    "births_location_context" => :integer,
-    "births_location" => :atom,
-    "births_locations" => {:list, :atom},
-    "births_mother_age" => :atom,
-    "births_mother_ages" => {:list, :atom},
-    "births_prenatal_consultation" => :atom,
-    "births_prenatal_consultations" => {:list, :atom},
-    "death_context" => :integer,
-    "death_investigation" => :atom,
-    "death_location_context" => :integer,
-    "death_type" => :atom,
-    "dengue_classification" => :atom,
-    "dengue_classifications" => {:list, :atom},
-    "dengue_serotype" => :atom,
-    "dengue_serotypes" => {:list, :atom},
     "geo_cities" => {:list, :integer},
     "geo_city" => :integer,
     "geo_country" => :integer,
@@ -35,17 +13,13 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     "geo_regions" => {:list, :integer},
     "geo_state" => :integer,
     "geo_states" => {:list, :integer},
-    "morbidities_location_context" => :integer,
-    "person_age_group" => :atom,
-    "person_age_groups" => {:list, :atom},
-    "person_race" => :atom,
-    "person_races" => {:list, :atom},
-    "person_sex" => :atom,
-    "time_date_period" => {:list, :date},
-    "time_date" => :date,
-    "time_week_period" => {:list, :integer},
+    "morbidity_context" => :integer,
+    "morbidity_contexts" => {:list, :integer},
+    "time_from_week" => :integer,
+    "time_to_week" => :integer,
     "time_week" => :integer,
-    "time_year_period" => {:list, :integer},
+    "time_from_year" => :integer,
+    "time_to_year" => :integer,
     "time_year" => :integer
   }
 
@@ -69,10 +43,7 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
 
       disabled_filters = Enum.map(disabled_filters, & &1.filter)
 
-      filters =
-        params
-        |> Enum.reduce(%{}, &parse_filter/2)
-        |> Map.drop(disabled_filters)
+      filters = parse_filters(params)
 
       sections =
         dashboard
@@ -95,10 +66,19 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     end
   end
 
-  defp parse_filter({param_key, param_value}, filters) do
-    case Map.get(@params, param_key) do
-      nil -> filters
-      type -> parse_value(filters, param_key, type, param_value)
+  @spec parse_filters(map, list(atom)) :: map
+  def parse_filters(params, disabled_filters \\ []) do
+    Enum.reduce(params, %{}, &parse_filter(&1, &2, disabled_filters))
+  end
+
+  defp parse_filter({param_key, param_value}, filters, disabled_filters) do
+    if param_key in disabled_filters do
+      filters
+    else
+      case Map.get(@params, param_key) do
+        nil -> filters
+        type -> parse_value(filters, param_key, type, param_value)
+      end
     end
   end
 
