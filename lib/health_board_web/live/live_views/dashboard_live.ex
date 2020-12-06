@@ -1,9 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive do
-  use Surface.LiveView, layout: {HealthBoardWeb.LayoutView, "live.html"}
+  use Surface.LiveView
 
   alias HealthBoard.Contexts.Info
-
-  alias HealthBoardWeb.LiveComponents.Offcanvas
 
   alias HealthBoardWeb.DashboardLive.Fragments.{
     AnalyticDashboard,

@@ -14,6 +14,3 @@
 />
 
 <NoDashboard :if={{ not Map.has_key?(assigns, :dashboard) }} />
-
-
-<Offcanvas :if={{ Map.has_key?(assigns, :modal_id) or true }}/>

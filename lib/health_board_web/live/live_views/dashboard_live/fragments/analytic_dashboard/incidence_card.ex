@@ -1,10 +1,12 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu}
+  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardOffcanvasMenu}
   alias Phoenix.LiveView
 
   alias HealthBoardWeb.Helpers.Humanize
+
+  prop id, :atom, required: true
 
   prop card, :map, required: true
 
@@ -13,7 +15,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
     ~H"""
     <Card :if={{ Enum.any?(@card.data) }} border_color={{ @card.data[:color] }}>
       <template slot="header">
-        <CardHeaderMenu title={{ @card.name }} link={{ @card.link }} border_color={{ @card.data[:color] }}/>
+        <CardHeaderMenu id={{ @id }} card={{ @card }} />
       </template>
       <template slot="body">
         <div class="uk-card-body">
@@ -33,6 +35,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
           <small> Óbitos extraídos em {{ Humanize.date @card.data.extraction_date }} </small>
         </div>
       </template>
+
+      <CardOffcanvasMenu id={{ @id }} card={{ @card }} />
     </Card>
     """
   end

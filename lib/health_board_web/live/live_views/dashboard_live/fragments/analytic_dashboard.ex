@@ -32,7 +32,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
         section={{ @dashboard.sections[weekly_summary_key] }}
       />
 
-
       <History
         :if={{ false and Map.has_key?(@dashboard.sections, immediate_history_key) }}
         section={{ @dashboard.sections[immediate_history_key] }}
@@ -72,7 +71,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
           :weekly_compulsory_death_rate_table
         ]}}
       />
-
 
     </Section>
     """
