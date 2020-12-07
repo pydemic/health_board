@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.WeeklyCompulsoryAnalyticControlDiagrams do
-  @data_keys ~w[data_periods weekly_deaths weekly_morbidities weekly_populations]a
-  @filter_keys ~w[morbidity_context]a
+  @data_keys ~w[data_periods weekly_deaths weekly_morbidities yearly_populations]a
+  @filter_keys ~w[from_year morbidity_context to_year]a
 
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = section_data) do

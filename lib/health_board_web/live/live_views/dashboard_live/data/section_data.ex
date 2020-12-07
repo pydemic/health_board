@@ -18,8 +18,10 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
   @spec assign(map) :: map
   def assign(%{section: %{cards: section_cards}, data: data, filters: filters, root_pid: root_pid}) do
     section_cards
-    |> Task.async_stream(&fetch_card_data(&1, data, filters, root_pid), timeout: 10_000)
+    |> Task.async_stream(&fetch_card_data(&1, data, filters, root_pid), timeout: 60_000)
     |> Enum.reduce(%{}, fn {:ok, {k, v}}, map -> Map.put(map, k, v) end)
+  rescue
+    _error -> []
   end
 
   defp fetch_card_data(section_card, data, filters, root_pid) do

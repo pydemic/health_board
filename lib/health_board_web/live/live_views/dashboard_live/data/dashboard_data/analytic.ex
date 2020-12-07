@@ -117,7 +117,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
       order_by: [asc: :context, asc: :year, asc: :week]
     ]
     |> WeeklyDeaths.list_by()
-    |> Enum.map(&Map.take(&1, [:context, :location_id, :year, :total]))
+    |> Enum.map(&Map.take(&1, [:context, :location_id, :year, :week, :total]))
     |> Enum.group_by(& &1.context)
   end
 
@@ -131,7 +131,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
       order_by: [asc: :context, asc: :year, asc: :week]
     ]
     |> WeeklyMorbidities.list_by()
-    |> Enum.map(&Map.take(&1, [:context, :location_id, :year, :total]))
+    |> Enum.map(&Map.take(&1, [:context, :location_id, :year, :week, :total]))
     |> Enum.group_by(& &1.context)
   end
 
