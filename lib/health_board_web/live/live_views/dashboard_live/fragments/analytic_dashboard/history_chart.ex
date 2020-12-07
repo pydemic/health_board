@@ -11,7 +11,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HistoryChart 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <Card :if={{ Enum.any?(@card.data) }} title={{ @card.name }} link={{ @card.link }} width_l={{ 2 }} width_m={{ 1 }}>
+    <Card :if={{ Enum.any?(@card.data) }} width_l={{ 2 }} width_m={{ 1 }}>
       <template slot="header">
         <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} show_data={{ false }} />
       </template>
@@ -20,7 +20,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HistoryChart 
         <CardBodyCanvas id={{ @card_id }} />
       </template>
 
-      <CardOffcanvasMenu card_id={{ @card_id }} card={{ @card }} />
+      <CardOffcanvasMenu card_id={{ @card_id }} card={{ @card }} show_data={{ false }} />
     </Card>
     """
   end

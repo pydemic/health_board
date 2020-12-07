@@ -20,8 +20,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.ControlDiagra
       <Grid>
         <ControlDiagram
           :for={{ section_card_id <- @section_cards_ids }}
-          :if={{ Map.has_key?(cards, section_card_id) }}
-          id={{ section_card_id }}
+          card_id={{ section_card_id }}
           card={{ cards[section_card_id] }}
         />
       </Grid>
