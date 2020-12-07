@@ -1,4 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData do
+  require Logger
+
   alias HealthBoard.Contexts.Info
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
@@ -14,42 +16,56 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
   }
 
   @spec assign(map) :: map
-  def assign(%{section: %{cards: section_cards}, data: data, filters: filters}) do
-    for section_card <- section_cards, into: %{} do
-      %{
-        id: section_card_id,
-        name: section_card_name,
-        link: link?,
-        filters: section_card_filters,
-        card: %{indicator: indicator, name: card_name, description: description} = card
-      } = section_card
+  def assign(%{section: %{cards: section_cards}, data: data, filters: filters, root_pid: root_pid}) do
+    section_cards
+    |> Task.async_stream(&fetch_card_data(&1, data, filters, root_pid), timeout: 10_000)
+    |> Enum.reduce(%{}, fn {:ok, {k, v}}, map -> Map.put(map, k, v) end)
+  end
 
-      section_card_filters = for %{filter: filter, value: value} <- section_card_filters, into: %{}, do: {filter, value}
-      section_card_filters = DataManager.parse_filters(section_card_filters)
+  defp fetch_card_data(section_card, data, filters, root_pid) do
+    %{
+      id: section_card_id,
+      name: section_card_name,
+      link: link?,
+      filters: section_card_filters,
+      card: %{indicator: indicator, name: card_name, description: description} = card
+    } = section_card
 
-      filters = Map.merge(filters, section_card_filters)
+    section_card_filters = for %{filter: filter, value: value} <- section_card_filters, into: %{}, do: {filter, value}
+    section_card_filters = DataManager.parse_filters(section_card_filters)
 
-      name = section_card_name || card_name
-      link = if link?, do: Map.get(@cards_links, indicator.id), else: nil
+    filters = Map.merge(filters, section_card_filters)
 
-      section_card_id = String.to_atom(section_card_id)
+    name = section_card_name || card_name
+    link = if link?, do: Map.get(@cards_links, indicator.id), else: nil
 
+    section_card_id = String.to_atom(section_card_id)
+
+    section_card_data = %{
+      name: name,
+      description: description,
+      indicator: indicator,
+      link: link,
+      data: %{},
+      filters: %{}
+    }
+
+    try do
       %{data: data, filters: filters} =
         card
-        |> CardData.new(section_card_id, data, filters)
+        |> CardData.new(section_card_id, data, filters, root_pid)
         |> CardData.fetch()
         |> CardData.assign()
 
-      card_data = %{
-        name: name,
-        description: description,
-        indicator: indicator,
-        link: link,
-        data: data,
-        filters: filters
-      }
+      {section_card_id, Map.merge(section_card_data, %{data: data, filters: filters})}
+    rescue
+      error ->
+        Logger.error(
+          "Failed to build card #{section_card_id} data.\n" <>
+            Exception.message(error) <> "\n" <> Exception.format_stacktrace(__STACKTRACE__)
+        )
 
-      {section_card_id, card_data}
+        {section_card_id, section_card_data}
     end
   end
 
@@ -65,8 +81,8 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
     |> apply(:fetch, [section_data])
   end
 
-  @spec new(Info.Section.t(), map, map) :: map
-  def new(section, data, filters) do
-    %{section: section, data: data, filters: filters}
+  @spec new(Info.Section.t(), map, map, pid) :: map
+  def new(section, data, filters, root_pid) do
+    %{section: section, data: data, filters: filters, root_pid: root_pid}
   end
 end

@@ -3,19 +3,22 @@ defmodule HealthBoardWeb.Helpers.Humanize do
   alias Phoenix.Naming
 
   @keys_name %{
+    above_average: "Acima da média",
+    average: "Média",
+    below_average: "Abaixo da média",
     extraction_date: "Data de extração",
-    last_case_date: "Data do último caso",
+    first_record_date: "Data do primeiro registro",
+    from_year: "Início do período anual",
+    last_record_date: "Data do último registro",
+    morbidity_context: "Doença, agravo ou evento de saúde pública de notificação compulsória",
+    morbidity_contexts: "Doenças, agravos e eventos de saúde pública de notificação compulsória",
+    on_average: "Na média",
+    overall_severity: "Situação geral",
+    severity: "Situação",
+    to_year: "Término do período anual",
     year_deaths: "Óbitos anuais",
     year_morbidity: "Casos anuais",
-    average: "Média",
-    color: "Situação",
-    success: "Abaixo da média",
-    warning: "Na faixa média",
-    danger: "Acima da média",
-    morbidity_context: "Código da doença, agravo ou evento de saúde pública de notificação compulsória",
-    time_from_year: "Início do período anual",
-    time_to_year: "Término do período anual",
-    time_year: "Ano"
+    year: "Ano"
   }
 
   @spec format(any) :: String.t()
@@ -25,7 +28,8 @@ defmodule HealthBoardWeb.Helpers.Humanize do
       %DateTime{} -> date_time(value)
       value when is_integer(value) or is_float(value) -> number(value)
       value when is_nil(value) -> "N/A"
-      value -> translate_key(value)
+      value when is_atom(value) -> translate_key(value)
+      _value -> value
     end
   end
 
@@ -63,11 +67,6 @@ defmodule HealthBoardWeb.Helpers.Humanize do
         {:error, _reason} -> "N/A"
       end
     end
-  end
-
-  @spec translate_key(String.t()) :: String.t()
-  def translate_key(key) when is_binary(key) do
-    translate_key(String.to_atom(key))
   end
 
   @spec translate_key(atom) :: String.t()

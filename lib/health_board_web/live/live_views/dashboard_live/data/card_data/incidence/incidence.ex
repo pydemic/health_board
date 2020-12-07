@@ -1,31 +1,39 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
+  alias HealthBoard.Contexts
+
+  @empty_data %{total: 0, average: 0, severity: nil, first_record_date: nil, last_record_date: nil}
+
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = card_data) do
     %{}
     |> fetch_year_morbidity(data, filters)
     |> fetch_year_deaths(data, filters)
-    |> select_color()
-    |> fetch_dates(data)
+    |> select_severity()
     |> update(card_data)
+    |> Map.put(:filters, Map.update!(filters, :morbidity_context, &Contexts.morbidity_name(&1)))
   end
 
-  defp fetch_year_morbidity(view_data, %{yearly_morbidities: morbidities}, filters) do
-    Map.put(view_data, :year_morbidity, fetch_from_yearly_cases(morbidities, filters))
+  defp fetch_year_morbidity(view_data, %{yearly_morbidities: morbidities} = data, filters) do
+    data_periods = Map.fetch!(data.data_periods, Contexts.data_context!(:morbidity))
+    Map.put(view_data, :year_morbidity, fetch_from_yearly_cases(morbidities, filters, data_periods))
   end
 
   defp fetch_year_morbidity(view_data, _data, _filters) do
-    Map.put(view_data, :year_morbidity, %{total: 0, average: 0, color: nil})
+    Map.put(view_data, :year_morbidity, @empty_data)
   end
 
-  defp fetch_year_deaths(view_data, %{yearly_deaths: deaths}, filters) when is_list(deaths) do
-    Map.put(view_data, :year_deaths, fetch_from_yearly_cases(deaths, filters))
+  defp fetch_year_deaths(view_data, %{yearly_deaths: deaths} = data, filters) do
+    data_periods = Map.fetch!(data.data_periods, Contexts.data_context!(:deaths))
+    Map.put(view_data, :year_deaths, fetch_from_yearly_cases(deaths, filters, data_periods))
   end
 
   defp fetch_year_deaths(view_data, _data, _filters) do
-    Map.put(view_data, :year_deaths, %{total: 0, average: 0, color: nil})
+    Map.put(view_data, :year_deaths, @empty_data)
   end
 
-  defp fetch_from_yearly_cases(yearly_cases, %{"morbidity_context" => context} = filters) when is_list(yearly_cases) do
+  defp fetch_from_yearly_cases(yearly_cases, filters, data_periods) do
+    context = filters.morbidity_context
+
     yearly_context_cases = Enum.filter(yearly_cases, &(&1.context == context))
     years = Enum.count(yearly_context_cases)
 
@@ -33,44 +41,36 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
       if years == 0 do
         {0, 0}
       else
-        year = Map.get_lazy(filters, "time_year", fn -> Date.utc_today().year end)
+        year = Map.get_lazy(filters, :year, fn -> Date.utc_today().year end)
         total = Enum.find_value(yearly_context_cases, 0, &if(&1.year == year, do: &1.total))
         average = div(Enum.sum(Enum.map(yearly_context_cases, & &1.total)), years)
         {total, average}
       end
 
-    color =
+    severity =
       cond do
         total == 0 -> nil
-        average > total -> :success
-        average == total -> :warning
-        true -> :danger
+        average > total -> :below_average
+        average == total -> :on_average
+        true -> :above_average
       end
 
-    %{total: total, average: average, color: color}
+    [%{from_date: from, to_date: to}] = Map.get(data_periods, context, [%{from_date: nil, to_date: nil}])
+
+    %{total: total, average: average, severity: severity, first_record_date: from, last_record_date: to}
   end
 
-  defp fetch_from_yearly_cases(_view_data, _filters) do
-    %{}
-  end
+  defp select_severity(view_data) do
+    %{year_morbidity: %{severity: morbidity_severity}, year_deaths: %{severity: deaths_severity}} = view_data
 
-  defp select_color(%{year_morbidity: %{color: morbidity_color}, year_deaths: %{color: deaths_color}} = view_data) do
-    colors = [morbidity_color, deaths_color]
+    severities = [morbidity_severity, deaths_severity]
 
     cond do
-      :danger in colors -> Map.put(view_data, :color, :danger)
-      :warning in colors -> Map.put(view_data, :color, :warning)
-      :success in colors -> Map.put(view_data, :color, :success)
-      true -> view_data
+      :above_average in severities -> Map.put(view_data, :overall_severity, :above_average)
+      :on_average in severities -> Map.put(view_data, :overall_severity, :on_average)
+      :below_average in severities -> Map.put(view_data, :overall_severity, :below_average)
+      true -> Map.put(view_data, :overall_severity, nil)
     end
-  end
-
-  defp select_color(view_data) do
-    view_data
-  end
-
-  defp fetch_dates(view_data, _data) do
-    Map.merge(view_data, %{extraction_date: Date.utc_today(), last_case_date: Date.utc_today()})
   end
 
   defp update(data, key \\ :view_data, section_data) do

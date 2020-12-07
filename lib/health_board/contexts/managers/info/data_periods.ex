@@ -36,6 +36,8 @@ defmodule HealthBoard.Contexts.Info.DataPeriods do
 
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
+      {:data_context, context}, dynamic -> dynamic([row], ^dynamic and row.data_context == ^context)
+      {:data_contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.data_context in ^contexts)
       {:context, context}, dynamic -> dynamic([row], ^dynamic and row.context == ^context)
       {:contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.context in ^contexts)
       {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)

@@ -21,13 +21,13 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           </h3>
 
           <dl class={{"uk-description-list", "hb-description-list"}}>
-              <dt>Descrição:</dt>
+              <dt>Descrição</dt>
               <dd>{{ @card.description }}</dd>
-              <dt :if={{ not is_nil(@card.indicator.formula) }}>Indicador:</dt>
+              <dt :if={{ not is_nil(@card.indicator.formula) }}>Indicador</dt>
               <dd :if={{ not is_nil(@card.indicator.formula) }}>{{ @card.indicator.description }}</dd>
-              <dt :if={{ not is_nil(@card.indicator.formula) }}>Fórmula:</dt>
+              <dt :if={{ not is_nil(@card.indicator.formula) }}>Fórmula</dt>
               <dd :if={{ not is_nil(@card.indicator.formula) }}>{{ @card.indicator.formula }}</dd>
-              <dt :if={{ not is_nil(@card.indicator.measurement_unit) }}>Unidade de medida:</dt>
+              <dt :if={{ not is_nil(@card.indicator.measurement_unit) }}>Unidade de medida</dt>
               <dd :if={{ not is_nil(@card.indicator.measurement_unit) }}>{{ @card.indicator.measurement_unit }}</dd>
           </dl>
 
@@ -68,15 +68,15 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
 
             <div :if={{ not is_nil(@card.indicator.sources) }} :for={{ indicator_source <- @card.indicator.sources }}>
               <dl class={{"uk-description-list", "hb-description-list"}}>
-                <dt>Nome:</dt>
+                <dt>Nome</dt>
                 <dd>{{ indicator_source.source.name }}</dd>
-                <dt>Descrição:</dt>
+                <dt>Descrição</dt>
                 <dd>{{ indicator_source.source.description }}</dd>
-                <dt>Endereço da fonte:</dt>
+                <dt>Endereço da fonte</dt>
                 <dd><a href={{ indicator_source.source.link }} target="_blank">Clique aqui</a></dd>
-                <dt>Frequência de atualização da base:</dt>
+                <dt>Frequência de atualização da base</dt>
                 <dd>{{ indicator_source.source.update_rate }}</dd>
-                <dt>Data de extração:</dt>
+                <dt>Data de extração</dt>
                 <dd>{{ Humanize.date(indicator_source.source.extraction_date) }}</dd>
               </dl>
             </div>

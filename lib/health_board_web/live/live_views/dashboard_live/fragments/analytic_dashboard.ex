@@ -2,7 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.{History, Region, Summary}
-  alias HealthBoardWeb.LiveComponents.{Section, SectionHeader}
+  alias HealthBoardWeb.LiveComponents.{Card, Grid, Section, SectionHeader}
   alias Phoenix.LiveView
 
   prop dashboard, :map, required: true
@@ -11,54 +11,84 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   def render(assigns) do
     sections = assigns.dashboard.sections
 
-    ~H"""
-    <Section>
-      <SectionHeader title={{ @dashboard.name }} description={{ @dashboard.description }} />
+    if is_map(sections) do
+      ~H"""
+      <Section>
+        <SectionHeader title={{ @dashboard.name }} description={{ @dashboard.description }} />
 
-      <Summary section={{ sections[:immediate_compulsory_analytic_summary] }} />
-      <Summary section={{ sections[:weekly_compulsory_analytic_summary] }} />
+        <Summary
+          :if={{ false and Map.has_key?(sections, :immediate_compulsory_analytic_summary) }}
+          section={{ sections[:immediate_compulsory_analytic_summary] }}
+        />
 
-      <History
-        section={{ sections[:immediate_compulsory_analytic_history] }}
-        section_cards_ids={{[
-          :country_immediate_compulsory_incidence_rate_per_year,
-          :country_immediate_compulsory_death_rate_per_year,
-          :state_immediate_compulsory_incidence_rate_per_year,
-          :state_immediate_compulsory_death_rate_per_year,
-          :city_immediate_compulsory_incidence_rate_per_year,
-          :city_immediate_compulsory_death_rate_per_year,
-        ]}}
-      />
+        <Summary
+          :if={{ false and Map.has_key?(sections, :weekly_compulsory_analytic_summary) }}
+          section={{ sections[:weekly_compulsory_analytic_summary] }} />
 
-      <History
-        section={{ sections[:weekly_compulsory_analytic_history] }}
-        section_cards_ids={{[
-          :weekly_compulsory_incidence_rate_per_year,
-          :weekly_compulsory_death_rate_per_year
-        ]}}
-      />
+        <History
+          :if={{ Map.has_key?(sections, :immediate_compulsory_analytic_history) }}
+          section={{ sections[:immediate_compulsory_analytic_history] }}
+          section_cards_ids={{[
+            :country_immediate_compulsory_incidence_rate_per_year,
+            :country_immediate_compulsory_death_rate_per_year,
+            :state_immediate_compulsory_incidence_rate_per_year,
+            :state_immediate_compulsory_death_rate_per_year,
+            :city_immediate_compulsory_incidence_rate_per_year,
+            :city_immediate_compulsory_death_rate_per_year,
+          ]}}
+        />
 
-      <Region
-        section={{ sections[:immediate_compulsory_analytic_region] }}
-        section_cards_ids={{[
-          :immediate_compulsory_incidence_rate_table,
-          :immediate_compulsory_death_rate_table
-        ]}}
-      />
+        <History
+          :if={{ Map.has_key?(sections, :weekly_compulsory_analytic_history) }}
+          section={{ sections[:weekly_compulsory_analytic_history] }}
+          section_cards_ids={{[
+            :weekly_compulsory_incidence_rate_per_year,
+            :weekly_compulsory_death_rate_per_year
+          ]}}
+        />
 
-      <Region
-        section={{ sections[:weekly_compulsory_analytic_region] }}
-        section_cards_ids={{[
-          :weekly_compulsory_incidence_rate_table,
-          :weekly_compulsory_death_rate_table
-        ]}}
-      />
-    </Section>
-    """
+        <Region
+          :if={{ Map.has_key?(sections, :immediate_compulsory_analytic_region) }}
+          section={{ sections[:immediate_compulsory_analytic_region] }}
+          section_cards_ids={{[
+            :immediate_compulsory_incidence_rate_table,
+            :immediate_compulsory_death_rate_table
+          ]}}
+        />
+
+        <Region
+          :if={{ Map.has_key?(sections, :weekly_compulsory_analytic_region) }}
+          section={{ sections[:weekly_compulsory_analytic_region] }}
+          section_cards_ids={{[
+            :weekly_compulsory_incidence_rate_table,
+            :weekly_compulsory_death_rate_table
+          ]}}
+        />
+      </Section>
+      """
+    else
+      title = "Carregando"
+      content = "Gerando indicadores para este painel. Em instantes o painel estará pronto para visualização."
+
+      ~H"""
+      <Section>
+        <SectionHeader title={{ @dashboard.name }} description={{ @dashboard.description }} />
+
+        <Grid>
+          <Card
+            width_l={{ 2 }}
+            width_m={{ 1 }}
+            title={{ title }}
+            content={{ content }}
+          />
+        </Grid>
+      </Section>
+      """
+    end
   end
 
   #   <ControlDiagrams
-  #   :if={{   Map.has_key?(sections, :immediate_compulsory_analytic_control_diagrams) }}
+  #   ::if={{   Map.has_key?(sections, :immediate_compulsory_analytic_control_diagrams) }}
   #   section={{ sections[:immediate_compulsory_analytic_control_diagrams] }}
   #   section_cards_ids={{[
   #     :accident_by_venomous_animals_incidence_rate_control_diagram,
@@ -143,7 +173,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   # />
 
   # <ControlDiagrams
-  #   :if={{   Map.has_key?(sections, :weekly_compulsory_analytic_control_diagrams) }}
+  #   ::if={{   Map.has_key?(sections, :weekly_compulsory_analytic_control_diagrams) }}
   #   section={{ sections[:weekly_compulsory_analytic_control_diagrams] }}
   #   section_cards_ids={{[
   #     :amazon_malaria_death_rate_control_diagram,

@@ -13,7 +13,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HistoryChart 
     ~H"""
     <Card :if={{ Enum.any?(@card.data) }} title={{ @card.name }} link={{ @card.link }} width_l={{ 2 }} width_m={{ 1 }}>
       <template slot="header">
-        <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} />
+        <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} show_data={{ false }} />
       </template>
 
       <template slot="body">

@@ -11,35 +11,39 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
+    %{data: data} = assigns.card
+
+    color =
+      case data[:overall_severity] do
+        :below_average -> :success
+        :on_average -> :warning
+        :above_average -> :danger
+        nil -> nil
+      end
+
     ~H"""
-    <Card :if={{ Enum.any?(@card.data) }} border_color={{ @card.data[:color] }}>
+    <Card border_color={{ color }}>
       <template slot="header">
-        <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} />
+        <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} border_color={{ color }} />
       </template>
 
       <template slot="body">
-        <div class="uk-card-body">
-          <h2>{{ Humanize.number @card.data.year_morbidity.total }}</h2>
+        <div :if={{ Enum.any?(data) }} class="uk-card-body">
+          <h2>{{ Humanize.number data.year_morbidity.total }}</h2>
 
-          <small>{{ Humanize.number @card.data.year_deaths.total }} óbitos</small>
-
-          <br/>
-          <small>{{ Humanize.number @card.data.year_morbidity.average }} média de casos</small>
+          <small>{{ Humanize.number data.year_deaths.total }} óbitos</small>
 
           <br/>
-          <small>{{ Humanize.number @card.data.year_deaths.average }} média de óbitos</small>
+          <small>{{ Humanize.number data.year_morbidity.average }} média de casos</small>
 
           <br/>
-          <small> Último caso em {{ Humanize.date @card.data.last_case_date }} </small>
+          <small>{{ Humanize.number data.year_deaths.average }} média de óbitos</small>
 
           <br/>
-          <small> Último óbito em {{ Humanize.date @card.data.extraction_date }} </small>
+          <small> Último caso em {{ Humanize.date data.year_morbidity.last_record_date }} </small>
 
           <br/>
-          <small> Casos extraídos em {{ Humanize.date @card.data.extraction_date }} </small>
-
-          <br/>
-          <small> Óbitos extraídos em {{ Humanize.date @card.data.extraction_date }} </small>
+          <small> Último óbito em {{ Humanize.date data.year_deaths.last_record_date }} </small>
         </div>
       </template>
 

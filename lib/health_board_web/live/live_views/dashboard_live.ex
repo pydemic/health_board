@@ -21,7 +21,11 @@ defmodule HealthBoardWeb.DashboardLive do
   @impl LiveView
   @spec handle_params(map(), String.t(), LiveView.Socket.t()) :: {:noreply, LiveView.Socket.t()}
   def handle_params(params, _url, socket) do
-    {:noreply, __MODULE__.DataManager.update(socket, params)}
+    if socket.connected? do
+      {:noreply, __MODULE__.DataManager.update(socket, params)}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl LiveView

@@ -4,7 +4,7 @@ defmodule HealthBoard.Repo.Migrations.SeedInfo do
   alias HealthBoard.Release.DataManager
 
   def up do
-    # DataManager.DataPeriods.up()
+    DataManager.DataPeriods.up()
     DataManager.Dashboards.up()
     DataManager.Indicators.up()
     DataManager.Sections.up()
@@ -30,6 +30,6 @@ defmodule HealthBoard.Repo.Migrations.SeedInfo do
     DataManager.Sections.down()
     DataManager.Indicators.down()
     DataManager.Dashboards.down()
-    # DataManager.DataPeriods.down()
+    DataManager.DataPeriods.down()
   end
 end
