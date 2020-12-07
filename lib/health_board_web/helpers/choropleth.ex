@@ -1,9 +1,9 @@
 defmodule HealthBoardWeb.Helpers.Choropleth do
-  @spec color(list(float | integer), float | integer) :: String.t()
-  def color(ranges, value) do
+  @spec group(list(float | integer), float | integer) :: String.t()
+  def group(ranges, value) do
     case Enum.find(ranges, &on_boundary?(value, &1)) do
-      nil -> "0"
-      %{color: color} -> color
+      nil -> 0
+      %{group: group} -> group
     end
   end
 
@@ -22,11 +22,11 @@ defmodule HealthBoardWeb.Helpers.Choropleth do
       end
 
     [
-      %{from: nil, to: q0, color: "0"},
-      %{from: q0, to: q1, color: "1"},
-      %{from: q1, to: q2, color: "2"},
-      %{from: q2, to: q3, color: "3"},
-      %{from: q3, to: nil, color: "4"}
+      %{from: nil, to: q0, group: 0},
+      %{from: q0, to: q1, group: 1},
+      %{from: q1, to: q2, group: 2},
+      %{from: q2, to: q3, group: 3},
+      %{from: q3, to: nil, group: 4}
     ]
     |> Enum.reject(
       &(&1.from == &1.to or (is_nil(&1.from) == false and &1.from > &1.to) or (&1.from == 0.0 and &1.to == 0.0) or

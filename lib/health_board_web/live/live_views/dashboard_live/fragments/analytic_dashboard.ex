@@ -17,12 +17,12 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
         <SectionHeader title={{ @dashboard.name }} description={{ @dashboard.description }} />
 
         <Summary
-          :if={{ false and Map.has_key?(sections, :immediate_compulsory_analytic_summary) }}
+          :if={{ Map.has_key?(sections, :immediate_compulsory_analytic_summary) }}
           section={{ sections[:immediate_compulsory_analytic_summary] }}
         />
 
         <Summary
-          :if={{ false and Map.has_key?(sections, :weekly_compulsory_analytic_summary) }}
+          :if={{ Map.has_key?(sections, :weekly_compulsory_analytic_summary) }}
           section={{ sections[:weekly_compulsory_analytic_summary] }} />
 
         <History
@@ -68,7 +68,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
       """
     else
       title = "Carregando"
-      content = "Gerando indicadores para este painel. Em instantes o painel estará pronto para visualização."
+      content = "Gerando indicadores do painel. Em instantes o painel estará pronto para visualização."
 
       ~H"""
       <Section>

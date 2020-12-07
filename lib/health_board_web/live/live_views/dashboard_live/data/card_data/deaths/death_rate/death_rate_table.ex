@@ -75,8 +75,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateTable do
 
   defp fetch_cell({context, ranges}, incidence_rates_per_context) do
     case Map.get(incidence_rates_per_context, context) do
-      nil -> %{value: nil, color: "0", cases: 0}
-      [%{cases: cases, rate: rate}] -> %{value: rate, cases: cases, color: Choropleth.color(ranges, rate)}
+      nil -> %{value: nil, group: 0, cases: 0}
+      [%{cases: cases, rate: rate}] -> %{value: rate, cases: cases, group: Choropleth.group(ranges, rate)}
     end
   end
 end
