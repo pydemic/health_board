@@ -12,11 +12,48 @@
 </head>
 
 <body>
-  <nav class="uk-navbar-container uk-navbar-transparent uk-light hb-root-navbar" uk-navbar>
-    <div class="uk-navbar-center">
-      <a class="uk-navbar-item uk-logo" href="<%= Routes.dashboard_path(@conn, :index) %>">Painel Saúde</a>
+  <div data-uk-sticky>
+    <nav class="uk-navbar-container uk-navbar-transparent uk-light hb-root-navbar" uk-navbar>
+      <div class="uk-navbar-left">
+        <a class="uk-navbar-toggle uk-margin-left" toggle href="#menu-offcanvas" uk-toggle>
+          <span uk-navbar-toggle-icon></span>
+        </a>
+      </div>
+      <div class="uk-navbar-center">
+        <a class="uk-navbar-item uk-logo" href="<%= Routes.dashboard_path(@conn, :index) %>">Painel Saúde</a>
+      </div>
+    </nav>
+  </div>
+  <div id="menu-offcanvas" uk-offcanvas>
+    <div class="uk-offcanvas-bar">
+      <button class="uk-offcanvas-close" type="button" uk-close></button>
+      <%= if Map.has_key?(assigns, :dashboard) do %>
+      <div>
+        <h3><%= @dashboard.name %></h3>
+        <%= if is_list(@dashboard.sections) do%>
+          <ul class="uk-nav-default uk-nav-parent-icon" uk-nav="multiple: true">
+            <%= for %{section: section} <- @dashboard.sections do %>
+              <li class="uk-parent">
+                <a href="#"><%= section.name %></a>
+                <%= if is_list(section.cards) do %>
+                  <ul class="uk-nav-sub">
+                    <%= for %{name: name, id: card_id} <- section.cards do %>
+                      <li>
+                        <a href="#<%= card_id %>">
+                          <%= name %>
+                        </a>
+                      </li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+      <% end %>
     </div>
-  </nav>
+  </div>
 
   <%= @inner_content %>
 </body>

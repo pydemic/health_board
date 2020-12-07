@@ -13,7 +13,10 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Summary do
 
     ~H"""
     <Section>
-      <SubSectionHeader title={{ @section.name }} description={{ @section.description }} />
+      <SubSectionHeader
+        title={{ @section.name }}
+        description={{ @section.description }}
+      />
 
       <Grid>
         <IncidenceCard

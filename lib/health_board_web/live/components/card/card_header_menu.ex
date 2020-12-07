@@ -17,7 +17,7 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class={{ "uk-card-header", "uk-visible-toggle", "show-when-not-hover-container", "uk-transition-toggle", "hb-border": @border_color, "hb-border-bottom": @border_color, "hb-border-#{@border_color}": @border_color }}>
+    <div id={{ @card_id }} class={{ "uk-card-header", "uk-visible-toggle", "show-when-not-hover-container", "uk-transition-toggle", "hb-border": @border_color, "hb-border-bottom": @border_color, "hb-border-#{@border_color}": @border_color }}>
       <h3 class={{"uk-card-title", "show-when-not-hover"}}>
         {{ @card.name }}
       </h3>
