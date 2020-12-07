@@ -9,7 +9,13 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
   prop card_id, :atom, required: true
   prop card, :map, required: true
 
-  @labels %{}
+  @labels [
+    %{from: nil, to: 0, group: 0},
+    %{from: 1, to: 24, group: 1},
+    %{from: 25, to: 49, group: 2},
+    %{from: 50, to: 74, group: 3},
+    %{from: 75, to: 100, group: 4}
+  ]
 
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
@@ -20,7 +26,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
     ~H"""
     <Card :if={{ Enum.any?(@card.data) }} width_l={{ 1 }} width_m={{ 1 }} >
       <template slot="header">
-        <CardHeaderMenu card_id={{ @card_id }} card={{ card }} show_data={{ false }} />
+        <CardHeaderMenu card_id={{ @card_id }} card={{ card }} show_data={{ false }} show_labels={{ true }} />
       </template>
 
       <template slot="body">
@@ -43,7 +49,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
 
                 <td
                   :for={{ {cell, header} <- Enum.zip(line.cells, headers) }}
-                  class={{ "hb-table-item", "uk-text-center", "uk-text-secondary", "hb-table-choropleth-#{cell.group}" }}
+                  class={{ "hb-table-item", "uk-text-center", "uk-text-secondary", "hb-choropleth-#{cell.group}" }}
                   uk-tooltip={{ "Casos de #{header} em #{line.name} - #{cell.cases}" }}>
                   {{ if not is_nil(cell.value), do: Humanize.number(cell.value), else: "" }}
                 </td>
@@ -53,7 +59,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
         </div>
       </template>
 
-      <CardOffcanvasMenu card_id={{ @card_id }} card={{ card }} />
+      <CardOffcanvasMenu card_id={{ @card_id }} card={{ card }} show_data={{ false }} show_labels={{ true }} suffix="%" />
     </Card>
     """
   end

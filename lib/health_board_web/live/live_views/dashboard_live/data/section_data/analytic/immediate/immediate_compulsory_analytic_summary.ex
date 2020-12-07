@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.ImmediateCompulsoryAnalyticSummary do
-  @data_keys ~w[location yearly_deaths yearly_morbidities yearly_populations data_periods]a
-  @filter_keys ~w[year morbidity_context]a
+  @data_keys ~w[data_periods yearly_deaths yearly_morbidities yearly_populations]a
+  @filter_keys ~w[morbidity_context year]a
 
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = section_data) do

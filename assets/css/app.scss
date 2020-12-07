@@ -145,28 +145,30 @@ i.hb-right {
   height: 25px;
 }
 
-.hb-table-label {
-  border-radius: 25px;
-}
-
-.hb-table-choropleth-0 {
+.hb-choropleth-0 {
   background-color: #cccccc;
 }
 
-.hb-table-choropleth-1 {
+.hb-choropleth-1 {
   background-color: #6dac6d;
 }
 
-.hb-table-choropleth-2 {
+.hb-choropleth-2 {
   background-color: #c5cc69;
 }
 
-.hb-table-choropleth-3 {
+.hb-choropleth-3 {
   background-color: #dbcb37;
 }
 
-.hb-table-choropleth-4 {
+.hb-choropleth-4 {
   background-color: #e47f7f;
+}
+
+.hb-label {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
 }
 
 .show-when-not-hover {

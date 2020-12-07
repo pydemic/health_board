@@ -18,7 +18,7 @@ defmodule HealthBoardWeb.LiveComponents.CardBodyCanvas do
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class={{ "uk-card-body", "#{@class}": @class}} style={{ "min-height: #{@height};" }}>
+    <div class={{ "uk-card-body", "#{@class}": @class }} style={{ "min-height: #{@height};" }}>
       <canvas id={{ @id }} height={{ @height }} phx-hook={{ @hook }}></canvas>
     </div>
     """

@@ -88,7 +88,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   end
 
   #   <ControlDiagrams
-  #   ::if={{   Map.has_key?(sections, :immediate_compulsory_analytic_control_diagrams) }}
+  #   ::if={{ false and   Map.has_key?(sections, :immediate_compulsory_analytic_control_diagrams) }}
   #   section={{ sections[:immediate_compulsory_analytic_control_diagrams] }}
   #   section_cards_ids={{[
   #     :accident_by_venomous_animals_incidence_rate_control_diagram,
@@ -173,7 +173,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   # />
 
   # <ControlDiagrams
-  #   ::if={{   Map.has_key?(sections, :weekly_compulsory_analytic_control_diagrams) }}
+  #   ::if={{ false and   Map.has_key?(sections, :weekly_compulsory_analytic_control_diagrams) }}
   #   section={{ sections[:weekly_compulsory_analytic_control_diagrams] }}
   #   section_cards_ids={{[
   #     :amazon_malaria_death_rate_control_diagram,

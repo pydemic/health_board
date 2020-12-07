@@ -8,11 +8,19 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
   prop card_id, :atom, required: true
   prop card, :map, required: true
 
+  prop show_info, :boolean, default: true
+  prop show_data, :boolean, default: true
+  prop show_labels, :boolean, default: false
+  prop show_filters, :boolean, default: true
+  prop show_sources, :boolean, default: true
+
+  prop suffix, :string, default: ""
+
   @spec render(map()) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div :show={{ false }}>
-      <div id={{"offcanvas-info-#{@card_id}"}} uk-modal>
+      <div :if={{ @show_info }} id={{"offcanvas-info-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -34,7 +42,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
 
-      <div id={{"offcanvas-data-#{@card_id}"}} uk-modal>
+      <div :if={{ @show_data }} id={{"offcanvas-data-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -46,7 +54,26 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
 
-      <div id={{"offcanvas-filters-#{@card_id}"}} uk-modal>
+      <div :if={{ @show_labels }} id={{"offcanvas-labels-#{@card_id}"}} uk-modal>
+        <div class="uk-offcanvas-bar">
+          <button class="uk-modal-close" type="button" uk-close></button>
+
+          <h3>
+          Legenda para {{ @card.name }}
+          </h3>
+
+          <div :if={{ Map.has_key?(@card.data, :labels) }}>
+            <div :for={{ %{from: from, to: to, group: group} <- @card.data.labels }} class="uk-width-1-1">
+              <div class={{ "hb-label": group, "hb-choropleth-#{group}": group }}></div>
+              {{ label_description(from, to, @suffix) }}
+              <br/>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div if={{ @show_filters }} id={{"offcanvas-filters-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -58,7 +85,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
 
-      <div id={{"offcanvas-sources-#{@card_id}"}} uk-modal>
+      <div if={{ @show_sources }} id={{"offcanvas-sources-#{@card_id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -66,34 +93,27 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Fontes de {{ @card.name }}
           </h3>
 
-            <div :if={{ not is_nil(@card.indicator.sources) }} :for={{ indicator_source <- @card.indicator.sources }}>
-              <dl class={{"uk-description-list", "hb-description-list"}}>
-                <dt>Nome</dt>
-                <dd>{{ indicator_source.source.name }}</dd>
-                <dt>Descrição</dt>
-                <dd>{{ indicator_source.source.description }}</dd>
-                <dt>Endereço da fonte</dt>
-                <dd><a href={{ indicator_source.source.link }} target="_blank">Clique aqui</a></dd>
-                <dt>Frequência de atualização da base</dt>
-                <dd>{{ indicator_source.source.update_rate }}</dd>
-                <dt>Data de extração</dt>
-                <dd>{{ Humanize.date(indicator_source.source.extraction_date) }}</dd>
-              </dl>
-            </div>
-
-        </div>
-      </div>
-
-      <div id={{"offcanvas-labels-#{@card_id}"}} uk-modal>
-        <div class="uk-offcanvas-bar">
-          <button class="uk-modal-close" type="button" uk-close></button>
-
-          <h3>
-          Legenda de {{ @card.name }}
-          </h3>
+          <div :if={{ not is_nil(@card.indicator.sources) }} :for={{ indicator_source <- @card.indicator.sources }}>
+            <dl class={{"uk-description-list", "hb-description-list"}}>
+              <dt>Nome</dt>
+              <dd>{{ indicator_source.source.name }}</dd>
+              <dt>Descrição</dt>
+              <dd>{{ indicator_source.source.description }}</dd>
+              <dt>Endereço da fonte</dt>
+              <dd><a href={{ indicator_source.source.link }} target="_blank">Clique aqui</a></dd>
+              <dt>Frequência de atualização da base</dt>
+              <dd>{{ indicator_source.source.update_rate }}</dd>
+              <dt>Data de extração</dt>
+              <dd>{{ Humanize.date(indicator_source.source.extraction_date) }}</dd>
+            </dl>
+          </div>
         </div>
       </div>
     </div>
     """
   end
+
+  defp label_description(nil, to, suffix), do: "#{to}#{suffix}"
+  defp label_description(from, nil, suffix), do: "#{from}#{suffix} ou mais"
+  defp label_description(from, to, suffix), do: "Entre #{from}#{suffix} e #{to}#{suffix}"
 end
