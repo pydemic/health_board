@@ -12,7 +12,7 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderTitle do
   @doc "The card header border color"
   prop border_color, :atom, values: [:success, :warning, :danger, :disabled]
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class={{ "uk-card-header", "hb-border": @border_color, "hb-border-bottom": @border_color, "hb-border-#{@border_color}": @border_color }}>

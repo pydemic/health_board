@@ -8,7 +8,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.ControlDiagra
 
   prop card, :map, required: true
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <Card :if={{ Enum.any?(@card.data) }} width_l={{ 2 }} width_m={{ 1 }}>

@@ -11,11 +11,11 @@ defmodule HealthBoard.Contexts.Mortalities.YearlyDeaths do
   @spec new :: schema
   def new, do: %@schema{}
 
-  @spec get_by!(keyword) :: schema
-  def get_by!(params) do
+  @spec get_by(keyword) :: schema
+  def get_by(params) do
     @schema
     |> where(^filter_where(params))
-    |> Repo.one!()
+    |> Repo.one()
   end
 
   @spec list_by(keyword) :: list(schema)

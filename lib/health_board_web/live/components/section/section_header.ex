@@ -12,7 +12,7 @@ defmodule HealthBoardWeb.LiveComponents.SectionHeader do
   @doc "The section description"
   prop description, :string
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <h2 class="uk-heading-line uk-text-center">

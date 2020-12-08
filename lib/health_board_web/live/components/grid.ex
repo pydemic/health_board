@@ -24,7 +24,7 @@ defmodule HealthBoardWeb.LiveComponents.Grid do
   @doc "The section content"
   slot default
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     if assigns[:wrap] do
       ~H"""

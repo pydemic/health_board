@@ -11,11 +11,12 @@ defmodule HealthBoard.Contexts.Demographic.YearlyPopulations do
   @spec new :: schema
   def new, do: %@schema{}
 
-  @spec get_by!(keyword) :: schema
-  def get_by!(params) do
+  @spec get_by(keyword) :: schema
+  def get_by(params) do
     @schema
     |> where(^filter_where(params))
-    |> Repo.one!()
+    |> Repo.one()
+    |> Kernel.||(%{male: 0, female: 0})
     |> @schema.add_total()
   end
 

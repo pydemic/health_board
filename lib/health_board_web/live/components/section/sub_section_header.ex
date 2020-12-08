@@ -12,7 +12,7 @@ defmodule HealthBoardWeb.LiveComponents.SubSectionHeader do
   @doc "The section description"
   prop description, :string
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <h3 class="uk-heading-bullet">

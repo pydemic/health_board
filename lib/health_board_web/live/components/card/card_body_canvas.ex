@@ -15,7 +15,7 @@ defmodule HealthBoardWeb.LiveComponents.CardBodyCanvas do
   @doc "The hook name for phx-hook"
   prop hook, :string, default: "Chart"
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class={{ "uk-card-body", "#{@class}": @class }} style={{ "min-height: #{@height};" }}>

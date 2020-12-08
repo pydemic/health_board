@@ -16,7 +16,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
 
   prop suffix, :string, default: ""
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div :show={{ false }}>

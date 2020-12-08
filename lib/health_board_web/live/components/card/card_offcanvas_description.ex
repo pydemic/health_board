@@ -6,7 +6,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasDescription do
 
   prop data, :any
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     data = flatten_data(assigns[:data])
 

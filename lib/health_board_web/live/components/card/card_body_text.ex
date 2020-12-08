@@ -11,7 +11,7 @@ defmodule HealthBoardWeb.LiveComponents.CardBodyText do
 
   slot default
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class={{ "uk-card-body", "#{@class}": @class}}>

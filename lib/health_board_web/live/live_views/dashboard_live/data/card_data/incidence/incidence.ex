@@ -3,47 +3,70 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
 
   @empty_data %{total: 0, average: 0, severity: nil, first_record_date: nil, last_record_date: nil}
 
-  @spec fetch(map()) :: map()
-  def fetch(%{data: data, filters: filters} = card_data) do
-    %{}
-    |> fetch_year_morbidity(data, filters)
-    |> fetch_year_deaths(data, filters)
+  @spec fetch(map) :: map
+  def fetch(map) do
+    map
+    |> fetch_morbidity_context()
+    |> fetch_morbidity()
+    |> fetch_deaths()
     |> select_severity()
-    |> update(card_data)
-    |> Map.put(:filters, Map.update!(filters, :morbidity_context, &Contexts.morbidity_name(&1)))
   end
 
-  defp fetch_year_morbidity(view_data, %{yearly_morbidities: morbidities} = data, filters) do
-    data_periods = Map.fetch!(data.data_periods, Contexts.data_context!(:morbidity))
-    Map.put(view_data, :year_morbidity, fetch_from_yearly_cases(morbidities, filters, data_periods))
+  defp fetch_morbidity_context(map) do
+    if Map.has_key?(map.query_filters, :morbidity_context) and not Map.has_key?(map.data, :morbidity_context) do
+      morbidity_context = map.query_filters.morbidity_context
+
+      map
+      |> put_in([:data, :morbidity_context], morbidity_context)
+      |> put_in([:filters, :morbidity_context], Contexts.morbidity_name(morbidity_context))
+    else
+      map
+    end
   end
 
-  defp fetch_year_morbidity(view_data, _data, _filters) do
-    Map.put(view_data, :year_morbidity, @empty_data)
+  defp fetch_morbidity(%{data: %{yearly_morbidities_per_context: morbidities} = data} = map) do
+    %{data_periods_per_context: data_periods, morbidity_context: context} = data
+    data_context = Contexts.data_context!(:morbidity)
+
+    data_period =
+      data_periods
+      |> Map.get(context, [])
+      |> Enum.find(%{from_date: nil, to_date: nil}, &(&1.data_context == data_context))
+
+    put_in(map, [:view_data, :morbidity], from_yearly_per_context(morbidities, data, data_period))
   end
 
-  defp fetch_year_deaths(view_data, %{yearly_deaths: deaths} = data, filters) do
-    data_periods = Map.fetch!(data.data_periods, Contexts.data_context!(:deaths))
-    Map.put(view_data, :year_deaths, fetch_from_yearly_cases(deaths, filters, data_periods))
+  defp fetch_morbidity(map) do
+    put_in(map, [:view_data, :morbidity], @empty_data)
   end
 
-  defp fetch_year_deaths(view_data, _data, _filters) do
-    Map.put(view_data, :year_deaths, @empty_data)
+  defp fetch_deaths(%{data: %{yearly_deaths_per_context: deaths} = data} = map) do
+    %{data_periods_per_context: data_periods, morbidity_context: context} = data
+    data_context = Contexts.data_context!(:deaths)
+
+    data_period =
+      data_periods
+      |> Map.get(context, [])
+      |> Enum.find(%{from_date: nil, to_date: nil}, &(&1.data_context == data_context))
+
+    put_in(map, [:view_data, :deaths], from_yearly_per_context(deaths, data, data_period))
   end
 
-  defp fetch_from_yearly_cases(yearly_cases, filters, data_periods) do
-    context = filters.morbidity_context
+  defp fetch_deaths(map) do
+    put_in(map, [:view_data, :deaths], @empty_data)
+  end
 
-    yearly_context_cases = Enum.filter(yearly_cases, &(&1.context == context))
-    years = Enum.count(yearly_context_cases)
+  defp from_yearly_per_context(cases_per_context, %{morbidity_context: context} = data, data_period) do
+    cases = Map.get(cases_per_context, context, [])
+    years = Enum.count(cases)
 
     {total, average} =
       if years == 0 do
         {0, 0}
       else
-        year = Map.get_lazy(filters, :year, fn -> Date.utc_today().year end)
-        total = Enum.find_value(yearly_context_cases, 0, &if(&1.year == year, do: &1.total))
-        average = div(Enum.sum(Enum.map(yearly_context_cases, & &1.total)), years)
+        year = Map.get_lazy(data, :year, fn -> Date.utc_today().year end)
+        total = Enum.find_value(cases, 0, &if(&1.year == year, do: &1.total))
+        average = div(Enum.sum(Enum.map(cases, & &1.total)), years)
         {total, average}
       end
 
@@ -55,25 +78,20 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
         true -> :above_average
       end
 
-    [%{from_date: from, to_date: to}] = Map.get(data_periods, context, [%{from_date: nil, to_date: nil}])
-
+    %{from_date: from, to_date: to} = data_period
     %{total: total, average: average, severity: severity, first_record_date: from, last_record_date: to}
   end
 
-  defp select_severity(view_data) do
-    %{year_morbidity: %{severity: morbidity_severity}, year_deaths: %{severity: deaths_severity}} = view_data
+  defp select_severity(%{view_data: view_data} = map) do
+    %{morbidity: %{severity: morbidity_severity}, deaths: %{severity: deaths_severity}} = view_data
 
     severities = [morbidity_severity, deaths_severity]
 
     cond do
-      :above_average in severities -> Map.put(view_data, :overall_severity, :above_average)
-      :on_average in severities -> Map.put(view_data, :overall_severity, :on_average)
-      :below_average in severities -> Map.put(view_data, :overall_severity, :below_average)
-      true -> Map.put(view_data, :overall_severity, nil)
+      :above_average in severities -> put_in(map, [:view_data, :overall_severity], :above_average)
+      :on_average in severities -> put_in(map, [:view_data, :overall_severity], :on_average)
+      :below_average in severities -> put_in(map, [:view_data, :overall_severity], :below_average)
+      true -> put_in(map, [:view_data, :overall_severity], nil)
     end
-  end
-
-  defp update(data, key \\ :view_data, section_data) do
-    Map.put(section_data, key, data)
   end
 end

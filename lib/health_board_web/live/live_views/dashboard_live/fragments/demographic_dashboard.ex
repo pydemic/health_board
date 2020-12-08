@@ -6,7 +6,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard do
 
   prop dashboard, :map, required: true
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <Section>

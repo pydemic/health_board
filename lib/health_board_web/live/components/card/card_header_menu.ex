@@ -7,6 +7,7 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
   prop card_id, :atom, required: true
   prop card, :map, required: true
 
+  prop show_link, :boolean, default: true
   prop show_data, :boolean, default: true
   prop show_info, :boolean, default: true
   prop show_filters, :boolean, default: true
@@ -15,7 +16,7 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
 
   prop border_color, :atom, values: [:success, :warning, :danger, :disabled]
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div id={{ "to_#{@card_id}" }} class={{ "uk-card-header", "uk-visible-toggle", "show-when-not-hover-container", "uk-transition-toggle", "hb-border": @border_color, "hb-border-bottom": @border_color, "hb-border-#{@border_color}": @border_color }}>
@@ -24,8 +25,8 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
       </h3>
 
       <div class={{ "uk-hidden-hover", "uk-transition-slide-top", "uk-flex", "uk-flex-middle", "uk-flex-between", "hb-card-menu"}}>
-        <div :if={{ @card[:link] }}>
-          <a href={{ dashboard_path(@socket, @card.link, @card.filters) }} uk-tooltip="Ver painel">
+        <div :if={{ @show_link and @card[:link] }}>
+          <a href={{ dashboard_path(@socket, @card.link, @card.query_filters) }} uk-tooltip="Ver painel">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"/></svg>
           </a>
         </div>
@@ -64,7 +65,7 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
     """
   end
 
-  defp dashboard_path(socket, dashboard_id, filters) do
-    Routes.dashboard_path(socket, :index, dashboard_id, Enum.to_list(filters))
+  defp dashboard_path(socket, dashboard_id, query_filters) do
+    Routes.dashboard_path(socket, :index, [id: dashboard_id] ++ Enum.to_list(query_filters))
   end
 end

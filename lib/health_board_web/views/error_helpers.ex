@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.ErrorHelpers do
   use Phoenix.HTML
 
-  @spec error_tag(map(), atom()) :: list(String.t())
+  @spec error_tag(map, atom()) :: list(String.t())
   def error_tag(form, field) do
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
       content_tag(:span, translate_error(error),
@@ -11,7 +11,7 @@ defmodule HealthBoardWeb.ErrorHelpers do
     end)
   end
 
-  @spec translate_error({String.t(), keyword() | map()}) :: String.t()
+  @spec translate_error({String.t(), keyword() | map}) :: String.t()
   def translate_error({msg, opts}) do
     if count = opts[:count] do
       Gettext.dngettext(HealthBoardWeb.Gettext, "errors", msg, msg, count, opts)

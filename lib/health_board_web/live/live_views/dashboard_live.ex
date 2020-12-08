@@ -13,13 +13,13 @@ defmodule HealthBoardWeb.DashboardLive do
   alias Phoenix.LiveView
 
   @impl LiveView
-  @spec mount(map(), map(), LiveView.Socket.t()) :: {:ok, LiveView.Socket.t()}
+  @spec mount(map, map, LiveView.Socket.t()) :: {:ok, LiveView.Socket.t()}
   def mount(params, _session, socket) do
     {:ok, __MODULE__.DataManager.initial_data(Surface.init(socket), params)}
   end
 
   @impl LiveView
-  @spec handle_params(map(), String.t(), LiveView.Socket.t()) :: {:noreply, LiveView.Socket.t()}
+  @spec handle_params(map, String.t(), LiveView.Socket.t()) :: {:noreply, LiveView.Socket.t()}
   def handle_params(params, _url, socket) do
     if socket.connected? do
       {:noreply, __MODULE__.DataManager.update(socket, params)}
@@ -29,7 +29,7 @@ defmodule HealthBoardWeb.DashboardLive do
   end
 
   @impl LiveView
-  @spec handle_event(String.t(), map(), LiveView.Socket.t()) :: {:noreply, LiveView.Socket.t()}
+  @spec handle_event(String.t(), map, LiveView.Socket.t()) :: {:noreply, LiveView.Socket.t()}
   def handle_event(event, params, socket) do
     {:noreply, __MODULE__.EventManager.handle_event(socket, params, event)}
   end

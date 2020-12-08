@@ -6,7 +6,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Morbidity do
   alias HealthBoard.Contexts.Mortalities.{WeeklyDeaths, YearlyDeaths}
   alias HealthBoardWeb.DashboardLive.CommonData
 
-  @spec fetch(map()) :: map()
+  @spec fetch(map) :: map
   def fetch(%{data: data, filters: filters} = dashboard_data) do
     {data, filters} = fetch_location_data(data, fetch_default_filters(filters))
 

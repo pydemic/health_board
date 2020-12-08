@@ -1,28 +1,30 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRatePerYear do
   alias HealthBoard.Contexts
 
-  @spec fetch(map()) :: map()
-  def fetch(%{filters: filters} = card_data) do
-    send(card_data.root_pid, {:exec_and_emit, &do_fetch/1, card_data, {:chart, :multiline}})
+  @spec fetch(map) :: map
+  def fetch(map) do
+    send(map.pid, {:exec_and_emit, &do_fetch/1, map, {:chart, :multiline}})
 
-    card_data
+    map
     |> Map.put(:view_data, %{event_pushed: true})
-    |> put_in([:filters, :morbidity_contexts], Enum.map(filters.morbidity_contexts, &Contexts.morbidity_name(&1)))
+    |> put_in(
+      [:filters, :morbidity_contexts],
+      Enum.map(map.query_filters.morbidity_contexts, &Contexts.morbidity_name(&1))
+    )
   end
 
-  defp do_fetch(%{id: id, data: data, filters: filters}) do
-    contexts = filters.morbidity_contexts
-    years = fetch_years(filters)
+  defp do_fetch(%{data: data} = map) do
+    contexts = map.query_filters.morbidity_contexts
+    years = fetch_years(data)
 
-    %{yearly_morbidities: yearly_cases, yearly_populations: yearly_populations} = data
+    %{yearly_morbidities_per_context: cases, yearly_population: populations} = data
 
-    yearly_populations = Enum.group_by(yearly_populations, & &1.year, & &1.total)
+    populations_per_year = Enum.group_by(populations, & &1.year, & &1.total)
 
-    yearly_cases
-    |> Enum.filter(&(&1.context in contexts))
-    |> Enum.group_by(& &1.context, fn %{total: total, year: year} -> %{total: total, year: year} end)
-    |> Enum.map(&fetch_dataset(&1, yearly_populations, years))
-    |> wrap_result(years, id)
+    cases
+    |> Enum.filter(&(elem(&1, 0) in contexts))
+    |> Enum.map(&fetch_dataset(&1, populations_per_year, years))
+    |> wrap_result(years, map.id)
   end
 
   defp wrap_result(datasets, years, id) do
@@ -33,18 +35,18 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRatePerYear do
     }
   end
 
-  defp fetch_years(filters) do
-    filters.from_year
-    |> Range.new(filters.to_year)
+  defp fetch_years(data) do
+    data.from_year
+    |> Range.new(data.to_year)
     |> Enum.to_list()
   end
 
-  defp fetch_dataset({context, context_cases}, yearly_populations, years) do
-    yearly_cases = Enum.group_by(context_cases, & &1.year, & &1.total)
+  defp fetch_dataset({context, context_cases}, populations, years) do
+    cases = Enum.group_by(context_cases, & &1.year, & &1.total)
 
     %{
       label: Contexts.morbidity_name(context) || "N/A",
-      data: Enum.map(years, &fetch_data(Map.get(yearly_cases, &1), Map.get(yearly_populations, &1)))
+      data: Enum.map(years, &fetch_data(Map.get(cases, &1), Map.get(populations, &1)))
     }
   end
 

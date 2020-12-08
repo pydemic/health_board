@@ -1,7 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData do
   require Logger
 
-  alias HealthBoard.Contexts.Info
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
   @cards_links %{
@@ -15,28 +14,23 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
     "population" => "demographic"
   }
 
-  @spec assign(map) :: map
-  def assign(%{section: %{cards: section_cards}, data: data, filters: filters, root_pid: root_pid}) do
-    section_cards
-    |> Enum.map(&fetch_card_data(&1, data, filters, root_pid))
-    |> Enum.into(%{})
-  rescue
-    _error -> []
+  @spec cards(map, list) :: map
+  def cards(payload, section_cards) do
+    for section_card <- section_cards, into: %{} do
+      fetch_card_data(section_card, payload)
+    end
   end
 
-  defp fetch_card_data(section_card, data, filters, root_pid) do
+  defp fetch_card_data(section_card, payload) do
     %{
       id: section_card_id,
       name: section_card_name,
       link: link?,
-      filters: section_card_filters,
-      card: %{indicator: indicator, name: card_name, description: description} = card
+      filters: section_card_query_filters,
+      card: %{id: id, indicator: indicator, name: card_name, description: description}
     } = section_card
 
-    section_card_filters = for %{filter: filter, value: value} <- section_card_filters, into: %{}, do: {filter, value}
-    section_card_filters = DataManager.parse_filters(section_card_filters)
-
-    filters = Map.merge(filters, section_card_filters)
+    payload = fetch_query_filters(section_card_query_filters, payload)
 
     name = section_card_name || card_name
     link = if link?, do: Map.get(@cards_links, indicator.id), else: nil
@@ -49,17 +43,15 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
       indicator: indicator,
       link: link,
       data: %{},
-      filters: %{}
+      filters: %{},
+      query_filters: %{}
     }
 
     try do
-      %{data: data, filters: filters} =
-        card
-        |> CardData.new(section_card_id, data, filters, root_pid)
-        |> CardData.fetch()
-        |> CardData.assign()
+      %{view_data: data, filters: filters, query_filters: query_filters} =
+        CardData.fetch(id, Map.merge(payload, %{view_data: %{}, id: section_card_id}))
 
-      {section_card_id, Map.merge(section_card_data, %{data: data, filters: filters})}
+      {section_card_id, Map.merge(section_card_data, %{data: data, filters: filters, query_filters: query_filters})}
     rescue
       error ->
         Logger.error(
@@ -71,8 +63,15 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
     end
   end
 
-  @spec fetch(map) :: map
-  def fetch(%{section: %{id: id}} = section_data) do
+  defp fetch_query_filters(section_card_query_filters, payload) do
+    section_card_query_filters = for %{filter: f, value: v} <- section_card_query_filters, into: %{}, do: {f, v}
+    section_card_query_filters = DataManager.parse_filters(section_card_query_filters)
+    query_filters = Map.merge(payload.query_filters, section_card_query_filters)
+    Map.put(payload, :query_filters, query_filters)
+  end
+
+  @spec fetch(atom, map) :: map
+  def fetch(id, payload) do
     sub_module =
       "#{id}"
       |> Recase.to_pascal()
@@ -80,11 +79,6 @@ defmodule HealthBoardWeb.DashboardLive.SectionData do
 
     __MODULE__
     |> Module.concat(sub_module)
-    |> apply(:fetch, [section_data])
-  end
-
-  @spec new(Info.Section.t(), map, map, pid) :: map
-  def new(section, data, filters, root_pid) do
-    %{section: section, data: data, filters: filters, root_pid: root_pid}
+    |> apply(:fetch, [payload])
   end
 end

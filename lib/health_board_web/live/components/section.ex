@@ -9,7 +9,7 @@ defmodule HealthBoardWeb.LiveComponents.Section do
   @doc "The section content"
   slot default
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class={{

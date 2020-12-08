@@ -2,25 +2,28 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
   alias HealthBoard.Contexts
   alias HealthBoardWeb.Helpers.Choropleth
 
-  @spec fetch(map()) :: map()
-  def fetch(%{data: data, filters: filters} = card_data) do
-    card_data
-    |> Map.put(:view_data, fetch_table(data, filters))
-    |> put_in([:filters, :morbidity_contexts], Enum.map(filters.morbidity_contexts, &Contexts.morbidity_name(&1)))
+  @spec fetch(map) :: map
+  def fetch(map) do
+    map
+    |> Map.put(:view_data, fetch_table(map))
+    |> put_in(
+      [:filters, :morbidity_contexts],
+      Enum.map(map.query_filters.morbidity_contexts, &Contexts.morbidity_name(&1))
+    )
   end
 
-  defp fetch_table(data, filters) do
-    contexts = filters.morbidity_contexts
+  defp fetch_table(%{data: data} = map) do
+    contexts = map.query_filters.morbidity_contexts
 
     %{
       locations: locations,
-      locations_year_morbidities: year_cases,
-      locations_year_populations: year_populations
+      locations_contexts_morbidities: cases,
+      locations_populations: populations
     } = data
 
     {headers, contexts} = fetch_headers(contexts)
 
-    incidence_rates = fetch_incidence_rates(year_cases, year_populations)
+    incidence_rates = fetch_incidence_rates(cases, populations)
 
     columns = Enum.map(contexts, &fetch_ranges(&1, incidence_rates))
 

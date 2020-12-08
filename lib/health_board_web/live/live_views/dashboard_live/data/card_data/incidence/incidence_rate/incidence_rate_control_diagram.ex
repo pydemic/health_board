@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateControlDiagram do
   alias HealthBoard.Contexts
 
-  @spec fetch(map()) :: map()
+  @spec fetch(map) :: map
   def fetch(%{filters: filters} = card_data) do
     send(card_data.root_pid, {:exec_and_emit, &do_fetch/1, card_data, {:chart, :combo}})
 

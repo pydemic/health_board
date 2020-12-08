@@ -9,7 +9,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
   prop card_id, :atom, required: true
   prop card, :map, required: true
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     %{data: data} = assigns.card
 
@@ -29,21 +29,21 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
 
       <template slot="body">
         <div :if={{ Enum.any?(data) }} class="uk-card-body">
-          <h2>{{ Humanize.number data.year_morbidity.total }}</h2>
+          <h2>{{ Humanize.number data.morbidity.total }}</h2>
 
-          <small>{{ Humanize.number data.year_deaths.total }} óbitos</small>
-
-          <br/>
-          <small>{{ Humanize.number data.year_morbidity.average }} média de casos</small>
+          <small>{{ Humanize.number data.deaths.total }} óbitos</small>
 
           <br/>
-          <small>{{ Humanize.number data.year_deaths.average }} média de óbitos</small>
+          <small>{{ Humanize.number data.morbidity.average }} média de casos</small>
 
           <br/>
-          <small> Último caso em {{ Humanize.date data.year_morbidity.last_record_date }} </small>
+          <small>{{ Humanize.number data.deaths.average }} média de óbitos</small>
 
           <br/>
-          <small> Último óbito em {{ Humanize.date data.year_deaths.last_record_date }} </small>
+          <small> Último caso em {{ Humanize.date data.morbidity.last_record_date }} </small>
+
+          <br/>
+          <small> Último óbito em {{ Humanize.date data.deaths.last_record_date }} </small>
         </div>
       </template>
 

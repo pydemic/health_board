@@ -17,7 +17,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
     %{from: 75, to: 100, group: 4}
   ]
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     card = put_in(assigns.card, [:data, :labels], @labels)
     data = card.data
@@ -26,7 +26,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
     ~H"""
     <Card :if={{ Enum.any?(@card.data) }} width_l={{ 1 }} width_m={{ 1 }} >
       <template slot="header">
-        <CardHeaderMenu card_id={{ @card_id }} card={{ card }} show_data={{ false }} show_labels={{ true }} />
+        <CardHeaderMenu card_id={{ @card_id }} card={{ card }} show_data={{ false }} show_labels={{ true }} show_link={{ false }} />
       </template>
 
       <template slot="body">

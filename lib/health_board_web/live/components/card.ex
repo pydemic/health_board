@@ -37,7 +37,7 @@ defmodule HealthBoardWeb.LiveComponents.Card do
   @doc "Extra slot for additional elements"
   slot default
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class={{

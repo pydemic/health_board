@@ -7,7 +7,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
 
   prop dashboard, :map, required: true
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     sections = assigns.dashboard.sections
 

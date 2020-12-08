@@ -24,45 +24,41 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
         id: id,
         name: name,
         description: description,
-        disabled_filters: disabled_filters
-      } = dashboard = assigns.dashboard
+        disabled_filters: disabled_filters,
+        sections: sections
+      } = assigns.dashboard
 
       disabled_filters = Enum.map(disabled_filters, & &1.filter)
 
-      filters = parse_filters(params)
+      query_filters = parse_filters(params)
 
       data = %{
         id: id,
         name: name,
         description: description,
-        filters: filters,
+        query_filters: query_filters,
         disabled_filters: disabled_filters,
-        sections: []
+        sections: fetch_sections(id, sections, query_filters, socket.root_pid)
       }
-
-      data =
-        try do
-          sections =
-            dashboard
-            |> DashboardData.new(filters, socket.root_pid)
-            |> DashboardData.fetch()
-            |> DashboardData.assign()
-
-          Map.put(data, :sections, sections)
-        rescue
-          error ->
-            Logger.error(
-              "Failed to build dashboard #{id} data.\n" <>
-                Exception.message(error) <> "\n" <> Exception.format_stacktrace(__STACKTRACE__)
-            )
-
-            data
-        end
 
       LiveView.assign(socket, :dashboard, data)
     else
       socket
     end
+  end
+
+  defp fetch_sections(id, sections, query_filters, root_pid) do
+    id
+    |> DashboardData.fetch(%{query_filters: query_filters, pid: root_pid})
+    |> DashboardData.sections(sections)
+  rescue
+    error ->
+      Logger.error(
+        "Failed to build dashboard #{id} data.\n" <>
+          Exception.message(error) <> "\n" <> Exception.format_stacktrace(__STACKTRACE__)
+      )
+
+      []
   end
 
   @params %{

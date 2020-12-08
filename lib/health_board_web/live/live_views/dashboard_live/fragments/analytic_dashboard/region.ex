@@ -8,7 +8,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.Region do
   prop section, :map, required: true
   prop section_cards_ids, :list, required: true
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     section_cards = assigns.section.cards
 

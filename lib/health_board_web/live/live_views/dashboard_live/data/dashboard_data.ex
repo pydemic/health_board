@@ -1,45 +1,47 @@
 defmodule HealthBoardWeb.DashboardLive.DashboardData do
   require Logger
 
-  alias HealthBoard.Contexts.Info
   alias HealthBoardWeb.DashboardLive.SectionData
 
-  @spec assign(map) :: map
-  def assign(%{dashboard: dashboard, data: data, filters: filters, root_pid: root_pid}) do
-    dashboard.sections
-    |> Enum.map(&fetch_section_data(&1, data, filters, root_pid))
-    |> Enum.into(%{})
-  rescue
-    _error -> []
-  end
-
-  defp fetch_section_data(dashboard_section, data, filters, root_pid) do
-    %{section: %{id: id, name: name, description: description} = section} = dashboard_section
-
-    dashboard_section_id = String.to_atom(id)
-    dashboard_section_data = %{name: name, description: description, cards: []}
-
-    try do
-      cards =
-        section
-        |> SectionData.new(data, filters, root_pid)
-        |> SectionData.fetch()
-        |> SectionData.assign()
-
-      {dashboard_section_id, Map.put(dashboard_section_data, :cards, cards)}
-    rescue
-      error ->
-        Logger.error(
-          "Failed to build section #{id} data.\n" <>
-            Exception.message(error) <> "\n" <> Exception.format_stacktrace(__STACKTRACE__)
-        )
-
-        {dashboard_section_id, dashboard_section_data}
+  @spec sections(map, list) :: map
+  def sections(payload, dashboard_sections) do
+    for dashboard_section <- dashboard_sections, into: %{} do
+      fetch_section_data(dashboard_section, payload)
     end
   end
 
-  @spec fetch(map) :: map
-  def fetch(%{dashboard: %{id: id}} = dashboard_data) do
+  defp fetch_section_data(dashboard_section, payload) do
+    %{section: %{id: id, name: name, description: description, cards: cards}} = dashboard_section
+
+    id = String.to_atom(id)
+
+    {
+      id,
+      %{
+        id: id,
+        name: name,
+        description: description,
+        cards: fetch_cards(id, cards, payload)
+      }
+    }
+  end
+
+  defp fetch_cards(id, cards, payload) do
+    id
+    |> SectionData.fetch(payload)
+    |> SectionData.cards(cards)
+  rescue
+    error ->
+      Logger.error(
+        "Failed to build section #{id} data.\n" <>
+          Exception.message(error) <> "\n" <> Exception.format_stacktrace(__STACKTRACE__)
+      )
+
+      []
+  end
+
+  @spec fetch(atom, map) :: map
+  def fetch(id, payload) do
     sub_module =
       "#{id}"
       |> Recase.to_pascal()
@@ -47,11 +49,6 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData do
 
     __MODULE__
     |> Module.concat(sub_module)
-    |> apply(:fetch, [dashboard_data])
-  end
-
-  @spec new(Info.Dashboard.t(), map, pid) :: map
-  def new(dashboard, filters, root_pid) do
-    %{dashboard: dashboard, data: %{}, filters: filters, root_pid: root_pid}
+    |> apply(:fetch, [payload])
   end
 end

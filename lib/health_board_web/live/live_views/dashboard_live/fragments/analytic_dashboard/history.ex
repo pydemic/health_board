@@ -9,7 +9,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.History do
 
   prop section_cards_ids, :list, required: true
 
-  @spec render(map()) :: LiveView.Rendered.t()
+  @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <Section>
