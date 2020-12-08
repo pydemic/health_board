@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.WeeklyCompulsoryAnalyticRegion do
   @data_keys ~w[locations locations_year_deaths locations_year_morbidities locations_year_populations]a
-  @filter_keys ~w[morbidity_contexts year]a
+  @filter_keys ~w[location morbidity_contexts year]a
 
   @spec fetch(map()) :: map()
   def fetch(%{data: data, filters: filters} = section_data) do

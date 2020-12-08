@@ -39,7 +39,7 @@
                   <ul class="uk-nav-sub">
                     <%= for %{name: name, id: card_id} <- section.cards do %>
                       <li>
-                        <a href="#<%= card_id %>">
+                        <a href="#to_<%= card_id %>">
                           <%= name %>
                         </a>
                       </li>
