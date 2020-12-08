@@ -1,5 +1,5 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.ImmediateCompulsoryAnalyticSummary do
-  @data_keys ~w[data_periods_per_context yearly_deaths_per_context yearly_morbidities_per_context population]a
+  @data_keys ~w[year data_periods_per_context yearly_deaths_per_context yearly_morbidities_per_context]a
   @filter_keys ~w[location year]a
 
   @spec fetch(map) :: map

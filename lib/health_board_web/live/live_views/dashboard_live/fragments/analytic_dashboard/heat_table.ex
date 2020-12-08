@@ -24,7 +24,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.HeatTable do
     headers = data[:headers]
 
     ~H"""
-    <Card :if={{ Enum.any?(@card.data) }} width_l={{ 1 }} width_m={{ 1 }} >
+    <Card anchor={{ "to_#{@card_id}" }} :if={{ Enum.any?(@card.data) }} width_l={{ 1 }} width_m={{ 1 }} >
       <template slot="header">
         <CardHeaderMenu card_id={{ @card_id }} card={{ card }} show_data={{ false }} show_labels={{ true }} show_link={{ false }} />
       </template>

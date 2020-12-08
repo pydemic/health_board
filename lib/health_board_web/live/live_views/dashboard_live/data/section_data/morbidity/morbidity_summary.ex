@@ -1,5 +1,5 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.MorbiditySummary do
-  @data_keys ~w[data_periods year_deaths year_morbidity year_population]a
+  @data_keys ~w[data_periods_per_context yearly_deaths yearly_morbidity yearly_population]a
   @filter_keys ~w[year location morbidity_context]a
 
   @spec fetch(map) :: map

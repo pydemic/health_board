@@ -18,7 +18,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateTable do
     %{
       locations: locations,
       locations_contexts_morbidities: cases,
-      locations_populations: populations
+      locations_population: populations
     } = data
 
     {headers, contexts} = fetch_headers(contexts)

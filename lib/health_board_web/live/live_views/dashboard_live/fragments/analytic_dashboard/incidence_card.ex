@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardOffcanvasMenu}
+  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardOffcanvasMenu, Grid}
   alias Phoenix.LiveView
 
   alias HealthBoardWeb.Helpers.Humanize
@@ -22,28 +22,32 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard
       end
 
     ~H"""
-    <Card border_color={{ color }}>
+    <Card anchor={{ "to_#{@card_id}" }} border_color={{ color }}>
       <template slot="header">
         <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} border_color={{ color }} />
       </template>
 
       <template slot="body">
-        <div :if={{ Enum.any?(data) }} class="uk-card-body">
-          <h2>{{ Humanize.number data.morbidity.total }}</h2>
+        <div class="uk-card-body">
+          <Grid :if={{ Enum.any?(data) }}>
+            <div class="uk-width-1-2">
+              <h2>{{ Humanize.number data.morbidity.total }}</h2>
+              <strong>Casos</strong>
+              <small>Média:</small>
+              <small>{{ Humanize.number data.morbidity.average }}</small>
+              <small>Último registro:</small>
+              <small>{{ Humanize.date data.morbidity.last_record_date }} </small>
+            </div>
 
-          <small>{{ Humanize.number data.deaths.total }} óbitos</small>
-
-          <br/>
-          <small>{{ Humanize.number data.morbidity.average }} média de casos</small>
-
-          <br/>
-          <small>{{ Humanize.number data.deaths.average }} média de óbitos</small>
-
-          <br/>
-          <small> Último caso em {{ Humanize.date data.morbidity.last_record_date }} </small>
-
-          <br/>
-          <small> Último óbito em {{ Humanize.date data.deaths.last_record_date }} </small>
+            <div class="uk-width-1-2">
+              <h2>{{ Humanize.number data.deaths.total }}</h2>
+              <strong>Óbitos</strong>
+              <small>Média:</small>
+              <small>{{ Humanize.number data.deaths.average }}</small>
+              <small> Último registro:</small>
+              <small>{{ Humanize.date data.deaths.last_record_date }} </small>
+            </div>
+          </Grid>
         </div>
       </template>
 

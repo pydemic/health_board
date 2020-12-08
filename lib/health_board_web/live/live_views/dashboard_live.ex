@@ -46,7 +46,7 @@ defmodule HealthBoardWeb.DashboardLive do
     case assigns[:dashboard] do
       %{id: "analytic"} = dashboard ->
         ~H"""
-        <AnalyticDashboard dashboard={{ dashboard }}/>
+        <AnalyticDashboard id="analytic" dashboard={{ dashboard }}/>
         """
 
       %{id: "demographic"} = dashboard ->

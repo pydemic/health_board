@@ -1,5 +1,5 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.WeeklyCompulsoryAnalyticRegion do
-  @data_keys ~w[locations locations_contexts_deaths locations_contexts_morbidities locations_populations]a
+  @data_keys ~w[locations locations_contexts_deaths locations_contexts_morbidities locations_population]a
   @filter_keys ~w[locations year]a
 
   @spec fetch(map) :: map

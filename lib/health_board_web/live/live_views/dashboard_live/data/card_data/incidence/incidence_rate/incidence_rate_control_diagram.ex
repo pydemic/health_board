@@ -12,14 +12,14 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRateControlDiagram do
 
   defp do_fetch(%{id: id, data: data, filters: filters}) do
     %{morbidity_context: context, from_year: from_year, to_year: to_year} = filters
-    %{data_periods: data_periods, weekly_morbidities: weekly_cases, yearly_populations: yearly_populations} = data
+    %{data_periods: data_periods, weekly_morbidities: weekly_cases, yearly_population: yearly_population} = data
 
     weeks = Enum.to_list(1..53)
 
     data_period = fetch_data_period(data_periods, context, from_year)
 
     weekly_cases = Map.get(weekly_cases, context, [])
-    rates = fetch_rates(weekly_cases, yearly_populations)
+    rates = fetch_rates(weekly_cases, yearly_population)
 
     {lower, middle, upper} = moving_average_boundaries(rates, weeks, data_period, to_year)
 

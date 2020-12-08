@@ -18,7 +18,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateTable do
     %{
       locations: locations,
       locations_contexts_deaths: cases,
-      locations_populations: populations
+      locations_population: populations
     } = data
 
     {headers, contexts} = fetch_headers(contexts)

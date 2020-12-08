@@ -25,6 +25,8 @@ defmodule HealthBoardWeb.LiveComponents.Card do
   @doc "The concent of the card. Will be used if body slot is not defined"
   prop content, :string
 
+  prop anchor, :string
+
   @doc "The header of the card"
   slot header, props: [:border_color, :title]
 
@@ -40,10 +42,13 @@ defmodule HealthBoardWeb.LiveComponents.Card do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class={{
-      "uk-width-1-#{@width_l}@l",
-      "uk-width-1-#{@width_m}@m"
-    }}>
+    <div
+      id={{ @anchor }}
+      class={{
+        "uk-width-1-#{@width_l}@l",
+        "uk-width-1-#{@width_m}@m"
+      }}
+    >
       <div class={{
         "uk-card",
         "uk-card-hover",

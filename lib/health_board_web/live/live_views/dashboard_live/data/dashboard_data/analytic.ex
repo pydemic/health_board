@@ -12,13 +12,14 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
     |> fetch_default_filters()
     |> fetch_location_data()
     |> fetch_deaths()
-    |> fetch_yearly_morbidities()
-    |> fetch_yearly_populations()
+    |> fetch_morbidities()
+    |> fetch_populations()
     |> fetch_data_periods()
   end
 
   defp fetch_default_filters(map) do
-    current_year = Date.utc_today().year
+    # current_year = Date.utc_today().year
+    current_year = 2019
 
     filters = %{year: current_year, to_year: current_year, from_year: 2000}
 
@@ -61,7 +62,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
       |> Enum.group_by(& &1.context, &Map.take(&1, [:year, :total]))
 
     locations_contexts_deaths =
-      [year: year, locations_ids: data.locations_ids]
+      [locations_ids: data.locations_ids, year: year]
       |> YearlyDeaths.list_by()
       |> Enum.map(&Map.take(&1, [:context, :location_id, :total]))
 
@@ -74,7 +75,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
     Map.put(map, :data, data)
   end
 
-  defp fetch_yearly_morbidities(%{data: data} = map) do
+  defp fetch_morbidities(%{data: data} = map) do
     %{location_id: location_id, year: year} = data
 
     yearly_morbidities_per_context =
@@ -83,7 +84,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
       |> Enum.group_by(& &1.context, &Map.take(&1, [:year, :total]))
 
     locations_contexts_morbidities =
-      [year: year, locations_ids: data.locations_ids]
+      [locations_ids: data.locations_ids, year: year]
       |> YearlyMorbidities.list_by()
       |> Enum.map(&Map.take(&1, [:context, :location_id, :total]))
 
@@ -96,7 +97,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
     Map.put(map, :data, data)
   end
 
-  defp fetch_yearly_populations(%{data: data} = map) do
+  defp fetch_populations(%{data: data} = map) do
     %{location_id: location_id, year: year} = data
 
     yearly_population =
@@ -104,21 +105,15 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
       |> YearlyPopulations.list_by()
       |> Enum.map(&Map.take(&1, [:year, :total]))
 
-    population =
-      [location_id: location_id, year: year]
-      |> YearlyPopulations.get_by()
-      |> Map.get(:total, 0)
-
-    locations_populations =
-      [year: year, locations_ids: data.locations_ids]
+    locations_population =
+      [locations_ids: data.locations_ids, year: year]
       |> YearlyPopulations.list_by()
       |> Enum.map(&Map.take(&1, [:location_id, :total]))
 
     data =
       Map.merge(data, %{
         yearly_population: yearly_population,
-        population: population,
-        locations_populations: locations_populations
+        locations_population: locations_population
       })
 
     Map.put(map, :data, data)
@@ -132,6 +127,6 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
       |> DataPeriods.list_by()
       |> Enum.group_by(& &1.context, &Map.delete(&1, :context))
 
-    Map.update!(map, :data, &Map.put(&1, :data_periods_per_context, data_periods_per_context))
+    put_in(map, [:data, :data_periods_per_context], data_periods_per_context)
   end
 end
