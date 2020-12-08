@@ -2,7 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.{History, Region, Summary}
-  alias HealthBoardWeb.LiveComponents.{Card, Grid, Section, SectionHeader}
+  alias HealthBoardWeb.LiveComponents.{Card, DashboardMenu, Grid, Section, SectionHeader}
   alias Phoenix.LiveView
 
   prop dashboard, :map, required: true
@@ -64,6 +64,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard do
             :weekly_compulsory_death_rate_table
           ]}}
         />
+
+        <DashboardMenu dashboard={{ @dashboard }} />
       </Section>
       """
     else
