@@ -4,39 +4,22 @@ defmodule HealthBoardWeb.LiveComponents.Card do
   alias HealthBoardWeb.LiveComponents.{CardBodyText, CardHeaderTitle}
   alias Phoenix.LiveView
 
-  @doc "Additional class for the card body div"
   prop body_class, :string
 
-  @doc "The card border color"
   prop border_color, :atom, values: [:success, :warning, :danger, :disabled]
 
-  @doc "The width of the card on large screens"
   prop width_l, :integer, default: 4
-
-  @doc "The width of the card on average-size screens"
   prop width_m, :integer, default: 2
 
-  @doc "The title of the card. Will be used if header slot is not defined"
   prop title, :string
-
-  @doc "A link to be used at the title. Will be used if header slot is not defined"
   prop link, :string
 
-  @doc "The concent of the card. Will be used if body slot is not defined"
   prop content, :string
-
   prop anchor, :string
 
-  @doc "The header of the card"
   slot header, props: [:border_color, :title]
-
-  @doc "The body of the card"
   slot body, props: [:content, :class]
-
-  @doc "The footer of the card"
   slot footer, props: [:border_color]
-
-  @doc "Extra slot for additional elements"
   slot default
 
   @spec render(map) :: LiveView.Rendered.t()

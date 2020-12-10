@@ -30,13 +30,6 @@ defmodule HealthBoard.Repo.Migrations.CreateInfo do
       add :reference, :text
     end
 
-    create table(:sections, primary_key: false) do
-      add :id, :string, primary_key: true
-
-      add :name, :string
-      add :description, :text
-    end
-
     create table(:sources, primary_key: false) do
       add :id, :string, primary_key: true
 
@@ -48,6 +41,28 @@ defmodule HealthBoard.Repo.Migrations.CreateInfo do
       add :extraction_date, :date
     end
 
+    create table(:groups, primary_key: false) do
+      add :id, :string, primary_key: true
+
+      add :index, :integer, null: false
+
+      add :name, :string
+      add :description, :text
+
+      add :dashboard_id, references(:dashboards, on_delete: :delete_all, type: :string), null: false
+    end
+
+    create table(:sections, primary_key: false) do
+      add :id, :string, primary_key: true
+
+      add :index, :integer, null: false
+
+      add :name, :string
+      add :description, :text
+
+      add :group_id, references(:groups, on_delete: :delete_all, type: :string), null: false
+    end
+
     create table(:cards, primary_key: false) do
       add :id, :string, primary_key: true
 
@@ -55,17 +70,6 @@ defmodule HealthBoard.Repo.Migrations.CreateInfo do
       add :description, :text
 
       add :indicator_id, references(:indicators, on_delete: :delete_all, type: :string), null: false
-    end
-
-    create table(:dashboards_disabled_filters) do
-      add :filter, :string, null: false
-
-      add :dashboard_id, references(:dashboards, on_delete: :delete_all, type: :string), null: false
-    end
-
-    create table(:dashboards_sections) do
-      add :dashboard_id, references(:dashboards, on_delete: :delete_all, type: :string), null: false
-      add :section_id, references(:sections, on_delete: :delete_all, type: :string), null: false
     end
 
     create table(:indicators_children) do
@@ -82,7 +86,9 @@ defmodule HealthBoard.Repo.Migrations.CreateInfo do
       add :id, :string, primary_key: true
 
       add :name, :string
-      add :link, :boolean
+
+      add :index, :integer, null: false
+      add :link, :string
 
       add :section_id, references(:sections, on_delete: :delete_all, type: :string), null: false
       add :card_id, references(:cards, on_delete: :delete_all, type: :string), null: false

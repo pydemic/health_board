@@ -9,7 +9,8 @@ defmodule HealthBoard.Contexts.Info.SectionCard do
   schema "sections_cards" do
     field :name, :string
 
-    field :link, :boolean
+    field :link, :string
+    field :index, :integer
 
     belongs_to :section, Info.Section, type: :string
     belongs_to :card, Info.Card, type: :string

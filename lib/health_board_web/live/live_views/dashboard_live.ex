@@ -1,8 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive do
   use Surface.LiveView
 
-  alias HealthBoard.Contexts.Info
-
   alias HealthBoardWeb.DashboardLive.Fragments.{
     AnalyticDashboard,
     DemographicDashboard,
@@ -10,7 +8,14 @@ defmodule HealthBoardWeb.DashboardLive do
     NoDashboard
   }
 
+  alias HealthBoardWeb.LiveComponents.Dashboard
+
   alias Phoenix.LiveView
+
+  prop dashboard, :map
+  prop filters, :map
+  prop filters_options, :map
+  prop data, :map
 
   @impl LiveView
   @spec mount(map, map, LiveView.Socket.t()) :: {:ok, LiveView.Socket.t()}
@@ -46,17 +51,38 @@ defmodule HealthBoardWeb.DashboardLive do
     case assigns[:dashboard] do
       %{id: "analytic"} = dashboard ->
         ~H"""
-        <AnalyticDashboard id="analytic" dashboard={{ dashboard }}/>
+        <Dashboard
+          id={{ "analytic_dashboard" }}
+          dashboard={{ dashboard }}
+          filters={{ @filters }}
+          filters_options={{ @filters_options }}
+        >
+          <AnalyticDashboard dashboard={{ dashboard }} index={{ @filters[:index] || 0 }} />
+        </Dashboard>
         """
 
       %{id: "demographic"} = dashboard ->
         ~H"""
-        <DemographicDashboard dashboard={{ dashboard }}/>
+        <Dashboard
+          id={{ "demographic_dashboard" }}
+          dashboard={{ dashboard }}
+          filters={{ @filters }}
+          filters_options={{ @filters_options }}
+        >
+          <DemographicDashboard dashboard={{ dashboard }} />
+        </Dashboard>
         """
 
       %{id: "morbidity"} = dashboard ->
         ~H"""
-        <MorbidityDashboard dashboard={{ dashboard }}/>
+        <Dashboard
+          id={{ "morbidity_dashboard" }}
+          dashboard={{ dashboard }}
+          filters={{ @filters }}
+          filters_options={{ @filters_options }}
+        >
+          <MorbidityDashboard dashboard={{ dashboard }} />
+        </Dashboard>
         """
 
       _nil ->
@@ -64,10 +90,5 @@ defmodule HealthBoardWeb.DashboardLive do
         <NoDashboard />
         """
     end
-  end
-
-  @spec request_dashboard_data(Info.Dashboard.t(), map) :: :ok
-  def request_dashboard_data(dashboard, filters) do
-    send(self(), {:fetch_dashboard_data, dashboard, filters})
   end
 end

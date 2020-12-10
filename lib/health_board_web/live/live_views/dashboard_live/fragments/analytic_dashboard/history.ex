@@ -7,8 +7,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.History do
 
   prop section, :map, required: true
 
-  prop section_cards_ids, :list, required: true
-
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
@@ -17,9 +15,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.History do
 
       <Grid>
         <HistoryChart
-          :for={{ section_card_id <- @section_cards_ids }}
-          card_id={{ section_card_id }}
-          card={{ @section.cards[section_card_id] }}
+          :for={{ section_card <- @section.cards }}
+          card={{ section_card }}
         />
       </Grid>
     </Section>

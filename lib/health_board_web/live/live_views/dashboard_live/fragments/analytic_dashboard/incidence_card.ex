@@ -1,58 +1,49 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.AnalyticDashboard.IncidenceCard do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.{Card, CardHeaderMenu, CardOffcanvasMenu, Grid}
+  alias HealthBoardWeb.LiveComponents.{CardHeaderMenu, CardOffcanvasMenu, DataCard, Grid, IndeterminateLoading}
   alias Phoenix.LiveView
 
   alias HealthBoardWeb.Helpers.Humanize
 
-  prop card_id, :atom, required: true
   prop card, :map, required: true
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
-    %{data: data} = assigns.card
-
-    color =
-      case data[:overall_severity] do
-        :below_average -> :success
-        :on_average -> :warning
-        :above_average -> :danger
-        nil -> nil
-      end
-
     ~H"""
-    <Card anchor={{ "to_#{@card_id}" }} border_color={{ color }}>
-      <template slot="header">
-        <CardHeaderMenu card_id={{ @card_id }} card={{ @card }} border_color={{ color }} />
+    <DataCard id={{ @card.id }} :let={{ data: data }} >
+      <template slot="header" :let={{ data: data }} >
+        <CardHeaderMenu card={{ @card }} data={{ data }} />
       </template>
 
-      <template slot="body">
+      <template slot="body" :let={{ data: data }} >
         <div class="uk-card-body">
-          <Grid :if={{ Enum.any?(data) }}>
+          <Grid :if={{ Enum.any?(data) }} >
             <div class="uk-width-1-2">
-              <h2>{{ Humanize.number data.morbidity.total }}</h2>
+              <h2>{{ Humanize.number data.result.morbidity.total }}</h2>
               <strong>Casos</strong>
               <small>Média:</small>
-              <small>{{ Humanize.number data.morbidity.average }}</small>
+              <small>{{ Humanize.number data.result.morbidity.average }}</small>
               <small>Último registro:</small>
-              <small>{{ Humanize.date data.morbidity.last_record_date }} </small>
+              <small>{{ Humanize.date data.result.morbidity.last_record_date }} </small>
             </div>
 
             <div class="uk-width-1-2">
-              <h2>{{ Humanize.number data.deaths.total }}</h2>
+              <h2>{{ Humanize.number data.result.deaths.total }}</h2>
               <strong>Óbitos</strong>
               <small>Média:</small>
-              <small>{{ Humanize.number data.deaths.average }}</small>
+              <small>{{ Humanize.number data.result.deaths.average }}</small>
               <small> Último registro:</small>
-              <small>{{ Humanize.date data.deaths.last_record_date }} </small>
+              <small>{{ Humanize.date data.result.deaths.last_record_date }} </small>
             </div>
           </Grid>
+
+          <IndeterminateLoading :if={{ Enum.empty?(data) }} />
         </div>
       </template>
 
-      <CardOffcanvasMenu card_id={{ @card_id }} card={{ @card }} />
-    </Card>
+      <CardOffcanvasMenu card={{ @card }} data={{ data }} />
+    </DataCard>
     """
   end
 end

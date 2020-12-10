@@ -5,8 +5,8 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
   alias HealthBoardWeb.LiveComponents.CardOffcanvasDescription
   alias Phoenix.LiveView
 
-  prop card_id, :atom, required: true
   prop card, :map, required: true
+  prop data, :map
 
   prop show_info, :boolean, default: true
   prop show_data, :boolean, default: true
@@ -20,7 +20,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
   def render(assigns) do
     ~H"""
     <div :show={{ false }}>
-      <div :if={{ @show_info }} id={{"offcanvas-info-#{@card_id}"}} uk-modal>
+      <div :if={{ @show_info }} id={{"offcanvas-info-#{@card.id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -29,20 +29,20 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           </h3>
 
           <dl class={{"uk-description-list", "hb-description-list"}}>
-              <dt>Descrição</dt>
-              <dd>{{ @card.description }}</dd>
-              <dt :if={{ not is_nil(@card.indicator.formula) }}>Indicador</dt>
-              <dd :if={{ not is_nil(@card.indicator.formula) }}>{{ @card.indicator.description }}</dd>
-              <dt :if={{ not is_nil(@card.indicator.formula) }}>Fórmula</dt>
-              <dd :if={{ not is_nil(@card.indicator.formula) }}>{{ @card.indicator.formula }}</dd>
-              <dt :if={{ not is_nil(@card.indicator.measurement_unit) }}>Unidade de medida</dt>
-              <dd :if={{ not is_nil(@card.indicator.measurement_unit) }}>{{ @card.indicator.measurement_unit }}</dd>
+            <dt>Descrição</dt>
+            <dd>{{ @card.card.description }}</dd>
+            <dt>Indicador</dt>
+            <dd>{{ @card.card.indicator.description }}</dd>
+            <dt>Fórmula</dt>
+            <dd>{{ @card.card.indicator.formula }}</dd>
+            <dt>Unidade de medida</dt>
+            <dd>{{ @card.card.indicator.measurement_unit || "Valor absoluto" }}</dd>
           </dl>
 
         </div>
       </div>
 
-      <div :if={{ @show_data }} id={{"offcanvas-data-#{@card_id}"}} uk-modal>
+      <div :if={{ @show_data }} id={{"offcanvas-data-#{@card.id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -50,11 +50,11 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Dados de {{ @card.name }}
           </h3>
 
-         <CardOffcanvasDescription data={{ @card.data }} />
+         <CardOffcanvasDescription data={{ @data[:result] || %{} }} />
         </div>
       </div>
 
-      <div :if={{ @show_labels }} id={{"offcanvas-labels-#{@card_id}"}} uk-modal>
+      <div :if={{ @show_labels }} id={{"offcanvas-labels-#{@card.id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -62,8 +62,8 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Legenda para {{ @card.name }}
           </h3>
 
-          <div :if={{ Map.has_key?(@card.data, :labels) }}>
-            <div :for={{ %{from: from, to: to, group: group} <- @card.data.labels }} class="uk-width-1-1">
+          <div :if={{ Map.has_key?(@data, :labels) }}>
+            <div :for={{ %{from: from, to: to, group: group} <- @data.labels }} class="uk-width-1-1">
               <div class={{ "hb-label": group, "hb-choropleth-#{group}": group }}></div>
               {{ label_description(from, to, @suffix) }}
               <br/>
@@ -73,7 +73,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
         </div>
       </div>
 
-      <div if={{ @show_filters }} id={{"offcanvas-filters-#{@card_id}"}} uk-modal>
+      <div if={{ @show_filters }} id={{"offcanvas-filters-#{@card.id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -81,11 +81,11 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Filtros de {{ @card.name }}
           </h3>
 
-         <CardOffcanvasDescription data={{ @card.filters }} />
+         <CardOffcanvasDescription data={{ @data[:filters] || %{} }} />
         </div>
       </div>
 
-      <div if={{ @show_sources }} id={{"offcanvas-sources-#{@card_id}"}} uk-modal>
+      <div if={{ @show_sources }} id={{"offcanvas-sources-#{@card.id}"}} uk-modal>
         <div class="uk-offcanvas-bar">
           <button class="uk-modal-close" type="button" uk-close></button>
 
@@ -93,7 +93,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           Fontes de {{ @card.name }}
           </h3>
 
-          <div :if={{ not is_nil(@card.indicator.sources) }} :for={{ indicator_source <- @card.indicator.sources }}>
+          <div :for={{ indicator_source <- @card.card.indicator.sources }}>
             <dl class={{"uk-description-list", "hb-description-list"}}>
               <dt>Nome</dt>
               <dd>{{ indicator_source.source.name }}</dd>

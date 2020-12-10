@@ -4,7 +4,7 @@ defmodule HealthBoardWeb.DashboardLive.CommonData do
   @brazil_id 76
   @regions [1, 2, 3, 4, 5]
   @default_location [level: Locations.context!(:country), id: @brazil_id]
-  @default_locations [level: Locations.context!(:state), parents_ids: @regions]
+  @default_locations_params [level: Locations.context!(:state), parents_ids: @regions]
   @default_week 1
   @default_week_period {1, 53}
   @default_year 2020
@@ -32,18 +32,21 @@ defmodule HealthBoardWeb.DashboardLive.CommonData do
 
   @spec locations(map, keyword) :: list(Locations.t())
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
-  def locations(filters, default \\ @default_locations) do
+  def locations(filters, opts \\ []) do
+    params = Keyword.get(opts, :extra_params, [])
+    default_params = Keyword.get(opts, :default_params, @default_locations_params)
+
     case filters do
-      %{city: id} -> Locations.list_siblings_by(id)
-      %{cities: ids} -> Locations.list_by(context: Locations.context!(:city), ids: ids)
-      %{health_region: id} -> Locations.list_by(context: Locations.context!(:city), parent_id: id)
-      %{health_regions: ids} -> Locations.list_by(context: Locations.context!(:health_region), ids: ids)
-      %{state: id} -> Locations.list_by(context: Locations.context!(:health_region), parent_id: id)
-      %{states: ids} -> Locations.list_by(context: Locations.context!(:state), ids: ids)
-      %{region: id} -> Locations.list_by(context: Locations.context!(:state), parent_id: id)
-      %{regions: id} -> Locations.list_by(context: Locations.context!(:region), ids: id)
-      %{country: _id} -> Locations.list_by(context: Locations.context!(:state), parents_ids: @regions)
-      _filters -> Locations.list_by(default)
+      %{city: id} -> Locations.list_siblings_by(id, params)
+      %{cities: ids} -> Locations.list_by(params ++ [context: Locations.context!(:city), ids: ids])
+      %{health_region: id} -> Locations.list_by(params ++ [context: Locations.context!(:city), parent_id: id])
+      %{health_regions: ids} -> Locations.list_by(params ++ [context: Locations.context!(:health_region), ids: ids])
+      %{state: id} -> Locations.list_by(params ++ [context: Locations.context!(:health_region), parent_id: id])
+      %{states: ids} -> Locations.list_by(params ++ [context: Locations.context!(:state), ids: ids])
+      %{region: id} -> Locations.list_by(params ++ [context: Locations.context!(:state), parent_id: id])
+      %{regions: id} -> Locations.list_by(params ++ [context: Locations.context!(:region), ids: id])
+      %{country: _id} -> Locations.list_by(params ++ [context: Locations.context!(:state), parents_ids: @regions])
+      _filters -> Locations.list_by(params ++ default_params)
     end
   end
 

@@ -1,20 +1,22 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRatePerYear do
   alias HealthBoard.Contexts
 
-  @spec fetch(map) :: map
-  def fetch(map) do
-    send(map.pid, {:exec_and_emit, &do_fetch/1, map, {:chart, :multiline}})
+  @spec fetch(pid, map, map) :: map
+  def fetch(pid, _card, data) do
+    Process.send_after(pid, {:exec_and_emit, &do_fetch/1, data, {:chart, :multiline}}, 1_000)
 
-    map
-    |> Map.put(:view_data, %{event_pushed: true})
-    |> put_in(
-      [:filters, :morbidity_contexts],
-      Enum.map(map.query_filters.morbidity_contexts, &Contexts.morbidity_name(&1))
-    )
+    %{
+      filters: %{
+        from_year: data.from_year,
+        to_year: data.to_year,
+        location: data.location_name,
+        morbidity_contexts: Enum.map(data.morbidity_contexts, &Contexts.morbidity_name/1)
+      }
+    }
   end
 
-  defp do_fetch(%{data: data} = map) do
-    contexts = map.query_filters.morbidity_contexts
+  defp do_fetch(data) do
+    contexts = data.morbidity_contexts
     years = fetch_years(data)
 
     %{yearly_morbidities_per_context: cases, yearly_population: populations} = data
@@ -24,7 +26,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.IncidenceRatePerYear do
     cases
     |> Enum.filter(&(elem(&1, 0) in contexts))
     |> Enum.map(&fetch_dataset(&1, populations_per_year, years))
-    |> wrap_result(years, map.id)
+    |> wrap_result(years, data.section_card_id)
   end
 
   defp wrap_result(datasets, years, id) do

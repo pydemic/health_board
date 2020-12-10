@@ -32,7 +32,7 @@ defmodule HealthBoard.Contexts.Geo.Locations do
   end
 
   @spec context!(integer, atom) :: integer
-  defdelegate context!(value \\ 0, key), to: HealthBoard.Contexts, as: :geographic_location!
+  defdelegate context!(value \\ 0, key), to: HealthBoard.Contexts, as: :location!
 
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn

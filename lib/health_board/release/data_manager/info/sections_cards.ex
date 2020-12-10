@@ -4,7 +4,7 @@ defmodule HealthBoard.Release.DataManager.SectionsCards do
 
   @context "info"
   @table_name "sections_cards"
-  @columns ~w[section_id card_id id name link]a
+  @columns ~w[section_id index card_id id name link]a
 
   @spec up :: :ok
   def up do

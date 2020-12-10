@@ -10,6 +10,10 @@ defmodule HealthBoard.Contexts.Info.Section do
     field :name, :string
     field :description, :string
 
+    field :index, :integer
+
+    belongs_to :group, Info.Group, type: :string
+
     has_many :cards, Info.SectionCard
   end
 end

@@ -10,6 +10,10 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateControlDiagram do
     |> Map.put(:filters, Map.update!(filters, :morbidity_context, &Contexts.morbidity_name(&1)))
   end
 
+  def fetch(_pid, _card, _data) do
+    nil
+  end
+
   defp do_fetch(%{id: id, data: data, filters: filters}) do
     %{morbidity_context: context, from_year: from_year, to_year: to_year} = filters
     %{data_periods: data_periods, weekly_deaths: weekly_cases, yearly_populations: yearly_populations} = data

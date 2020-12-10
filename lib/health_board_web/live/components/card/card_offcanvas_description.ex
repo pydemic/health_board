@@ -8,10 +8,8 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasDescription do
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
-    data = flatten_data(assigns[:data])
-
     ~H"""
-    <dl class={{"uk-description-list", "hb-description-list"}} :for={{ {title, description} <- data }}>
+    <dl class={{"uk-description-list", "hb-description-list"}} :for={{ {title, description} <- flatten_data(@data) }}>
       <dt :if={{ (not is_nil(title)) and is_nil(description) }}><h3>{{ title }}</h3></dt>
       <dd :if={{ (not is_nil(description)) and is_nil(title) }}>- {{ description }}</dd>
       <dt :if={{ (not is_nil(title)) and (not is_nil(description))}}>{{ title }}</dt>

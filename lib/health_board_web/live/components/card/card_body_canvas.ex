@@ -1,6 +1,7 @@
 defmodule HealthBoardWeb.LiveComponents.CardBodyCanvas do
   use Surface.Component, slot: "body"
 
+  alias HealthBoardWeb.LiveComponents.IndeterminateLoading
   alias Phoenix.LiveView
 
   @doc "Additional class"
@@ -15,11 +16,14 @@ defmodule HealthBoardWeb.LiveComponents.CardBodyCanvas do
   @doc "The hook name for phx-hook"
   prop hook, :string, default: "Chart"
 
+  prop show_loading, :boolean, default: false
+
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class={{ "uk-card-body", "#{@class}": @class }} style={{ "min-height: #{@height};" }}>
-      <canvas id={{ @id }} height={{ @height }} phx-hook={{ @hook }}></canvas>
+      <canvas :show={{ not @show_loading }} id={{ @id }} height={{ @height }} phx-hook={{ @hook }}></canvas>
+      <IndeterminateLoading :if={{ @show_loading }} />
     </div>
     """
   end

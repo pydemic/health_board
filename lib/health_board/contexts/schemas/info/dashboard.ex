@@ -10,8 +10,7 @@ defmodule HealthBoard.Contexts.Info.Dashboard do
     field :name, :string
     field :description, :string
 
-    has_many :sections, Info.DashboardSection
-    has_many :disabled_filters, Info.DashboardDisabledFilter
+    has_many :groups, Info.Group
 
     timestamps()
   end

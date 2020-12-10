@@ -36,8 +36,8 @@ defmodule HealthBoard.Contexts do
     city: 4
   }
 
-  @spec geographic_location!(integer, atom) :: integer
-  def geographic_location!(value \\ 0, key), do: Map.fetch!(@geographic_locations, key) + value
+  @spec location!(integer, atom) :: integer
+  def location!(value \\ 0, key), do: Map.fetch!(@geographic_locations, key) + value
 
   @morbidities %{
     botulism: 100_000,

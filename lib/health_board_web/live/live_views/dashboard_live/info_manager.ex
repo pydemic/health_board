@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.InfoManager do
   require Logger
 
-  alias HealthBoardWeb.DashboardLive.EventData
+  alias HealthBoardWeb.DashboardLive.{CardData, EventData, GroupData, SectionData}
   alias Phoenix.LiveView
 
   @spec handle_info(LiveView.Socket.t(), any()) :: LiveView.Socket.t()
@@ -16,6 +16,21 @@ defmodule HealthBoardWeb.DashboardLive.InfoManager do
       )
 
       socket
+  end
+
+  def handle_info(socket, {:fetch_group, group, data}) do
+    GroupData.fetch(socket.root_pid, group, data)
+    socket
+  end
+
+  def handle_info(socket, {:fetch_section, section, data}) do
+    SectionData.fetch(socket.root_pid, section, data)
+    socket
+  end
+
+  def handle_info(socket, {:fetch_section_card, section_card, data}) do
+    CardData.fetch(socket.root_pid, section_card, data)
+    socket
   end
 
   def handle_info(socket, _data) do

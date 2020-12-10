@@ -1,4 +1,7 @@
 defmodule HealthBoard.Contexts.Info.Dashboards do
+  import Ecto.Query, only: [from: 2]
+
+  alias HealthBoard.Contexts.Info
   alias HealthBoard.Contexts.Info.Dashboard
   alias HealthBoard.Repo
 
@@ -19,26 +22,12 @@ defmodule HealthBoard.Contexts.Info.Dashboards do
     end
   end
 
-  @preloads [
-    [
-      sections: [
-        section: [
-          cards: [
-            [
-              card: [
-                indicator: [
-                  [children: :child],
-                  [sources: :source]
-                ]
-              ]
-            ],
-            :filters
-          ]
-        ]
-      ]
-    ],
-    :disabled_filters
-  ]
+  @indicator_preloads [[children: :child], [sources: :source]]
+  @card_preloads [indicator: @indicator_preloads]
+  @section_card_preloads {from(sc in Info.SectionCard, order_by: sc.index), [[card: @card_preloads], :filters]}
+  @section_preloads {from(s in Info.Section, order_by: s.index), [cards: @section_card_preloads]}
+  @group_preloads {from(g in Info.Group, order_by: g.index), [sections: @section_preloads]}
+  @preloads [groups: @group_preloads]
 
   @spec preload(schema | list(schema)) :: schema | list(schema)
   def preload(schema_or_schemas), do: Repo.preload(schema_or_schemas, @preloads)

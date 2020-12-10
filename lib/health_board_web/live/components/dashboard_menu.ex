@@ -4,6 +4,7 @@ defmodule HealthBoardWeb.LiveComponents.DashboardMenu do
   alias Phoenix.LiveView
 
   prop dashboard, :map, required: true
+  prop group_index, :integer, default: 0
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
@@ -14,15 +15,21 @@ defmodule HealthBoardWeb.LiveComponents.DashboardMenu do
 
         <h3>{{ @dashboard.name }}</h3>
 
-        <ul :if={{ is_map(@dashboard.sections) }} class="uk-nav-default uk-nav-parent-icon" uk-nav="multiple: true">
-          <li :for={{ {_section_id, section} <- @dashboard.sections }} class="uk-parent">
-            <a href="#">{{ section.name }}</a>
+        <ul class="uk-nav-default uk-nav-parent-icon" uk-nav="multiple: true">
+          <li :for={{ group <- @dashboard.groups }} :if={{ group.index == @group_index }} class="uk-parent">
+            <a href="">{{ group.name }}</a>
 
-            <ul :if={{ is_map(section.cards )}} class="uk-nav-sub">
-              <li :for={{ {card_id, card} <- section.cards }}>
-                <a href={{ "#to_#{card_id}" }}>
-                  {{ card.name }}
-                </a>
+            <ul class="uk-nav-sub">
+              <li :for={{ section <- group.sections }}>
+                <a href={{ "##{section.id}" }}>{{ section.name }}</a>
+
+                <ul class="uk-nav-sub">
+                  <li :for={{ card  <- section.cards }}>
+                    <a href="">
+                      {{ card.name || card.card.name }}
+                    </a>
+                  </li>
+                </ul>
               </li>
             </ul>
           </li>
