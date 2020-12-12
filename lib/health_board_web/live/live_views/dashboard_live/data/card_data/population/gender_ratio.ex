@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.GenderRatio do
-  @spec fetch(map) :: map
-  def fetch(card_data) do
-    card_data
+  @spec fetch(pid, map, map) :: nil
+  def fetch(_pid, _card, _data) do
+    nil
   end
 end

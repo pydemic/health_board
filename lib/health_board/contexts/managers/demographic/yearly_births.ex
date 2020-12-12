@@ -8,14 +8,25 @@ defmodule HealthBoard.Contexts.Demographic.YearlyBirths do
 
   @schema YearBirths
 
-  @spec new :: schema
-  def new, do: %@schema{}
+  @spec new(keyword) :: schema
+  def new(params \\ []) do
+    @schema
+    |> struct(params)
+    |> @schema.add_total()
+  end
 
-  @spec get_by!(keyword) :: schema
-  def get_by!(params) do
+  @spec get_by(keyword) :: schema
+  def get_by(params) do
     @schema
     |> where(^filter_where(params))
     |> Repo.one!()
+  rescue
+    error ->
+      case Keyword.pop(params, :default) do
+        {nil, _params} -> nil
+        {:raise, _params} -> reraise(error, __STACKTRACE__)
+        {:new, params} -> new(params)
+      end
   end
 
   @spec list_by(keyword) :: list(schema)
