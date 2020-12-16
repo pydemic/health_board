@@ -19,6 +19,8 @@ defmodule HealthBoardWeb.DashboardLive.SectionData.DemographicPopulation do
     :year_locations_population,
     :yearly_population,
     :year_population,
+    :location,
+    :locations,
     :location_name,
     :locations_names
   ]

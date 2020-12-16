@@ -5,11 +5,22 @@ defmodule HealthBoardWeb.DashboardLive.CardData.Incidence do
 
   @spec fetch(pid, map, map) :: map
   def fetch(_pid, _card, data) do
-    {%{}, data}
-    |> fetch_morbidity()
-    |> fetch_deaths()
-    |> select_severity()
-    |> fetch_result()
+    if data.section_card_id != "morbidity_incidence" do
+      {%{}, data}
+      |> fetch_morbidity()
+      |> fetch_deaths()
+      |> select_severity()
+      |> fetch_result()
+    else
+      %{
+        filters: %{
+          year: data.year,
+          location: data.location_name,
+          morbidity_context: data.morbidity_name
+        },
+        result: %{cases: data.year_morbidity.total}
+      }
+    end
   end
 
   defp fetch_morbidity({result, %{yearly_morbidities_per_context: cases_per_context} = data}) do

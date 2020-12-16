@@ -11,6 +11,7 @@ import NProgress from "nprogress"
 import { LiveSocket } from "phoenix_live_view"
 
 import { renderMap } from "./map_render"
+import { renderChart } from "./chart_render"
 
 window.UIkit = UIkit
 window.UIkit.use(Icons)
@@ -23,16 +24,18 @@ window.MathJax = { MathML: { extensions: ["mml3.js", "content-mathml.js"] } }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
 let Hooks = {}
+let maps = {}
+let charts = {}
 
 Hooks.Chart = {
   mounted() {
-    this.handleEvent("chart_data", ({ id, data }) => new ChartJS(id, data))
+    this.handleEvent("chart_data", (data) => renderChart(ChartJS, charts, data))
   }
 }
 
 Hooks.Map = {
   mounted() {
-    this.handleEvent("map_data", (data) => renderMap(L, data))
+    this.handleEvent("map_data", (data) => renderMap(L, maps, data))
   }
 }
 

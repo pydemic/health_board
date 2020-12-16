@@ -49,7 +49,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Analytic do
         locations: locations,
         locations_ids: locations_ids,
         locations_names: locations_names,
-        changed_filters: DataManager.add_filter_change(changes, :location_id)
+        changed_filters: DataManager.add_filter_change(changes, [:location_id, :locations_ids])
       })
     else
       data

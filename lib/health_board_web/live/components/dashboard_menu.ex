@@ -25,7 +25,7 @@ defmodule HealthBoardWeb.LiveComponents.DashboardMenu do
 
                 <ul class="uk-nav-sub">
                   <li :for={{ card  <- section.cards }}>
-                    <a href="">
+                    <a href={{ "##{card.id}" }}>
                       {{ card.name || card.card.name }}
                     </a>
                   </li>
@@ -33,6 +33,14 @@ defmodule HealthBoardWeb.LiveComponents.DashboardMenu do
               </li>
             </ul>
           </li>
+        </ul>
+
+        <hr>
+
+        <ul class="uk-nav uk-nav-default">
+          <li class="uk-nav-header">Outros Painéis</li>
+          <li :if={{ @dashboard.id != "analytic" }}><a href="/analytic">Painel de situação</a></li>
+          <li :if={{ @dashboard.id != "demographic" }}><a href="/demographic">Painel demográfico</a></li>
         </ul>
       </div>
     </div>

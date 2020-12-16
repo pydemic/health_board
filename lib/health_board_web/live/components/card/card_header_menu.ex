@@ -23,12 +23,12 @@ defmodule HealthBoardWeb.LiveComponents.CardHeaderMenu do
     ~H"""
     <div class={{ "uk-card-header", "uk-text-middle", "uk-visible-toggle", "show-when-not-hover-container", "uk-transition-toggle", "hb-border": border_color, "hb-border-bottom": border_color, "hb-border-#{border_color}": border_color }}>
       <h3 class={{"uk-card-title", "show-when-not-hover", "uk-margin-remove-bottom"}}>
-        {{ @card.name }}
+        {{ @card.name || @card.card.name }}
       </h3>
 
       <div class={{ "uk-hidden-hover", "uk-transition-slide-top", "uk-flex", "uk-flex-middle", "uk-flex-between", "hb-card-menu"}}>
         <div :if={{ @show_link and not is_nil(@card.link) and Enum.any?(@data) }}>
-          <a href={{ dashboard_path(@socket, "analytic", @data[:params] || []) }} uk-tooltip="Ver painel" target="_blank">
+          <a href={{ dashboard_path(@socket, @card.link, @data[:params] || []) }} uk-tooltip="Ver painel" target="_blank">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"/></svg>
           </a>
         </div>

@@ -43,7 +43,10 @@ $blue-4: #5675ca;
 }
 
 .hb-map {
+  height: 100%;
+  max-height: calc(100% - 150px);
   min-height: 500px;
+  overflow: hidden;
 }
 
 .hb-no-padding {
@@ -185,7 +188,7 @@ i.hb-right {
 }
 
 .hb-card-menu {
-  height: 50px;
+  height: 33px;
 }
 
 .hb-description-list > dt {

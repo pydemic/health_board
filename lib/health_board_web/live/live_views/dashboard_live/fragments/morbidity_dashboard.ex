@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.MorbidityDashboard do
   use Surface.Component
 
-  alias HealthBoardWeb.LiveComponents.{Section, SectionHeader}
+  alias HealthBoardWeb.DashboardLive.Fragments.MorbidityDashboard.MorbidityGroup
   alias Phoenix.LiveView
 
   prop dashboard, :map, required: true
@@ -9,9 +9,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.MorbidityDashboard do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <Section>
-      <SectionHeader title={{ @dashboard.name }} description={{ @dashboard.description }} />
-    </Section>
+    <MorbidityGroup group={{ Enum.at(@dashboard.groups, 0) }}/>
     """
   end
 end

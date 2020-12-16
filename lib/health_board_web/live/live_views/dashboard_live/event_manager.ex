@@ -22,9 +22,12 @@ defmodule HealthBoardWeb.DashboardLive.EventManager do
 
   defp merge_filters(socket, %{"_target" => [target]} = params) do
     to_drop =
-      case target do
-        "state" -> [:health_region, :city]
-        "health_region" -> [:city]
+      case {target, params[target]} do
+        {"state", "nil"} -> [:state, :health_region, :city]
+        {"state", _state} -> [:health_region, :city]
+        {"health_region", "nil"} -> [:health_region, :city]
+        {"health_region", _health_region} -> [:city]
+        {"city", "nil"} -> [:city]
         _target -> []
       end
 

@@ -1,31 +1,32 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateControlDiagram do
-  alias HealthBoard.Contexts
+  @spec fetch(pid, map, map) :: map
+  def fetch(pid, _card, data) do
+    Process.send_after(pid, {:exec_and_emit, &do_fetch/1, data, {:chart, :combo}}, 1_000)
 
-  @spec fetch(map) :: map
-  def fetch(%{filters: filters} = card_data) do
-    send(card_data.root_pid, {:exec_and_emit, &do_fetch/1, card_data, {:chart, :combo}})
-
-    card_data
-    |> Map.put(:view_data, %{event_pushed: true})
-    |> Map.put(:filters, Map.update!(filters, :morbidity_context, &Contexts.morbidity_name(&1)))
+    %{
+      filters: %{
+        year: data.to_year,
+        location: data.location_name,
+        morbidity_context: data.morbidity_name
+      }
+    }
   end
 
-  def fetch(_pid, _card, _data) do
-    nil
-  end
-
-  defp do_fetch(%{id: id, data: data, filters: filters}) do
-    %{morbidity_context: context, from_year: from_year, to_year: to_year} = filters
-    %{data_periods: data_periods, weekly_deaths: weekly_cases, yearly_populations: yearly_populations} = data
+  defp do_fetch(data) do
+    %{
+      section_card_id: id,
+      from_year: from_year,
+      to_year: to_year,
+      deaths_data_period: data_period,
+      weekly_deaths: weekly_cases,
+      yearly_population: yearly_population
+    } = data
 
     weeks = Enum.to_list(1..53)
 
-    data_period = fetch_data_period(data_periods, context, from_year)
+    rates = fetch_rates(weekly_cases, yearly_population)
 
-    weekly_cases = Map.get(weekly_cases, context, [])
-    rates = fetch_rates(weekly_cases, yearly_populations)
-
-    {lower, middle, upper} = moving_average_boundaries(rates, weeks, data_period, to_year)
+    {lower, middle, upper} = moving_average_boundaries(rates, weeks, data_period, from_year, to_year)
 
     rates = Enum.filter(rates, &(&1.year == to_year))
 
@@ -36,7 +37,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateControlDiagram do
       datasets: [
         %{
           type: "line",
-          label: "Coeficiente de incidência na semana",
+          label: "Coeficiente de mortalidade na semana",
           backgroundColor: "#445",
           borderColor: "#445",
           pointRadius: 2,
@@ -78,15 +79,6 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateControlDiagram do
     }
   end
 
-  defp fetch_data_period(data_periods, context, from_year) do
-    data_context = Contexts.data_context!(:deaths)
-
-    data_periods
-    |> Map.fetch!(data_context)
-    |> Map.get(context, [%{from_year: from_year, from_week: 1}])
-    |> Enum.at(0)
-  end
-
   defp fetch_rates(weekly_cases, yearly_populations) do
     population_per_year = Enum.group_by(yearly_populations, & &1.year, & &1.total)
     Enum.map(weekly_cases, &fetch_rate(&1, population_per_year))
@@ -96,15 +88,15 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateControlDiagram do
     [population] = Map.get(population_per_year, year, [0])
 
     if population > 0 and cases > 0 do
-      %{year: year, week: week, cases: cases, rate: cases * 100_000 / population}
+      %{year: year, week: week, cases: cases, rate: cases * 100 / population}
     else
       %{year: year, week: week, cases: cases, rate: 0.0}
     end
   end
 
-  defp moving_average_boundaries(rates, weeks, data_period, to_year) do
+  defp moving_average_boundaries(rates, weeks, data_period, from_year, to_year) do
     rates
-    |> weekly_rates(weeks, data_period, to_year)
+    |> weekly_rates(weeks, data_period, from_year, to_year)
     |> displace_by(7)
     |> Enum.zip()
     |> Enum.map(&calculate_moving_average/1)
@@ -114,7 +106,9 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRateControlDiagram do
     |> Enum.reduce({[], [], []}, &ungroup_boundaries/2)
   end
 
-  defp weekly_rates(rates, weeks, %{from_year: from_year, from_week: from_week}, to_year) do
+  defp weekly_rates(rates, weeks, %{from_year: from_year, from_week: from_week}, default_from_year, to_year) do
+    from_year = from_year || default_from_year
+
     for year <- from_year..to_year, week <- weeks do
       if year < from_year or (year == from_year and week < from_week) do
         nil

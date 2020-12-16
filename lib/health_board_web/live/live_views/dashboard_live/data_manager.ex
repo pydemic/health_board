@@ -95,9 +95,17 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
   def filters_changed?(changed_filters, key) when is_atom(key), do: Map.has_key?(changed_filters, key)
   def filters_changed?(changed_filters, keys) when is_list(keys), do: Enum.any?(changed_filters, &(elem(&1, 0) in keys))
 
-  @spec add_filter_change(map | true, atom) :: map | true
-  def add_filter_change(true, _key), do: true
-  def add_filter_change(changed_filters, key), do: Map.put(changed_filters, key, true)
+  @spec add_filter_change(map | true, atom | list(atom)) :: map | true
+  def add_filter_change(changed_filters, key_or_keys) do
+    if changed_filters == true do
+      true
+    else
+      case key_or_keys do
+        keys when is_list(keys) -> Enum.reduce(keys, changed_filters, &Map.put(&2, &1, true))
+        key -> Map.put(changed_filters, key, true)
+      end
+    end
+  end
 
   @nil_selection {"Não selecionado", nil}
 
@@ -153,8 +161,11 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
 
   defp assign_changed_filters(%{filters: new_filters} = assigns, %{assigns: %{filters: filters}} = socket) do
     changed_filters =
-      new_filters
-      |> Enum.map(fn {k, v} -> if Map.has_key?(filters, k), do: {k, filters[k] != v}, else: {k, true} end)
+      filters
+      |> Map.keys()
+      |> Kernel.++(Map.keys(new_filters))
+      |> Enum.uniq()
+      |> Enum.map(&{&1, filters[&1] != new_filters[&1]})
       |> Enum.reject(&(elem(&1, 1) == false))
       |> Enum.into(%{})
 

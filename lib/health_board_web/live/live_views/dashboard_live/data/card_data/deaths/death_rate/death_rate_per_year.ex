@@ -3,19 +3,62 @@ defmodule HealthBoardWeb.DashboardLive.CardData.DeathRatePerYear do
 
   @spec fetch(pid, map, map) :: map
   def fetch(pid, _card, data) do
-    Process.send_after(pid, {:exec_and_emit, &do_fetch/1, data, {:chart, :multiline}}, 1_000)
+    if Map.has_key?(data, :morbidity_contexts) do
+      Process.send_after(pid, {:exec_and_emit, &fetch_many/1, data, {:chart, :multiline}}, 1_000)
 
-    %{
-      filters: %{
-        from_year: data.from_year,
-        to_year: data.to_year,
-        location: data.location_name,
-        morbidity_contexts: Enum.map(data.morbidity_contexts, &Contexts.morbidity_name/1)
+      %{
+        filters: %{
+          from_year: data.from_year,
+          to_year: data.to_year,
+          location: data.location_name,
+          morbidity_contexts: Enum.map(data.morbidity_contexts, &Contexts.morbidity_name/1)
+        }
       }
+    else
+      Process.send_after(pid, {:exec_and_emit, &fetch_one/1, data, {:chart, :line}}, 1_000)
+
+      %{
+        filters: %{
+          from_year: data.from_year,
+          to_year: data.to_year,
+          location: data.location_name,
+          morbidity_context: data.morbidity_name
+        }
+      }
+    end
+  end
+
+  defp fetch_one(data) do
+    years = fetch_years(data)
+
+    %{yearly_deaths: cases, yearly_population: populations} = data
+
+    years
+    |> Enum.map(&fetch_one_data(&1, cases, populations))
+    |> wrap_one_result(years, data.section_card_id)
+  end
+
+  defp fetch_one_data(year, cases, populations) do
+    cases = Enum.find_value(cases, 0, &if(&1.year == year, do: &1.total))
+    population = Enum.find_value(populations, 0, &if(&1.year == year, do: &1.total))
+
+    if cases > 0 and population > 0 do
+      cases * 100 / population
+    else
+      0.0
+    end
+  end
+
+  defp wrap_one_result(data, years, id) do
+    %{
+      id: id,
+      data: data,
+      labels: years,
+      label: "Coeficiente de incidência"
     }
   end
 
-  defp do_fetch(data) do
+  defp fetch_many(data) do
     contexts = data.morbidity_contexts
     years = fetch_years(data)
 

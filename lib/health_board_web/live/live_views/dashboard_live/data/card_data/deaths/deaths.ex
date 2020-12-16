@@ -1,8 +1,13 @@
 defmodule HealthBoardWeb.DashboardLive.CardData.Deaths do
-  alias HealthBoardWeb.DashboardLive.CardData.Deaths
-
-  @spec fetch(map) :: map
-  def fetch(map) do
-    Deaths.fetch(map)
+  @spec fetch(pid, map, map) :: map
+  def fetch(_pid, _card, data) do
+    %{
+      filters: %{
+        year: data.year,
+        location: data.location_name,
+        morbidity_context: data.morbidity_name
+      },
+      result: %{cases: data.year_deaths.total}
+    }
   end
 end

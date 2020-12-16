@@ -41,6 +41,8 @@ defmodule HealthBoardWeb.LiveComponents.DataCard do
         "hb-border": border_color,
         "hb-border-#{border_color}": border_color
       }}>
+        <a name={{ @id }}></a>
+
         <slot
           name="header"
           :props={{ data: @data, border_color: border_color, title: @title}}

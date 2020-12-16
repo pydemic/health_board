@@ -25,7 +25,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           <button class="uk-modal-close" type="button" uk-close></button>
 
           <h3>
-          Informações sobre {{ @card.name }}
+          Informações sobre {{ @card.name || @card.card.name }}
           </h3>
 
           <dl class={{"uk-description-list", "hb-description-list"}}>
@@ -47,7 +47,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           <button class="uk-modal-close" type="button" uk-close></button>
 
           <h3>
-          Dados de {{ @card.name }}
+          Dados de {{ @card.name || @card.card.name }}
           </h3>
 
          <CardOffcanvasDescription data={{ @data[:result] || %{} }} />
@@ -59,7 +59,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           <button class="uk-modal-close" type="button" uk-close></button>
 
           <h3>
-          Legenda para {{ @card.name }}
+          Legenda para {{ @card.name || @card.card.name }}
           </h3>
 
           <div :if={{ Map.has_key?(@data, :labels) }}>
@@ -78,7 +78,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           <button class="uk-modal-close" type="button" uk-close></button>
 
           <h3>
-          Filtros de {{ @card.name }}
+          Filtros de {{ @card.name || @card.card.name }}
           </h3>
 
          <CardOffcanvasDescription data={{ @data[:filters] || %{} }} />
@@ -90,7 +90,7 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
           <button class="uk-modal-close" type="button" uk-close></button>
 
           <h3>
-          Fontes de {{ @card.name }}
+          Fontes de {{ @card.name || @card.card.name }}
           </h3>
 
           <div :for={{ indicator_source <- @card.card.indicator.sources }}>
@@ -113,7 +113,11 @@ defmodule HealthBoardWeb.LiveComponents.CardOffcanvasMenu do
     """
   end
 
-  defp label_description(nil, to, suffix), do: "#{to}#{suffix}"
-  defp label_description(from, nil, suffix), do: "#{from}#{suffix} ou mais"
-  defp label_description(from, to, suffix), do: "Entre #{from}#{suffix} e #{to}#{suffix}"
+  defp label_description(from, to, suffix) do
+    case {from, to} do
+      {nil, to} -> "#{Humanize.number(to)}#{suffix}"
+      {from, nil} -> "#{Humanize.number(from)}#{suffix} ou mais"
+      _ -> "Entre #{Humanize.number(from)}#{suffix} e #{Humanize.number(to)}#{suffix}"
+    end
+  end
 end

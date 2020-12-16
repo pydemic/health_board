@@ -16,17 +16,19 @@ defmodule HealthBoardWeb.DashboardLive.SectionData.DemographicBirths do
   ]
 
   @data_keys [
-    :year,
-    :from_year,
-    :to_year,
+    :births_year,
+    :births_from_year,
+    :births_to_year,
     :year_locations_population,
     :yearly_population,
     :year_population,
     :year_locations_births,
     :yearly_births,
-    :year_births,
+    :location,
+    :locations,
     :location_name,
-    :locations_names
+    :locations_names,
+    :year_births
   ]
 
   @spec fetch(pid, map, map) :: nil

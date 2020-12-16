@@ -12,7 +12,7 @@ const createInfoControl = (L, map, data) => {
 
       if (item !== null && item !== undefined) {
         L.DomUtil.removeClass(info._infoDiv, "hb-hide")
-        info._infoDiv.innerHTML = `<div class="uk-card-header"><h3 class="uk-card-title">${item.name}</h3><span class="uk-label" style="background: ${item.color};">${item.formatted_value}</span></div>`
+        info._infoDiv.innerHTML = `<div class="uk-card-header"><h3 class="uk-card-title">${item.label}</h3><span class="uk-label" style="background: ${item.color};">${item.value}</span></div>`
       }
     } else {
       L.DomUtil.addClass(info._infoDiv, "hb-hide")
@@ -81,11 +81,20 @@ const fetchGeoJson = (L, map, info, data, geojson) => {
   return group
 }
 
-export const renderMap = (L, { id, data, geojson_path, tile_layer_url }) => {
+export const renderMap = (L, maps, { id, data, geojson_path, tile_layer_url }) => {
   fetch(geojson_path).then((geojson) => geojson.json()).then((geojson) => {
+    if (maps[id]) {
+      maps[id].off()
+      maps[id].remove()
+      delete (maps[id])
+    }
+
     let map = L.map(id, { scrollWheelZoom: false })
+
     let info = createInfoControl(L, map, data).addTo(map)
     fetchGeoJson(L, map, info, data, geojson).addTo(map)
     L.tileLayer(tile_layer_url, { id: "mapbox/light-v9", maxZoom: 18, tileSize: 512, zoomOffset: -1 }).addTo(map)
+
+    maps[id] = map
   })
 }

@@ -10,9 +10,7 @@ defmodule HealthBoard.Contexts.Demographic.YearlyBirths do
 
   @spec new(keyword) :: schema
   def new(params \\ []) do
-    @schema
-    |> struct(params)
-    |> @schema.add_total()
+    struct(@schema, params)
   end
 
   @spec get_by(keyword) :: schema
