@@ -3,6 +3,13 @@ defmodule HealthBoard.Repo.Migrations.SeedLocations do
 
   alias HealthBoard.Release.DataManager
 
-  def up, do: DataManager.Locations.up()
-  def down, do: DataManager.Locations.down()
+  def up do
+    DataManager.Locations.up()
+    DataManager.LocationsChildren.up()
+  end
+
+  def down do
+    DataManager.LocationsChildren.down()
+    DataManager.Locations.down()
+  end
 end

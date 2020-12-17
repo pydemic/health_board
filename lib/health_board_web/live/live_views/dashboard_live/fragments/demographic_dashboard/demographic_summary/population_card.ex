@@ -11,7 +11,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.Population
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <DataCard id={{ @card.id }} :let={{ data: data }} >
+    <DataCard id={{ @card.id }} :let={{ data: data }} width_l={{ 2 }} width_m={{ 1 }} >
       <template slot="header" :let={{ data: data }} >
         <CardHeaderMenu card={{ @card }} data={{ data }} />
       </template>

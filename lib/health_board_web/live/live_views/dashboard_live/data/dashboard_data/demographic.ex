@@ -1,5 +1,5 @@
 defmodule HealthBoardWeb.DashboardLive.DashboardData.Demographic do
-  alias HealthBoard.Contexts.Demographic.{YearlyBirths, YearlyPopulations}
+  alias HealthBoard.Contexts.Demographic.YearlyPopulations
   alias HealthBoardWeb.DashboardLive.{CommonData, DataManager, GroupData}
   alias Phoenix.LiveView
 
@@ -16,30 +16,12 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Demographic do
     |> Map.merge(filters)
     |> Map.put(:params, filters)
     |> Map.put(:changed_filters, changed_filters)
-    |> fetch_time()
     |> fetch_location()
     |> fetch_yearly_population()
     |> fetch_year_locations_population()
     |> fetch_year_population()
-    |> fetch_yearly_births()
-    |> fetch_year_locations_births()
-    |> fetch_year_births()
     |> put_data_in_socket(socket)
     |> fetch_groups()
-  end
-
-  @time_keys [:year, :from_year, :to_year]
-
-  defp fetch_time(%{changed_filters: changes} = data) do
-    if DataManager.filters_changed?(changes, @time_keys) do
-      Map.merge(data, %{
-        births_year: Statistics.max([data.year - 1, 2000]),
-        births_from_year: Statistics.max([data.from_year - 1, 2000]),
-        births_to_year: Statistics.min([data.to_year - 1, 2018])
-      })
-    else
-      data
-    end
   end
 
   @location_keys [:state, :health_region, :city]
@@ -99,54 +81,6 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Demographic do
       [location_id: data.location_id, year: data.year, default: :new]
       |> YearlyPopulations.get_by()
       |> put_data(:year_population, data)
-    else
-      data
-    end
-  end
-
-  @yearly_births_keys [:location_id, :from_year, :to_year]
-
-  defp fetch_yearly_births(%{changed_filters: changes} = data) do
-    if DataManager.filters_changed?(changes, @yearly_births_keys) do
-      [
-        location_id: data.location_id,
-        from_year: data.births_from_year,
-        to_year: data.births_to_year,
-        context: YearlyBirths.context!(:residence)
-      ]
-      |> YearlyBirths.list_by()
-      |> Enum.map(&Map.take(&1, [:year, :total]))
-      |> put_data(:yearly_births, data)
-    else
-      data
-    end
-  end
-
-  @year_locations_births_keys [:locations_ids, :year]
-
-  defp fetch_year_locations_births(%{changed_filters: changes} = data) do
-    if DataManager.filters_changed?(changes, @year_locations_births_keys) do
-      [locations_ids: data.locations_ids, year: data.births_year - 1, context: YearlyBirths.context!(:residence)]
-      |> YearlyBirths.list_by()
-      |> Enum.map(&Map.take(&1, [:location_id, :total]))
-      |> put_data(:year_locations_births, data)
-    else
-      data
-    end
-  end
-
-  @year_births_keys [:location_id, :year]
-
-  defp fetch_year_births(%{changed_filters: changes} = data) do
-    if DataManager.filters_changed?(changes, @year_births_keys) do
-      [
-        location_id: data.location_id,
-        year: data.births_year - 1,
-        context: YearlyBirths.context!(:residence),
-        default: :new
-      ]
-      |> YearlyBirths.get_by()
-      |> put_data(:year_births, data)
     else
       data
     end

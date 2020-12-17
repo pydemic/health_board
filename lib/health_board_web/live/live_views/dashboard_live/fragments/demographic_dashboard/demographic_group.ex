@@ -2,7 +2,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.Demographi
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.{
-    DemographicBirths,
     DemographicPopulation,
     DemographicSummary
   }
@@ -17,7 +16,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.Demographi
     <div>
       <DemographicSummary section={{ Enum.at(@group.sections, 0) }} />
       <DemographicPopulation section={{ Enum.at(@group.sections, 1) }} />
-      <DemographicBirths section={{ Enum.at(@group.sections, 2) }} />
     </div>
     """
   end

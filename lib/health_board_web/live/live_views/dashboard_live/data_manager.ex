@@ -46,8 +46,6 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     "health_region" => :integer,
     "health_regions" => {:list, :integer},
     "state" => :integer,
-    "morbidity_context" => :integer,
-    "morbidity_contexts" => {:list, :integer},
     "from_year" => :integer,
     "to_year" => :integer,
     "year" => :integer
@@ -115,7 +113,7 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     %{from_year: from_year, to_year: to_year} =
       filters =
       filters
-      |> Map.put_new(:id, "analytic")
+      |> Map.put_new(:id, "demographic")
       |> Map.put_new(:year, current_year)
       |> Map.put_new(:from_year, 2000)
       |> Map.put_new(:to_year, current_year)
@@ -132,7 +130,7 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
 
     state_options = [@nil_selection | location_options(:state)]
     health_region_options = [@nil_selection | if(state?, do: location_options(state, :health_region), else: [])]
-    city_options = [@nil_selection | if(health_region?, do: location_options(health_region, :city), else: [])]
+    city_options = [@nil_selection | cities_options(state?, state, health_region?, health_region)]
 
     %{
       filters: filters,
@@ -154,10 +152,14 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
   end
 
   defp location_options(parent_id, context) do
-    [context: Geo.Locations.context!(context), parent_id: parent_id, order_by: [asc: :name]]
-    |> Geo.Locations.list_by()
+    parent_id
+    |> Geo.Locations.list_children(context)
     |> Enum.map(&{&1.name, &1.id})
   end
+
+  defp cities_options(_state?, _state, true, health_region), do: location_options(health_region, :city)
+  defp cities_options(true, state, _health_region?, _health_region), do: location_options(state, :city)
+  defp cities_options(_state?, _state, _health_region?, _health_region), do: []
 
   defp assign_changed_filters(%{filters: new_filters} = assigns, %{assigns: %{filters: filters}} = socket) do
     changed_filters =

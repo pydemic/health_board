@@ -1,6 +1,7 @@
 defmodule HealthBoard.Contexts.Geo.Locations do
-  import Ecto.Query, only: [order_by: 2, where: 2, dynamic: 1, dynamic: 2]
+  import Ecto.Query, only: [from: 2, order_by: 2, where: 2, dynamic: 1, dynamic: 2]
 
+  alias HealthBoard.Contexts.Geo
   alias HealthBoard.Contexts.Geo.Location
   alias HealthBoard.Repo
 
@@ -23,23 +24,68 @@ defmodule HealthBoard.Contexts.Geo.Locations do
     |> Repo.all()
   end
 
-  @spec list_siblings_by(integer, keyword) :: list(schema)
-  def list_siblings_by(id, params \\ []) do
+  @spec list_children(integer, atom | integer) :: list(schema)
+  def list_children(id, context) do
     case get_by(id: id) do
       nil -> []
-      %{parent_id: parent_id} -> list_by(Keyword.put(params, :parent_id, parent_id))
+      location -> children(location, context)
+    end
+  end
+
+  @spec children(schema, atom | integer) :: list(schema)
+  def children(schema, context) do
+    Enum.map(preload_children(schema, context).children, & &1.child)
+  end
+
+  @spec list_siblings(integer) :: list(schema)
+  def list_siblings(id) do
+    case get_by(id: id) do
+      nil ->
+        []
+
+      %{context: context} = location ->
+        case preload_parent(location, context - 1) do
+          %{parents: [parent]} -> children(parent, context)
+          _parent -> []
+        end
     end
   end
 
   @spec context!(integer, atom) :: integer
   defdelegate context!(value \\ 0, key), to: HealthBoard.Contexts, as: :location!
 
+  @spec preload_children(schema | list(schema), atom | integer) :: schema | list(schema)
+  def preload_children(struct_or_structs, children_context) do
+    children_context = if is_integer(children_context), do: children_context, else: context!(children_context)
+
+    preloads = [
+      children: {
+        from(l in Geo.LocationChild, where: l.child_context == ^children_context),
+        [child: from(l in Location, order_by: [asc: :name])]
+      }
+    ]
+
+    Repo.preload(struct_or_structs, preloads)
+  end
+
+  @spec preload_parent(schema | list(schema), atom | integer) :: schema | list(schema)
+  def preload_parent(struct_or_structs, parents_context) do
+    parents_context = if is_integer(parents_context), do: parents_context, else: context!(parents_context)
+
+    preloads = [
+      parents: {
+        from(l in Geo.LocationChild, where: l.parent_context == ^parents_context),
+        [:parent]
+      }
+    ]
+
+    Repo.preload(struct_or_structs, preloads)
+  end
+
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
       {:id, id}, dynamic -> dynamic([row], ^dynamic and row.id == ^id)
       {:ids, ids}, dynamic -> dynamic([row], ^dynamic and row.id in ^ids)
-      {:parent_id, id}, dynamic -> dynamic([row], ^dynamic and row.parent_id == ^id)
-      {:parents_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.parent_id in ^ids)
       {:context, context}, dynamic -> dynamic([row], ^dynamic and row.context == ^context)
       {:contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.context in ^contexts)
       _param, dynamic -> dynamic

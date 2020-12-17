@@ -3,6 +3,11 @@ defmodule HealthBoardWeb.DashboardLive.EventData do
   alias HealthBoardWeb.Helpers.Colors
   alias HealthBoardWeb.Router.Helpers, as: Routes
 
+  @region Locations.context!(:region)
+  @state Locations.context!(:state)
+  @health_region Locations.context!(:health_region)
+  @city Locations.context!(:city)
+
   @spec build(map, tuple) :: {String.t(), map | list(map)}
   def build(data, {type, sub_type}) do
     case type do
@@ -264,18 +269,19 @@ defmodule HealthBoardWeb.DashboardLive.EventData do
     }
   end
 
-  defp geo_json_path(%{context: context, id: id, parent_id: parent_id}) do
+  defp geo_json_path(%{context: context, id: id} = location) do
     cond do
-      context == Locations.context!(:city) ->
+      context == @city ->
+        %{parents: [%{id: parent_id}]} = Locations.preload_parent(location, @health_region)
         "76/#{div(parent_id, 10_000)}/#{div(parent_id, 1_000)}/#{parent_id}/cities.geojson"
 
-      context == Locations.context!(:health_region) ->
+      context == @health_region ->
         "76/#{div(id, 10_000)}/#{div(id, 1_000)}/#{id}/cities.geojson"
 
-      context == Locations.context!(:state) ->
+      context == @state ->
         "76/#{div(id, 10)}/#{id}/health_regions.geojson"
 
-      context == Locations.context!(:region) ->
+      context == @region ->
         "76/#{id}/states.geojson"
 
       true ->

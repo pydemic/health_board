@@ -1,6 +1,8 @@
 defmodule HealthBoard.Contexts.Geo.Location do
   use Ecto.Schema
 
+  alias HealthBoard.Contexts.Geo
+
   @type schema :: %__MODULE__{}
 
   @primary_key {:id, :integer, autogenerate: false}
@@ -10,8 +12,7 @@ defmodule HealthBoard.Contexts.Geo.Location do
     field :name, :string
     field :abbr, :string
 
-    belongs_to :parent, __MODULE__
-
-    has_many :children, __MODULE__, foreign_key: :parent_id
+    has_many :parents, Geo.LocationChild, foreign_key: :child_id
+    has_many :children, Geo.LocationChild, foreign_key: :parent_id
   end
 end

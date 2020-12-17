@@ -1,10 +1,10 @@
-defmodule HealthBoard.Release.DataManager.Locations do
+defmodule HealthBoard.Release.DataManager.LocationsChildren do
   alias HealthBoard.Release.DataManager
   alias HealthBoard.Repo
 
   @context "geo"
-  @table_name "locations"
-  @columns ~w[context id name abbr]a
+  @table_name "locations_children"
+  @columns ~w[parent_context parent_id child_context child_id]a
 
   @spec up :: :ok
   def up do

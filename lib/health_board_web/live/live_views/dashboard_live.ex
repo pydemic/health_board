@@ -2,9 +2,7 @@ defmodule HealthBoardWeb.DashboardLive do
   use Surface.LiveView
 
   alias HealthBoardWeb.DashboardLive.Fragments.{
-    AnalyticDashboard,
     DemographicDashboard,
-    MorbidityDashboard,
     NoDashboard
   }
 
@@ -49,18 +47,6 @@ defmodule HealthBoardWeb.DashboardLive do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     case assigns[:dashboard] do
-      %{id: "analytic"} = dashboard ->
-        ~H"""
-        <Dashboard
-          id={{ "analytic_dashboard" }}
-          dashboard={{ dashboard }}
-          filters={{ @filters }}
-          filters_options={{ @filters_options }}
-        >
-          <AnalyticDashboard dashboard={{ dashboard }} index={{ @filters[:index] || 0 }} />
-        </Dashboard>
-        """
-
       %{id: "demographic"} = dashboard ->
         ~H"""
         <Dashboard
@@ -70,18 +56,6 @@ defmodule HealthBoardWeb.DashboardLive do
           filters_options={{ @filters_options }}
         >
           <DemographicDashboard dashboard={{ dashboard }} />
-        </Dashboard>
-        """
-
-      %{id: "morbidity"} = dashboard ->
-        ~H"""
-        <Dashboard
-          id={{ "morbidity_dashboard" }}
-          dashboard={{ dashboard }}
-          filters={{ @filters }}
-          filters_options={{ @filters_options }}
-        >
-          <MorbidityDashboard dashboard={{ dashboard }} />
         </Dashboard>
         """
 

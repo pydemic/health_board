@@ -2,8 +2,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.Demographi
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.{
-    BirthsCard,
-    CrudeBirthRateCard,
     GenderRatioCard,
     PopulationCard
   }
@@ -21,8 +19,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.DemographicDashboard.Demographi
       <Grid>
         <PopulationCard card={{ Enum.at(@section.cards, 0) }} />
         <GenderRatioCard card={{ Enum.at(@section.cards, 1) }} />
-        <BirthsCard card={{ Enum.at(@section.cards, 2) }} />
-        <CrudeBirthRateCard card={{ Enum.at(@section.cards, 3) }} />
       </Grid>
     </Section>
     """
