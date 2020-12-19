@@ -6,6 +6,7 @@ services:
     container_name: health_board
     volumes:
       - ..:/app
+      - /run/media:/app_media
       - mix:/root/.mix
       - vscode:/root/.vscode-server-insiders
     ports:
