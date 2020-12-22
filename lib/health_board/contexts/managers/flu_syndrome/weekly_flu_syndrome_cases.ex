@@ -1,11 +1,11 @@
-defmodule HealthBoard.Contexts.DailyFluSyndromeCases do
+defmodule HealthBoard.Contexts.FluSyndrome.WeeklyFluSyndromeCases do
   import Ecto.Query, only: [order_by: 2, where: 2, dynamic: 1, dynamic: 2]
-  alias HealthBoard.Contexts.Schemas.DayFluSyndromeCases
+  alias HealthBoard.Contexts.FluSyndrome.WeekFluSyndromeCases
   alias HealthBoard.Repo
 
-  @type schema :: %DayFluSyndromeCases{}
+  @type schema :: %WeekFluSyndromeCases{}
 
-  @schema DayFluSyndromeCases
+  @schema WeekFluSyndromeCases
 
   @spec new :: schema()
   def new, do: %@schema{}
@@ -32,7 +32,12 @@ defmodule HealthBoard.Contexts.DailyFluSyndromeCases do
       {:contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.context in ^contexts)
       {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
       {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
-      {:date, date}, dynamic -> dynamic([row], ^dynamic and row.date == ^date)
+      {:year, year}, dynamic -> dynamic([row], ^dynamic and row.year == ^year)
+      {:from_year, year}, dynamic -> dynamic([row], ^dynamic and row.year >= ^year)
+      {:to_year, year}, dynamic -> dynamic([row], ^dynamic and row.year <= ^year)
+      {:week, week}, dynamic -> dynamic([row], ^dynamic and row.week == ^week)
+      {:from_week, week}, dynamic -> dynamic([row], ^dynamic and row.week >= ^week)
+      {:to_week, week}, dynamic -> dynamic([row], ^dynamic and row.week <= ^week)
       _param, dynamic -> dynamic
     end)
   end

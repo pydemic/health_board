@@ -5,6 +5,7 @@ defmodule HealthBoard.Release.DataManager.Geo do
   def reseed do
     DataManager.LocationsChildren.down()
     DataManager.Locations.down()
+
     DataManager.Locations.up()
     DataManager.LocationsChildren.up()
   end

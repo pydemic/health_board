@@ -1,11 +1,11 @@
-defmodule HealthBoard.Contexts.MonthlyFluSyndromeCases do
+defmodule HealthBoard.Contexts.FluSyndrome.DailyFluSyndromeCases do
   import Ecto.Query, only: [order_by: 2, where: 2, dynamic: 1, dynamic: 2]
-  alias HealthBoard.Contexts.Schemas.MonthFluSyndromeCases
+  alias HealthBoard.Contexts.FluSyndrome.DayFluSyndromeCases
   alias HealthBoard.Repo
 
-  @type schema :: %MonthFluSyndromeCases{}
+  @type schema :: %DayFluSyndromeCases{}
 
-  @schema MonthFluSyndromeCases
+  @schema DayFluSyndromeCases
 
   @spec new :: schema()
   def new, do: %@schema{}
@@ -32,8 +32,9 @@ defmodule HealthBoard.Contexts.MonthlyFluSyndromeCases do
       {:contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.context in ^contexts)
       {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
       {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
-      {:year, year}, dynamic -> dynamic([row], ^dynamic and row.year == ^year)
-      {:month, month}, dynamic -> dynamic([row], ^dynamic and row.month == ^month)
+      {:date, date}, dynamic -> dynamic([row], ^dynamic and row.date == ^date)
+      {:from_date, date}, dynamic -> dynamic([row], ^dynamic and row.date >= ^date)
+      {:to_date, date}, dynamic -> dynamic([row], ^dynamic and row.date <= ^date)
       _param, dynamic -> dynamic
     end)
   end
