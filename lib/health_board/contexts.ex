@@ -37,7 +37,13 @@ defmodule HealthBoard.Contexts do
 
   @registry_locations %{
     residence: 0,
-    notification: 1
+    notification: 1,
+    cases_residence: 10,
+    cases_notification: 11,
+    deaths_residence: 20,
+    deaths_notification: 21,
+    hospitalizations_residence: 30,
+    hospitalizations_notification: 31
   }
 
   @spec registry_location!(integer, atom) :: integer

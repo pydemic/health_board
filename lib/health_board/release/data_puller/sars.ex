@@ -24,9 +24,9 @@ defmodule HealthBoard.Release.DataPuller.SARS do
 
     Consolidator.write(output_dir)
 
-    # output_dir
-    # |> File.ls!()
-    # |> Enum.each(&sort_and_chunk_file(&1, output_dir))
+    output_dir
+    |> File.ls!()
+    |> Enum.each(&sort_and_chunk_file(&1, output_dir))
   end
 
   defp fetch_files_streams(input_dir) do
@@ -65,7 +65,7 @@ defmodule HealthBoard.Release.DataPuller.SARS do
 
     chunk_file_path = Path.join(dir, "#{name}_")
 
-    {_result, 0} = System.cmd("split", ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}])
+    {_result, 0} = System.cmd("gsplit", ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}])
 
     File.rm!(file_path)
 

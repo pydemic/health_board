@@ -15,7 +15,8 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   @confirmed_index 2
   @discarded_index 3
-  @female_index 4
+  @sample_index 4
+  @female_index 5
 
   @age_0_4_offset 0
   @age_5_9_offset 1
@@ -36,10 +37,20 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
   @age_80_or_more_offset 16
 
   @male_index @female_index + @age_80_or_more_offset + 1
-  @health_professional_index @male_index + @age_80_or_more_offset + 1
 
-  @residence Contexts.registry_location!(:residence)
-  @notification Contexts.registry_location!(:notification)
+  @race_caucasian @male_index + @age_80_or_more_offset + 1
+  @race_african @race_caucasian + 1
+  @race_asian @race_african + 1
+  @race_brown @race_asian + 1
+  @race_native @race_brown + 1
+  @ignored_race @race_native + 1
+
+  @cases_residence Contexts.registry_location!(:cases_residence)
+  @cases_notification Contexts.registry_location!(:cases_notification)
+  @deaths_residence Contexts.registry_location!(:deaths_residence)
+  @deaths_notification Contexts.registry_location!(:deaths_notification)
+  @hospitalizations_residence Contexts.registry_location!(:hospitalizations_residence)
+  @hospitalizations_notification Contexts.registry_location!(:hospitalizations_notification)
 
   @spec setup :: :ok
   def setup do
@@ -49,7 +60,6 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     |> Locations.list_by()
     |> Locations.preload_parent(:health_region)
     |> Enum.each(&:ets.insert_new(@ets_cities, locations_ids(&1)))
-
 
     :ets.new(@ets_daily_buckets, [:set, :public, :named_table])
     :ets.new(@ets_weekly_buckets, [:set, :public, :named_table])
@@ -76,14 +86,45 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   @spec parse({integer, String.t(), integer, Date.t(), list(String.t())}) :: :ok
   def parse({file_index, file_name, line_index, today, line}) do
-    with {:ok, {dates, cities_ids, classification, gender_age}} <- extract_data(line),
-         {:ok, date} <- identify_date(dates, today),
-         {:ok, locations_ids_list} <- identify_locations_ids_list(cities_ids) do
-      indexes = identify_indexes(classification, gender_age)
-      Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+    with {:ok, {dates, cities_ids, classification, gender_age, hospitalization, sample, evolution, race}} <-
+           extract_data(line) do
+      with {:ok, date} <- identify_date(dates, today),
+           {:ok, locations_ids_list} <- identify_locations_ids_list(cities_ids, @cases_residence, @cases_notification) do
+        indexes = identify_indexes(classification, gender_age, sample, race)
+        Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+      else
+        {:error, error} -> show_error(error, file_index, file_name, line_index)
+      end
+
+      with {:ok, :has_hospitalization} <- identify_hospitalization(elem(hospitalization, 0)),
+           {:ok, date} <- parse_date(elem(hospitalization, 1), today),
+           {:ok, locations_ids_list} <-
+             identify_locations_ids_list(
+               {elem(hospitalization, 2), elem(hospitalization, 3)},
+               @hospitalizations_residence,
+               @hospitalizations_notification
+             ) do
+        indexes = identify_indexes(classification, gender_age, sample, race)
+        Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+      else
+        {:error, error} -> show_error(error, file_index, file_name, line_index)
+      end
+
+      with {:ok, :has_death} <- identify_death(elem(evolution, 0)),
+           {:ok, date} <- parse_date(elem(evolution, 1), today),
+           {:ok, locations_ids_list} <-
+             identify_locations_ids_list(
+               {elem(evolution, 2), elem(evolution, 3)},
+               @deaths_residence,
+               @deaths_notification
+             ) do
+        indexes = identify_indexes(classification, gender_age, sample, race)
+        Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+      else
+        {:error, error} -> show_error(error, file_index, file_name, line_index)
+      end
     else
-      {:error, error} when is_atom(error) -> :ok
-      {:error, error} -> Logger.error("[##{file_index} #{file_name}:#{line_index}] #{error}")
+      {:error, error} -> show_error(error, file_index, file_name, line_index)
     end
   end
 
@@ -120,6 +161,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       _SURTO_SG,
       _NOSOCOMIAL,
       _AVE_SUINO,
+      #
       symptom_fever,
       symptom_cough,
       symptom_sore_throat,
@@ -144,7 +186,8 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       comorbidity_chronic_kidney_disease,
       comorbidity_obesity,
       _OBES_IMC,
-      other_mobidity,
+      # Existe no mapeamento, mas não foi encaixado
+      _other_mobidity,
       _MORB_DESC,
       _VACINA,
       _DT_UT_DOSE,
@@ -158,7 +201,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       _TP_ANTIVIR,
       _OUT_ANTIV,
       _DT_ANTIVIR,
-      hospital,
+      hospitalization,
       hospitalization_date,
       _SG_UF_INTE,
       _ID_RG_INTE,
@@ -200,7 +243,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       _CLASSI_OUT,
       _CRITERIO,
       evolution,
-      _DT_EVOLUCA,
+      evolution_date,
       _DT_ENCERRA,
       _DT_DIGITA,
       _HISTO_VGM,
@@ -216,33 +259,8 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       symptom_abdominal_pain,
       symptom_fatigue,
       symptom_smell_loss,
-      symptom_taste_loss,
-      _TOMO_RES,
-      _TOMO_OUT,
-      _DT_TOMO,
-      _TP_TES_AN,
-      _DT_RES_AN,
-      _RES_AN,
-      _POS_AN_FLU,
-      _TP_FLU_AN,
-      _POS_AN_OUT,
-      _AN_SARS2,
-      _AN_VSR,
-      _AN_PARA1,
-      _AN_PARA2,
-      _AN_PARA3,
-      _AN_ADENO,
-      _AN_OUTRO,
-      _DS_AN_OUT,
-      _TP_AM_SOR,
-      _SOR_OUT,
-      _DT_CO_SOR,
-      _TP_SOR,
-      _OUT_SOR,
-      _DT_RES,
-      _RES_IGG,
-      _RES_IGM,
-      _RES_IGA
+      symptom_taste_loss
+      | _line
     ] = line
 
     {
@@ -251,7 +269,11 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
         {symptoms_date, notification_date},
         {residence_city_id, notification_city_id},
         {pcr_sars2_result, final_classification},
-        {gender, age}
+        {gender, age},
+        {hospitalization, hospitalization_date, hospitalization_city_id, residence_city_id},
+        sample,
+        {evolution, evolution_date, residence_city_id, notification_city_id},
+        race
       }
     }
   rescue
@@ -266,10 +288,11 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
   end
 
   defp parse_date(date, today) do
-    date = date
-    |> String.split("/")
-    |> Enum.reverse()
-    |>Enum.join("-")
+    date =
+      date
+      |> String.split("/")
+      |> Enum.reverse()
+      |> Enum.join("-")
 
     case Date.from_iso8601(date) do
       {:ok, date} ->
@@ -284,19 +307,19 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     end
   end
 
-  defp identify_locations_ids_list({residence_city_id, notification_city_id}) do
+  defp identify_locations_ids_list({residence_city_id, notification_city_id}, residence, notification) do
     if residence_city_id == notification_city_id do
       case identify_locations_ids(residence_city_id) do
         nil -> {:error, :invalid_city_ids}
-        locations -> {:ok, [{@residence, locations}, {@notification, locations}]}
+        locations -> {:ok, [{residence, locations}, {notification, locations}]}
       end
     else
       case {identify_locations_ids(residence_city_id), identify_locations_ids(notification_city_id)} do
         {nil, nil} -> {:error, :invalid_city_ids}
-        {locations_ids, nil} -> {:ok, [{@residence, locations_ids}]}
-        {nil, locations_ids} -> {:ok, [{@notification, locations_ids}]}
-        {[id | _], [id | _] = locations_ids} -> {:ok, [{@residence, locations_ids}, {@notification, locations_ids}]}
-        {rls, nls} -> {:ok, [{@residence, rls}, {@notification, nls}]}
+        {locations_ids, nil} -> {:ok, [{residence, locations_ids}]}
+        {nil, locations_ids} -> {:ok, [{notification, locations_ids}]}
+        {[id | _], [id | _] = locations_ids} -> {:ok, [{residence, locations_ids}, {notification, locations_ids}]}
+        {rls, nls} -> {:ok, [{residence, rls}, {notification, nls}]}
       end
     end
   end
@@ -314,11 +337,41 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     _error -> nil
   end
 
-  defp identify_indexes(classification, gender_age) do
+  defp show_error(error, _file_index, _file_name, _line_index) when is_atom(error), do: :ok
+
+  defp show_error(error, file_index, file_name, line_index) do
+    Logger.error("[##{file_index} #{file_name}:#{line_index}] #{error}")
+  end
+
+  defp identify_hospitalization(hospitalization) do
+    if hospitalization != "" do
+      case hospitalization do
+        "1" -> {:ok, :has_hospitalization}
+        _hospitalization -> {:error, nil}
+      end
+    else
+      {:error, nil}
+    end
+  end
+
+  defp identify_death(evolution) do
+    if evolution != "" do
+      case evolution do
+        "2" -> {:ok, :has_death}
+        _hospitalization -> {:error, nil}
+      end
+    else
+      {:error, nil}
+    end
+  end
+
+  defp identify_indexes(classification, gender_age, sample, race) do
     case identify_classification_index(classification) do
       @confirmed_index ->
         [@confirmed_index]
         |> maybe_add_gender_age_group_index(gender_age)
+        |> maybe_add_race_index(race)
+        |> maybe_add_sample_index(sample)
         |> Enum.sort()
 
       @discarded_index ->
@@ -417,6 +470,38 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     end
   end
 
+  defp maybe_add_race_index(indexes, race) do
+    case race do
+      "1" ->
+        [@race_caucasian | indexes]
+
+      "2" ->
+        [@race_african | indexes]
+
+      "3" ->
+        [@race_asian | indexes]
+
+      "4" ->
+        [@race_brown | indexes]
+
+      "5" ->
+        [@race_native | indexes]
+
+      _ ->
+        indexes
+    end
+  end
+
+  defp maybe_add_sample_index(indexes, sample) do
+    case sample do
+      "1" ->
+        [@sample_index | indexes]
+
+      _ ->
+        indexes
+    end
+  end
+
   defp update_buckets({registry_context, locations_ids}, date, indexes) do
     locations = [76 | locations_ids]
     indexes_additions = Enum.map(indexes, &{&1, 1})
@@ -455,7 +540,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
   end
 
   defp new_bucket_record(key, indexes) do
-    {values, _indexes} = Enum.reduce(2..@health_professional_index, {[], indexes}, &new_bucket_value/2)
+    {values, _indexes} = Enum.reduce(2..@ignored_race, {[], indexes}, &new_bucket_value/2)
     List.to_tuple([key | Enum.reverse(values)])
   end
 
