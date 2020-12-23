@@ -113,7 +113,7 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     %{from_year: from_year, to_year: to_year} =
       filters =
       filters
-      |> Map.put_new(:id, "demographic")
+      |> Map.put_new(:id, "coronavirus")
       |> Map.put_new(:year, current_year)
       |> Map.put_new(:from_year, 2000)
       |> Map.put_new(:to_year, current_year)

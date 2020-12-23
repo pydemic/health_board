@@ -2,8 +2,11 @@ defmodule HealthBoardWeb.DashboardLive do
   use Surface.LiveView
 
   alias HealthBoardWeb.DashboardLive.Fragments.{
+    CoronavirusDashboard,
     DemographicDashboard,
-    NoDashboard
+    FluSyndromeDashboard,
+    NoDashboard,
+    SarsDashboard
   }
 
   alias HealthBoardWeb.LiveComponents.Dashboard
@@ -47,6 +50,18 @@ defmodule HealthBoardWeb.DashboardLive do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     case assigns[:dashboard] do
+      %{id: "coronavirus"} = dashboard ->
+        ~H"""
+        <Dashboard
+          id={{ "coronavirus_dashboard" }}
+          dashboard={{ dashboard }}
+          filters={{ @filters }}
+          filters_options={{ @filters_options }}
+        >
+          <CoronavirusDashboard dashboard={{ dashboard }} index={{ @filters[:index] || 0 }} />
+        </Dashboard>
+        """
+
       %{id: "demographic"} = dashboard ->
         ~H"""
         <Dashboard
@@ -56,6 +71,30 @@ defmodule HealthBoardWeb.DashboardLive do
           filters_options={{ @filters_options }}
         >
           <DemographicDashboard dashboard={{ dashboard }} />
+        </Dashboard>
+        """
+
+      %{id: "flu_syndrome"} = dashboard ->
+        ~H"""
+        <Dashboard
+          id={{ "flu_syndrome_dashboard" }}
+          dashboard={{ dashboard }}
+          filters={{ @filters }}
+          filters_options={{ @filters_options }}
+        >
+          <FluSyndromeDashboard dashboard={{ dashboard }} index={{ @filters[:index] || 0 }} />
+        </Dashboard>
+        """
+
+      %{id: "sars"} = dashboard ->
+        ~H"""
+        <Dashboard
+          id={{ "sars_dashboard" }}
+          dashboard={{ dashboard }}
+          filters={{ @filters }}
+          filters_options={{ @filters_options }}
+        >
+          <SarsDashboard dashboard={{ dashboard }} index={{ @filters[:index] || 0 }} />
         </Dashboard>
         """
 
