@@ -2,10 +2,10 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.SarsDeathsSection
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.{
+    DeathRateMap,
     DeathsEpicurve,
     DeathsPerMonth,
     DeathsPerWeek,
-    DeathRateMap,
     PandemicDeathsMap
   }
 

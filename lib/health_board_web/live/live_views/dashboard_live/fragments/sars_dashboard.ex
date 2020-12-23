@@ -3,9 +3,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard do
 
   alias HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.{
     SarsDailySummaryGroup,
-    SarsIncidenceGroup,
     SarsDeathsGroup,
-    SarsHospitalizationsGroup
+    SarsHospitalizationsGroup,
+    SarsIncidenceGroup
   }
 
   alias Phoenix.LiveView

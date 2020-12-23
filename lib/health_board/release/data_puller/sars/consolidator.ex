@@ -94,55 +94,60 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   @spec parse({integer, String.t(), integer, Date.t(), list(String.t())}) :: :ok
   def parse({file_index, file_name, line_index, today, line}) do
-    with {:ok,
-          {{dates, cities_ids, classification, gender_age, hospitalization, sample, evolution, race}, symptons_fields}} <-
-           extract_data(line) do
-      with {:ok, date} <- identify_date(dates, today),
-           {:ok, locations_ids_list} <- identify_locations_ids_list(cities_ids, @cases_residence, @cases_notification) do
-        indexes = identify_indexes(classification, gender_age, sample, race)
-        Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
-      else
-        {:error, error} -> render_error(error, file_index, file_name, line_index)
-      end
+    case extract_data(line) do
+      {:ok, data} ->
+        {
+          {dates, c_ids, classification, gender_age, hospitalization, sample, evolution, race},
+          symptons_fields
+        } = data
 
-      with {:ok, :has_hospitalization} <- identify_hospitalization(elem(hospitalization, 0)),
-           {:ok, date} <- parse_date(elem(hospitalization, 1), today),
-           {:ok, locations_ids_list} <-
-             identify_locations_ids_list(
-               {elem(hospitalization, 2), elem(hospitalization, 3)},
-               @hospitalizations_residence,
-               @hospitalizations_notification
-             ),
-           {:ok, locations_ids_list_symptoms} <-
-             identify_locations_ids_list(
-               {elem(hospitalization, 2), elem(hospitalization, 3)},
-               @residence,
-               @notification
-             ) do
-        indexes = identify_indexes(classification, gender_age, sample, race)
-        Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+        with {:ok, date} <- identify_date(dates, today),
+             {:ok, locations_ids_list} <- identify_locations_ids_list(c_ids, @cases_residence, @cases_notification) do
+          indexes = identify_indexes(classification, gender_age, sample, race)
+          Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+        else
+          {:error, error} -> render_error(error, file_index, file_name, line_index)
+        end
 
-        indexes = identify_symptons_indexes(symptons_fields)
-        Enum.each(locations_ids_list_symptoms, &update_symptons_buckets(&1, indexes))
-      else
-        {:error, error} -> render_error(error, file_index, file_name, line_index)
-      end
+        with {:ok, :has_hospitalization} <- identify_hospitalization(elem(hospitalization, 0)),
+             {:ok, date} <- parse_date(elem(hospitalization, 1), today),
+             {:ok, locations_ids_list} <-
+               identify_locations_ids_list(
+                 {elem(hospitalization, 2), elem(hospitalization, 3)},
+                 @hospitalizations_residence,
+                 @hospitalizations_notification
+               ),
+             {:ok, locations_ids_list_symptoms} <-
+               identify_locations_ids_list(
+                 {elem(hospitalization, 2), elem(hospitalization, 3)},
+                 @residence,
+                 @notification
+               ) do
+          indexes = identify_indexes(classification, gender_age, sample, race)
+          Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
 
-      with {:ok, :has_death} <- identify_death(elem(evolution, 0)),
-           {:ok, date} <- parse_date(elem(evolution, 1), today),
-           {:ok, locations_ids_list} <-
-             identify_locations_ids_list(
-               {elem(evolution, 2), elem(evolution, 3)},
-               @deaths_residence,
-               @deaths_notification
-             ) do
-        indexes = identify_indexes(classification, gender_age, sample, race)
-        Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
-      else
-        {:error, error} -> render_error(error, file_index, file_name, line_index)
-      end
-    else
-      {:error, error} -> render_error(error, file_index, file_name, line_index)
+          indexes = identify_symptons_indexes(symptons_fields)
+          Enum.each(locations_ids_list_symptoms, &update_symptons_buckets(&1, indexes))
+        else
+          {:error, error} -> render_error(error, file_index, file_name, line_index)
+        end
+
+        with {:ok, :has_death} <- identify_death(elem(evolution, 0)),
+             {:ok, date} <- parse_date(elem(evolution, 1), today),
+             {:ok, locations_ids_list} <-
+               identify_locations_ids_list(
+                 {elem(evolution, 2), elem(evolution, 3)},
+                 @deaths_residence,
+                 @deaths_notification
+               ) do
+          indexes = identify_indexes(classification, gender_age, sample, race)
+          Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+        else
+          {:error, error} -> render_error(error, file_index, file_name, line_index)
+        end
+
+      {:error, error} ->
+        render_error(error, file_index, file_name, line_index)
     end
   end
 
@@ -210,68 +215,68 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       _mother_recived_vaccine,
       _mother_vaccine_date,
       _mother_breastfeed,
-      _DT_DOSEUNI,
-      _DT_1_DOSE,
-      _DT_2_DOSE,
-      _ANTIVIRAL,
-      _TP_ANTIVIR,
-      _OUT_ANTIV,
-      _DT_ANTIVIR,
+      _dt_doseuni,
+      _dt_1_dose,
+      _dt_2_dose,
+      _antiviral,
+      _tp_antivir,
+      _out_antiv,
+      _dt_antivir,
       hospitalization,
       hospitalization_date,
-      _SG_UF_INTE,
-      _ID_RG_INTE,
-      _CO_RG_INTE,
-      _ID_MN_INTE,
+      _sg_uf_inte,
+      _id_rg_inte,
+      _co_rg_inte,
+      _id_mn_inte,
       hospitalization_city_id,
-      _UTI,
-      _DT_ENTUTI,
-      _DT_SAIDUTI,
-      _SUPORT_VEN,
-      _RAIOX_RES,
-      _RAIOX_OUT,
-      _DT_RAIOX,
+      _uti,
+      _dt_entuti,
+      _dt_saiduti,
+      _suport_ven,
+      _raiox_res,
+      _raiox_out,
+      _dt_raiox,
       sample,
-      _DT_COLETA,
-      _TP_AMOSTRA,
-      _OUT_AMOST,
-      _PCR_RESUL,
-      _DT_PCR,
-      _POS_PCRFLU,
-      _TP_FLU_PCR,
-      _PCR_FLUASU,
-      _FLUASU_OUT,
-      _PCR_FLUBLI,
-      _FLUBLI_OUT,
-      _POS_PCROUT,
-      _PCR_VSR,
-      _PCR_PARA1,
-      _PCR_PARA2,
-      _PCR_PARA3,
-      _PCR_PARA4,
-      _PCR_ADENO,
-      _PCR_METAP,
-      _PCR_BOCA,
-      _PCR_RINO,
-      _PCR_OUTRO,
-      _DS_PCR_OUT,
+      _dt_coleta,
+      _tp_amostra,
+      _out_amost,
+      _pcr_resul,
+      _dt_pcr,
+      _pos_pcrflu,
+      _tp_flu_pcr,
+      _pcr_fluasu,
+      _fluasu_out,
+      _pcr_flubli,
+      _flubli_out,
+      _pos_pcrout,
+      _pcr_vsr,
+      _pcr_para1,
+      _pcr_para2,
+      _pcr_para3,
+      _pcr_para4,
+      _pcr_adeno,
+      _pcr_metap,
+      _pcr_boca,
+      _pcr_rino,
+      _pcr_outro,
+      _ds_pcr_out,
       final_classification,
-      _CLASSI_OUT,
-      _CRITERIO,
+      _classi_out,
+      _criterio,
       evolution,
       evolution_date,
-      _DT_ENCERRA,
-      _DT_DIGITA,
-      _HISTO_VGM,
-      _PAIS_VGM,
-      _CO_PS_VGM,
-      _LO_PS_VGM,
-      _DT_VGM,
-      _DT_RT_VGM,
+      _dt_encerra,
+      _dt_digita,
+      _histo_vgm,
+      _pais_vgm,
+      _co_ps_vgm,
+      _lo_ps_vgm,
+      _dt_vgm,
+      _dt_rt_vgm,
       pcr_sars2_result,
-      _PAC_COCBO,
-      _PAC_DSCBO,
-      _OUT_ANIM,
+      _pac_cocbo,
+      _pac_dscbo,
+      _out_anim,
       symptom_abdominal_pain,
       symptom_fatigue,
       symptom_smell_loss,

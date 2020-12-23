@@ -2,10 +2,10 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.CoronavirusDashboard.Coronaviru
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Fragments.CoronavirusDashboard.{
+    DeathRateMap,
     DeathsEpicurve,
     DeathsPerMonth,
     DeathsPerWeek,
-    DeathRateMap,
     PandemicDeathsMap
   }
 

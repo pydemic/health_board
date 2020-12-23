@@ -48,7 +48,13 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     "state" => :integer,
     "from_year" => :integer,
     "to_year" => :integer,
-    "year" => :integer
+    "year" => :integer,
+    "from_month" => :integer,
+    "to_month" => :integer,
+    "month" => :integer,
+    "from_date" => :date,
+    "to_date" => :date,
+    "date" => :date
   }
 
   @params_keys Map.keys(@params)

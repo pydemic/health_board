@@ -3,9 +3,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.CoronavirusDashboard do
 
   alias HealthBoardWeb.DashboardLive.Fragments.CoronavirusDashboard.{
     CoronavirusDailySummaryGroup,
-    CoronavirusIncidenceGroup,
     CoronavirusDeathsGroup,
-    CoronavirusHospitalizationsGroup
+    CoronavirusHospitalizationsGroup,
+    CoronavirusIncidenceGroup
   }
 
   alias Phoenix.LiveView
