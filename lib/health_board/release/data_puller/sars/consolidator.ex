@@ -12,6 +12,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
   @ets_weekly_buckets :sars_consolidation_weekly
   @ets_monthly_buckets :sars_consolidation_monthly
   @ets_pandemic_buckets :sars_consolidation_pandemic
+  @ets_symptons_buckets :sars_consolidation_symptons
 
   @confirmed_index 2
   @discarded_index 3
@@ -45,12 +46,18 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
   @race_native @race_brown + 1
   @ignored_race @race_native + 1
 
+  @first_symptom_index 2
+  @last_symptom_index 25
+
   @cases_residence Contexts.registry_location!(:cases_residence)
   @cases_notification Contexts.registry_location!(:cases_notification)
   @deaths_residence Contexts.registry_location!(:deaths_residence)
   @deaths_notification Contexts.registry_location!(:deaths_notification)
   @hospitalizations_residence Contexts.registry_location!(:hospitalizations_residence)
   @hospitalizations_notification Contexts.registry_location!(:hospitalizations_notification)
+
+  @residence Contexts.registry_location!(:residence)
+  @notification Contexts.registry_location!(:notification)
 
   @spec setup :: :ok
   def setup do
@@ -65,6 +72,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     :ets.new(@ets_weekly_buckets, [:set, :public, :named_table])
     :ets.new(@ets_monthly_buckets, [:set, :public, :named_table])
     :ets.new(@ets_pandemic_buckets, [:set, :public, :named_table])
+    :ets.new(@ets_symptons_buckets, [:set, :public, :named_table])
 
     :ok
   end
@@ -86,14 +94,14 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   @spec parse({integer, String.t(), integer, Date.t(), list(String.t())}) :: :ok
   def parse({file_index, file_name, line_index, today, line}) do
-    with {:ok, {dates, cities_ids, classification, gender_age, hospitalization, sample, evolution, race}} <-
+    with {:ok, {{dates, cities_ids, classification, gender_age, hospitalization, sample, evolution, race}, symptons_fields}} <-
            extract_data(line) do
       with {:ok, date} <- identify_date(dates, today),
            {:ok, locations_ids_list} <- identify_locations_ids_list(cities_ids, @cases_residence, @cases_notification) do
         indexes = identify_indexes(classification, gender_age, sample, race)
         Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
       else
-        {:error, error} -> show_error(error, file_index, file_name, line_index)
+        {:error, error} -> render_error(error, file_index, file_name, line_index)
       end
 
       with {:ok, :has_hospitalization} <- identify_hospitalization(elem(hospitalization, 0)),
@@ -103,11 +111,21 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
                {elem(hospitalization, 2), elem(hospitalization, 3)},
                @hospitalizations_residence,
                @hospitalizations_notification
+             ),
+           {:ok, locations_ids_list_symptoms} <-
+             identify_locations_ids_list(
+               {elem(hospitalization, 2), elem(hospitalization, 3)},
+               @residence,
+               @notification
              ) do
         indexes = identify_indexes(classification, gender_age, sample, race)
         Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
+
+        indexes = identify_symptons_indexes(symptons_fields)
+        Enum.each(locations_ids_list_symptoms, &update_symptons_buckets(&1, indexes))
+
       else
-        {:error, error} -> show_error(error, file_index, file_name, line_index)
+        {:error, error} -> render_error(error, file_index, file_name, line_index)
       end
 
       with {:ok, :has_death} <- identify_death(elem(evolution, 0)),
@@ -121,47 +139,46 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
         indexes = identify_indexes(classification, gender_age, sample, race)
         Enum.each(locations_ids_list, &update_buckets(&1, date, indexes))
       else
-        {:error, error} -> show_error(error, file_index, file_name, line_index)
+        {:error, error} -> render_error(error, file_index, file_name, line_index)
       end
     else
-      {:error, error} -> show_error(error, file_index, file_name, line_index)
+      {:error, error} -> render_error(error, file_index, file_name, line_index)
     end
   end
 
   defp extract_data(line) do
     [
       notification_date,
-      _SEM_NOT,
+      _epidemiological_week,
       symptoms_date,
-      _SEM_PRI,
-      _SG_UF_NOT,
-      _ID_REGIONA,
-      _CO_REGIONA,
+      _symptoms_epidemiological_week,
+      _state_name_notification,
+      _regional_name,
+      _regional_code,
       _notification_city_name,
       notification_city_id,
-      _ID_UNIDADE,
-      _CO_UNI_NOT,
+      _state_name,
+      _state_code_notification,
       gender,
-      _DT_NASC,
+      _date_of_birth,
       age,
-      _TP_IDADE,
-      _COD_IDADE,
-      _CS_GESTANT,
+      _type_age,
+      _age_code,
+      _pregnant,
       race,
-      _CS_ETINIA,
-      _CS_ESCOL_N,
-      _ID_PAIS,
-      _CO_PAIS,
-      _SG_UF,
-      _ID_RG_RESI,
-      _CO_RG_RESI,
+      _ethnicity,
+      _educational_level,
+      _country_name,
+      _country_code,
+      _state,
+      _regional_name_residence,
+      _regional_code_residence,
       _residence_city_name,
       residence_city_id,
-      _CS_ZONA,
-      _SURTO_SG,
-      _NOSOCOMIAL,
-      _AVE_SUINO,
-      #
+      _district_residence,
+      _has_outbreak,
+      _nosocomial,
+      _has_contact_with_animals,
       symptom_fever,
       symptom_cough,
       symptom_sore_throat,
@@ -170,10 +187,10 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       symptom_saturation,
       symptom_diarrhea,
       symptom_vomit,
-      other_symptom,
-      _OUTRO_DES,
+      _other_symptom,
+      _other_symptom_unknown,
       comorbidity_puerperal,
-      risk_factor,
+      _risk_factor,
       comorbidity_chronic_cardiovascular_disease,
       comorbidity_chronic_hematological_disease,
       comorbidity_down_syndrome,
@@ -185,15 +202,14 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       comorbidity_immunodeficiency,
       comorbidity_chronic_kidney_disease,
       comorbidity_obesity,
-      _OBES_IMC,
-      # Existe no mapeamento, mas não foi encaixado
+      _obesity_imc,
       _other_mobidity,
-      _MORB_DESC,
-      _VACINA,
-      _DT_UT_DOSE,
-      _MAE_VAC,
-      _DT_VAC_MAE,
-      _M_AMAMENTA,
+      _morbidity_unknown,
+      _vaccine,
+      _date_last_vaccine,
+      _mother_recived_vaccine,
+      _mother_vaccine_date,
+      _mother_breastfeed,
       _DT_DOSEUNI,
       _DT_1_DOSE,
       _DT_2_DOSE,
@@ -266,14 +282,42 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     {
       :ok,
       {
-        {symptoms_date, notification_date},
-        {residence_city_id, notification_city_id},
-        {pcr_sars2_result, final_classification},
-        {gender, age},
-        {hospitalization, hospitalization_date, hospitalization_city_id, residence_city_id},
-        sample,
-        {evolution, evolution_date, residence_city_id, notification_city_id},
-        race
+        {
+          {symptoms_date, notification_date},
+          {residence_city_id, notification_city_id},
+          {pcr_sars2_result, final_classification},
+          {gender, age},
+          {hospitalization, hospitalization_date, hospitalization_city_id, residence_city_id},
+          sample,
+          {evolution, evolution_date, residence_city_id, notification_city_id},
+          race
+        },
+        [
+          symptom_abdominal_pain,
+          symptom_cough,
+          symptom_diarrhea,
+          symptom_dyspnoea,
+          symptom_fatigue,
+          symptom_fever,
+          symptom_respiratory_distress,
+          symptom_saturation,
+          symptom_smell_loss,
+          symptom_sore_throat,
+          symptom_taste_loss,
+          symptom_vomit,
+          comorbidity_asthma,
+          comorbidity_chronic_cardiovascular_disease,
+          comorbidity_chronic_hematological_disease,
+          comorbidity_chronic_kidney_disease,
+          comorbidity_chronic_liver_disease,
+          comorbidity_chronic_neurological_disease,
+          comorbidity_chronic_pneumatopathy_disease,
+          comorbidity_diabetes,
+          comorbidity_down_syndrome,
+          comorbidity_immunodeficiency,
+          comorbidity_obesity,
+          comorbidity_puerperal
+        ]
       }
     }
   rescue
@@ -337,9 +381,9 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     _error -> nil
   end
 
-  defp show_error(error, _file_index, _file_name, _line_index) when is_atom(error), do: :ok
+  defp render_error(error, _file_index, _file_name, _line_index) when is_atom(error), do: :ok
 
-  defp show_error(error, file_index, file_name, line_index) do
+  defp render_error(error, file_index, file_name, line_index) do
     Logger.error("[##{file_index} #{file_name}:#{line_index}] #{error}")
   end
 
@@ -376,6 +420,20 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
       @discarded_index ->
         [@discarded_index]
+    end
+  end
+
+  defp identify_symptons_indexes(symptons_fields) do
+    symptons_fields
+    |> Enum.with_index
+    |> Enum.reduce([], fn {symptom,index}, acc -> has_symptom(symptom, index, acc) end)
+  end
+
+  defp has_symptom(symptom, index, acc) do
+    if symptom == "1" do
+      [(index+@first_symptom_index) | acc]
+    else
+      acc
     end
   end
 
@@ -507,7 +565,16 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     indexes_additions = Enum.map(indexes, &{&1, 1})
 
     for location_id <- locations, bucket <- buckets_from_date(date) do
-      update_bucket(registry_context, bucket, location_id, indexes_additions, indexes)
+      update_bucket(registry_context, bucket, location_id, indexes_additions, indexes, false)
+    end
+  end
+
+  defp update_symptons_buckets({registry_context, locations_ids}, indexes) do
+    locations = [76 | locations_ids]
+    indexes_additions = Enum.map(indexes, &{&1, 1})
+
+    for location_id <- locations do
+      update_bucket(registry_context, @ets_symptons_buckets, location_id, indexes_additions, indexes, true)
     end
   end
 
@@ -522,7 +589,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
     ]
   end
 
-  defp update_bucket(registry_context, bucket, location_id, indexes_additions, indexes) do
+  defp update_bucket(registry_context, bucket, location_id, indexes_additions, indexes, is_symptom_bucket) do
     {bucket_name, key} =
       case bucket do
         {bucket_name, date} -> {bucket_name, {registry_context, location_id, date}}
@@ -533,13 +600,18 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
       :ets.update_counter(bucket_name, key, indexes_additions)
     rescue
       _error ->
-        unless :ets.insert_new(bucket_name, new_bucket_record(key, indexes)) do
+        unless :ets.insert_new(bucket_name, new_bucket_record(key, indexes, is_symptom_bucket)) do
           :ets.update_counter(bucket_name, key, indexes_additions)
         end
     end
   end
 
-  defp new_bucket_record(key, indexes) do
+  defp new_bucket_record(key, indexes, true) do
+    {values, _indexes} = Enum.reduce(2..@last_symptom_index, {[], indexes}, &new_bucket_value/2)
+    List.to_tuple([key | Enum.reverse(values)])
+  end
+
+  defp new_bucket_record(key, indexes, _is_symptom_bucket) do
     {values, _indexes} = Enum.reduce(2..@ignored_race, {[], indexes}, &new_bucket_value/2)
     List.to_tuple([key | Enum.reverse(values)])
   end
@@ -549,6 +621,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   @spec write(String.t()) :: :ok
   def write(dir) do
+    write_bucket(@ets_symptons_buckets, &pandemic_line/1, Path.join(dir, "pandemic_sars_symptoms.csv"))
     write_bucket(@ets_pandemic_buckets, &pandemic_line/1, Path.join(dir, "pandemic_sars_cases.csv"))
     write_bucket(@ets_monthly_buckets, &monthly_line/1, Path.join(dir, "monthly_sars_cases.csv"))
     write_bucket(@ets_weekly_buckets, &weekly_line/1, Path.join(dir, "weekly_sars_cases.csv"))
