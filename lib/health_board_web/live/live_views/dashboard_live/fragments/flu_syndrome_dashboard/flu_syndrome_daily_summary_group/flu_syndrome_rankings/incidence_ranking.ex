@@ -13,7 +13,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.IncidenceR
     ~H"""
     <DataCard id={{ @card.id }} :let={{ data: data }} width_l={{ 2 }} width_m={{ 1 }} >
       <template slot="header" :let={{ data: data }} >
-        <CardHeaderMenu card={{ @card }} data={{ data }} />
+        <CardHeaderMenu card={{ @card }} data={{ data }} show_data={{ false }} />
       </template>
 
       <template slot="body" :let={{ data: data }} >
@@ -29,8 +29,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.IncidenceR
 
             <tbody>
               <tr :for.with_index={{ {element, index} <- data.result.ranking }}>
-                <th>{{ index }}</th>
-                <th>{{ element.name }}</th>
+                <th>{{ index + 1 }}</th>
+                <th>{{ element.location }}</th>
                 <th>{{ Humanize.number element.incidence }}</th>
               </tr>
             </tbody>
@@ -40,7 +40,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.IncidenceR
         </div>
       </template>
 
-      <CardOffcanvasMenu card={{ @card }} data={{ data }} />
+      <CardOffcanvasMenu card={{ @card }} data={{ data }} show_data={{ false }} />
     </DataCard>
     """
   end

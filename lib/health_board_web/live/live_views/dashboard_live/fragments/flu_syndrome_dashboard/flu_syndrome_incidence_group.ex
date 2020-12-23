@@ -1,7 +1,11 @@
 defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.FluSyndromeIncidenceGroup do
   use Surface.Component
 
-  alias HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.FluSyndromeIncidenceSection
+  alias HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.{
+    FluSyndromeHealthProfessional,
+    FluSyndromeIncidenceSection,
+    FluSyndromePositivityRate
+  }
 
   alias Phoenix.LiveView
 
@@ -13,6 +17,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.FluSyndrom
     ~H"""
     <div :show={{ @show }}>
       <FluSyndromeIncidenceSection section={{ Enum.at(@group.sections, 0) }} />
+      <FluSyndromeHealthProfessional section={{ Enum.at(@group.sections, 1) }} />
+      <FluSyndromePositivityRate section={{ Enum.at(@group.sections, 2) }} />
     </div>
     """
   end

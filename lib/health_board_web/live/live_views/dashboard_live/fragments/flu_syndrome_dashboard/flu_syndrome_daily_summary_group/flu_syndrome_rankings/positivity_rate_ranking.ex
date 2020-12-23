@@ -13,7 +13,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.Positivity
     ~H"""
     <DataCard id={{ @card.id }} :let={{ data: data }} width_l={{ 2 }} width_m={{ 1 }} >
       <template slot="header" :let={{ data: data }} >
-        <CardHeaderMenu card={{ @card }} data={{ data }} />
+        <CardHeaderMenu card={{ @card }} data={{ data }} show_data={{ false }} />
       </template>
 
       <template slot="body" :let={{ data: data }} >
@@ -29,9 +29,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.Positivity
 
             <tbody>
               <tr :for.with_index={{ {element, index} <- data.result.ranking }}>
-                <th>{{ index }}</th>
-                <th>{{ element.name }}</th>
-                <th>{{ Humanize.number element.incidence }}</th>
+                <th>{{ index + 1 }}</th>
+                <th>{{ element.location }}</th>
+                <th>{{ Humanize.number element.positivity_rate }}</th>
               </tr>
             </tbody>
           </table>
@@ -40,7 +40,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.Positivity
         </div>
       </template>
 
-      <CardOffcanvasMenu card={{ @card }} data={{ data }} />
+      <CardOffcanvasMenu card={{ @card }} data={{ data }} show_data={{ false }} />
     </DataCard>
     """
   end

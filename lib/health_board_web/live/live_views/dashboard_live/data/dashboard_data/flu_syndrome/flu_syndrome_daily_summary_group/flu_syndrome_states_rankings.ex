@@ -1,9 +1,8 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.FluSyndromeStatesRankings do
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
-  @changes_keys []
-
-  @data_keys []
+  @changes_keys [:index, :day_states_cases, :year_states_population]
+  @data_keys [:date, :day_states_cases, :year_states_population]
 
   @spec fetch(pid, map, map) :: nil
   def fetch(pid, section, %{changed_filters: changes} = data) do

@@ -7,17 +7,26 @@ defmodule HealthBoard.Contexts.FluSyndrome.DailyFluSyndromeCases do
 
   @schema DayFluSyndromeCases
 
-  @spec new :: schema()
-  def new, do: %@schema{}
+  @spec new(keyword) :: schema
+  def new(params \\ []) do
+    struct(@schema, params)
+  end
 
-  @spec get_by!(keyword()) :: schema()
-  def get_by!(params) do
+  @spec get_by(keyword) :: schema
+  def get_by(params) do
     @schema
     |> where(^filter_where(params))
     |> Repo.one!()
+  rescue
+    error ->
+      case Keyword.pop(params, :default) do
+        {nil, _params} -> nil
+        {:raise, _params} -> reraise(error, __STACKTRACE__)
+        {:new, params} -> new(params)
+      end
   end
 
-  @spec list_by(keyword()) :: list(schema())
+  @spec list_by(keyword) :: list(schema)
   def list_by(params) do
     @schema
     |> where(^filter_where(params))
@@ -25,17 +34,50 @@ defmodule HealthBoard.Contexts.FluSyndrome.DailyFluSyndromeCases do
     |> Repo.all()
   end
 
+  @spec preload(schema | list(schema)) :: schema | list(schema)
+  def preload(struct_or_structs) do
+    Repo.preload(struct_or_structs, :location)
+  end
+
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
-      {:context, context}, dynamic -> dynamic([row], ^dynamic and row.context == ^context)
-      {:contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.context in ^contexts)
-      {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
-      {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
-      {:date, date}, dynamic -> dynamic([row], ^dynamic and row.date == ^date)
-      {:from_date, date}, dynamic -> dynamic([row], ^dynamic and row.date >= ^date)
-      {:to_date, date}, dynamic -> dynamic([row], ^dynamic and row.date <= ^date)
-      _param, dynamic -> dynamic
+      {:context, context}, dynamic ->
+        if is_atom(context) do
+          case context do
+            :residence -> dynamic([row], ^dynamic and row.context == 0)
+            :notification -> dynamic([row], ^dynamic and row.context == 1)
+          end
+        else
+          dynamic([row], ^dynamic and row.context == ^context)
+        end
+
+      {:contexts, contexts}, dynamic ->
+        dynamic([row], ^dynamic and row.context in ^contexts)
+
+      {:location_id, id}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id == ^id)
+
+      {:locations_ids, ids}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id in ^ids)
+
+      {:locations_context, :state}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id >= 10 and row.location_id < 60)
+
+      {:locations_context, :city}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id >= 1_000_000 and row.location_id < 6_000_000)
+
+      {:date, date}, dynamic ->
+        dynamic([row], ^dynamic and row.date == ^date)
+
+      {:from_date, date}, dynamic ->
+        dynamic([row], ^dynamic and row.date >= ^date)
+
+      {:to_date, date}, dynamic ->
+        dynamic([row], ^dynamic and row.date <= ^date)
+
+      _param, dynamic ->
+        dynamic
     end)
   end
 end

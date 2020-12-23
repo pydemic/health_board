@@ -49,9 +49,6 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     "from_year" => :integer,
     "to_year" => :integer,
     "year" => :integer,
-    "from_month" => :integer,
-    "to_month" => :integer,
-    "month" => :integer,
     "from_date" => :date,
     "to_date" => :date,
     "date" => :date
@@ -111,10 +108,11 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
     end
   end
 
+  @first_case_date Date.from_erl!({2020, 02, 26})
   @nil_selection {"Não selecionado", nil}
 
   defp filters_assigns(filters) do
-    current_year = Date.utc_today().year
+    %{year: current_year} = today = Date.utc_today()
 
     %{from_year: from_year, to_year: to_year} =
       filters =
@@ -123,6 +121,9 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
       |> Map.put_new(:year, current_year)
       |> Map.put_new(:from_year, 2000)
       |> Map.put_new(:to_year, current_year)
+      |> Map.put_new(:date, today)
+      |> Map.put_new(:from_date, @first_case_date)
+      |> Map.put_new(:to_date, today)
 
     year_options = Enum.zip(2000..current_year, 2000..current_year)
     from_year_options = Enum.zip(2000..(to_year - 1), 2000..(to_year - 1))

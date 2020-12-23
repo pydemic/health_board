@@ -9,7 +9,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.HealthProf
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <DataCard id={{ @card.id }} :let={{ data: data }} width_l={{ 2 }} width_m={{ 1 }}>
+    <DataCard id={{ @card.id }} :let={{ data: data }} width_l={{ 1 }} width_m={{ 1 }}>
       <template slot="header" :let={{ data: data }}>
         <CardHeaderMenu card={{ @card }} data={{ data }} show_data={{ false }} show_link={{ false }} show_labels={{ true }} />
       </template>

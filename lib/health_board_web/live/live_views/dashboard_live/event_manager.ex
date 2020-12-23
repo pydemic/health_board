@@ -5,13 +5,21 @@ defmodule HealthBoardWeb.DashboardLive.EventManager do
 
   @spec handle_event(LiveView.Socket.t(), map, String.t()) :: LiveView.Socket.t()
   def handle_event(socket, params, "apply_filter") do
-    filters = merge_filters(socket, params)
+    filters =
+      socket
+      |> merge_filters(params)
+      |> Enum.map(fn {k, v} -> {k, to_string(v)} end)
+
     route = Routes.dashboard_path(socket, :index, filters)
     LiveView.push_patch(socket, to: route)
   end
 
   def handle_event(socket, params, "fetch_index") do
-    filters = Map.merge(socket.assigns.filters, DataManager.parse_filters(params))
+    filters =
+      socket.assigns.filters
+      |> Map.merge(DataManager.parse_filters(params))
+      |> Enum.map(fn {k, v} -> {k, to_string(v)} end)
+
     route = Routes.dashboard_path(socket, :index, filters)
     LiveView.push_patch(socket, to: route)
   end
@@ -31,9 +39,8 @@ defmodule HealthBoardWeb.DashboardLive.EventManager do
         _target -> []
       end
 
-    Map.merge(
-      Map.drop(socket.assigns.filters, to_drop),
-      Map.drop(DataManager.parse_filters(params), to_drop)
-    )
+    socket.assigns.filters
+    |> Map.drop(to_drop)
+    |> Map.merge(Map.drop(DataManager.parse_filters(params), to_drop))
   end
 end

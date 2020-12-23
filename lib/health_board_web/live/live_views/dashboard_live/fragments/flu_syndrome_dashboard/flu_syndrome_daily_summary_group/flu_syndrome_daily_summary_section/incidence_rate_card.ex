@@ -19,6 +19,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.IncidenceR
       <template slot="body" :let={{ data: data }} >
         <div class="uk-card-body">
           <h2 :if={{ Enum.any?(data) }}>{{ Humanize.number data.result.incidence_rate }}</h2>
+          <small :if={{ Enum.any?(data) }}>/100 mil habitantes</small>
           <IndeterminateLoading :if={{ Enum.empty?(data) }} />
         </div>
       </template>

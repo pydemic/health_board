@@ -39,14 +39,32 @@ defmodule HealthBoard.Contexts.Demographic.YearlyPopulations do
     |> Enum.map(&@schema.add_total/1)
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
-      {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
-      {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
-      {:year, year}, dynamic -> dynamic([row], ^dynamic and row.year == ^year)
-      {:from_year, year}, dynamic -> dynamic([row], ^dynamic and row.year >= ^year)
-      {:to_year, year}, dynamic -> dynamic([row], ^dynamic and row.year <= ^year)
-      _param, dynamic -> dynamic
+      {:location_id, id}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id == ^id)
+
+      {:locations_ids, ids}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id in ^ids)
+
+      {:locations_context, :state}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id >= 10 and row.location_id < 60)
+
+      {:locations_context, :city}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id >= 1_000_000 and row.location_id < 6_000_000)
+
+      {:year, year}, dynamic ->
+        dynamic([row], ^dynamic and row.year == ^year)
+
+      {:from_year, year}, dynamic ->
+        dynamic([row], ^dynamic and row.year >= ^year)
+
+      {:to_year, year}, dynamic ->
+        dynamic([row], ^dynamic and row.year <= ^year)
+
+      _param, dynamic ->
+        dynamic
     end)
   end
 end
