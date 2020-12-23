@@ -94,7 +94,8 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   @spec parse({integer, String.t(), integer, Date.t(), list(String.t())}) :: :ok
   def parse({file_index, file_name, line_index, today, line}) do
-    with {:ok, {{dates, cities_ids, classification, gender_age, hospitalization, sample, evolution, race}, symptons_fields}} <-
+    with {:ok,
+          {{dates, cities_ids, classification, gender_age, hospitalization, sample, evolution, race}, symptons_fields}} <-
            extract_data(line) do
       with {:ok, date} <- identify_date(dates, today),
            {:ok, locations_ids_list} <- identify_locations_ids_list(cities_ids, @cases_residence, @cases_notification) do
@@ -123,7 +124,6 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
         indexes = identify_symptons_indexes(symptons_fields)
         Enum.each(locations_ids_list_symptoms, &update_symptons_buckets(&1, indexes))
-
       else
         {:error, error} -> render_error(error, file_index, file_name, line_index)
       end
@@ -425,13 +425,13 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
   defp identify_symptons_indexes(symptons_fields) do
     symptons_fields
-    |> Enum.with_index
-    |> Enum.reduce([], fn {symptom,index}, acc -> has_symptom(symptom, index, acc) end)
+    |> Enum.with_index()
+    |> Enum.reduce([], fn {symptom, index}, acc -> has_symptom(symptom, index, acc) end)
   end
 
   defp has_symptom(symptom, index, acc) do
     if symptom == "1" do
-      [(index+@first_symptom_index) | acc]
+      [index + @first_symptom_index | acc]
     else
       acc
     end
