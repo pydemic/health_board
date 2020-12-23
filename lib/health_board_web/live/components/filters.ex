@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.LiveComponents.Filters do
   use Surface.LiveComponent
 
-  alias HealthBoardWeb.LiveComponents.{Grid, Section, SectionHeader, Select}
+  alias HealthBoardWeb.LiveComponents.{DatePicker, Grid, Section, SectionHeader, Select}
   alias Phoenix.LiveView
 
   prop filters, :map, required: true
@@ -16,9 +16,12 @@ defmodule HealthBoardWeb.LiveComponents.Filters do
       <form :on-change={{ "apply_filter", target: :live_view }}>
         <Grid>
           <div class="uk-width-1-2@l">
-            <h4>Ano</h4>
+            <h4>Data</h4>
 
             <Grid>
+              <DatePicker field={{ :date_date_picker }} name={{ "Data" }}  width_l={{ 3 }} width_m={{ 1 }} />
+              <DatePicker field={{ :from_date_picker }} name={{ "Data inicial" }}  width_l={{ 3 }} width_m={{ 1 }} />
+              <DatePicker field={{ :to_date_picker }} name={{ "Data final" }}  width_l={{ 3 }} width_m={{ 1 }} />
               <Select field={{ :year }} name={{ "Ano" }} selected={{ @filters[:year] }} options={{ @options[:year] || [] }} width_l={{ 3 }} width_m={{ 1 }} />
               <Select field={{ :from_year }} name={{ "Ano inicial" }} selected={{ @filters[:from_year] }} options={{ @options[:from_year] || [] }} width_l={{ 3 }} width_m={{ 1 }} />
               <Select field={{ :to_year }} name={{ "Ano final" }} selected={{ @filters[:to_year] }} options={{ @options[:to_year] || [] }} width_l={{ 3 }} width_m={{ 1 }} />

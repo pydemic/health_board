@@ -1,7 +1,8 @@
-@import "../node_modules/leaflet/dist/leaflet.css";
-@import "../node_modules/nprogress/nprogress.css";
-@import "../node_modules/uikit/dist/css/uikit.min.css";
-@import "../node_modules/css.gg/icons/all.css";
+@import '../node_modules/leaflet/dist/leaflet.css';
+@import '../node_modules/nprogress/nprogress.css';
+@import '../node_modules/uikit/dist/css/uikit.min.css';
+@import '../node_modules/css.gg/icons/all.css';
+@import '../node_modules/tail.datetime/css/tail.datetime-harx-light.min.css';
 
 $success: #4aac63;
 $warning: #ffee00;
@@ -200,7 +201,7 @@ i.hb-right {
   visibility: hidden;
 }
 
-.hb-circular{
+.hb-circular {
   animation: rotate 2s linear infinite;
   height: 100px;
   width: 100px;
@@ -208,48 +209,47 @@ i.hb-right {
 }
 
 .hb-path {
-  stroke-dasharray: 1,200;
+  stroke-dasharray: 1, 200;
   stroke-dashoffset: 0;
-  stroke:#B6463A;
-  animation:
-   dash 1.5s ease-in-out infinite,
-   color 6s ease-in-out infinite
-  ;
+  stroke: #b6463a;
+  animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
   stroke-linecap: round;
 }
 
-@keyframes rotate{
- 100%{
-  transform: rotate(360deg);
- }
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes dash{
- 0%{
-  stroke-dasharray: 1,200;
-  stroke-dashoffset: 0;
- }
- 50%{
-  stroke-dasharray: 89,200;
-  stroke-dashoffset: -35;
- }
- 100%{
-  stroke-dasharray: 89,200;
-  stroke-dashoffset: -124;
- }
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124;
+  }
 }
 
-@keyframes color{
-  100%, 0%{
+@keyframes color {
+  100%,
+  0% {
     stroke: $blue-1;
   }
-  40%{
+  40% {
     stroke: $blue-2;
   }
-  66%{
+  66% {
     stroke: $blue-3;
   }
-  80%, 90%{
+  80%,
+  90% {
     stroke: $blue-4;
   }
 }

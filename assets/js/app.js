@@ -9,14 +9,17 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import NProgress from "nprogress"
 import { LiveSocket } from "phoenix_live_view"
+import datetime from "tail.datetime/js/tail.datetime-full.min.js"
 
 import { renderMap } from "./map_render"
 import { renderChart } from "./chart_render"
+import { renderDatePicker } from "./date_picker_render"
 
 window.UIkit = UIkit
 window.UIkit.use(Icons)
 
 window.ChartJS = ChartJS
+window.datetime = datetime
 
 window.L = L
 window.MathJax = { MathML: { extensions: ["mml3.js", "content-mathml.js"] } }
@@ -38,6 +41,8 @@ Hooks.Map = {
     this.handleEvent("map_data", (data) => renderMap(L, maps, data))
   }
 }
+
+renderDatePicker(datetime)
 
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })
 

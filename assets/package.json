@@ -7,10 +7,10 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
+    "nprogress": "^0.2.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
-    "phoenix_live_view": "file:../deps/phoenix_live_view",
-    "nprogress": "^0.2.0"
+    "phoenix_live_view": "file:../deps/phoenix_live_view"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -29,7 +29,8 @@
     "sass-loader": "^10.0.4",
     "terser-webpack-plugin": "^2.3.2",
     "uikit": "^3.5.9",
+    "webpack": "4.41.5",
     "webpack-cli": "^3.3.2",
-    "webpack": "4.41.5"
+    "tail.datetime": "^0.4.13"
   }
 }
