@@ -27,10 +27,10 @@
     "node-sass": "^4.14.1",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "sass-loader": "^10.0.4",
+    "tail.datetime": "^0.4.13",
     "terser-webpack-plugin": "^2.3.2",
     "uikit": "^3.5.9",
-    "webpack": "4.41.5",
     "webpack-cli": "^3.3.2",
-    "tail.datetime": "^0.4.13"
+    "webpack": "4.41.5"
   }
 }

@@ -63,7 +63,7 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
   def setup do
     :ets.new(@ets_cities, [:set, :public, :named_table])
 
-    [context: Locations.context!(:city)]
+    [context: Locations.context(:city)]
     |> Locations.list_by()
     |> Locations.preload_parent(:health_region)
     |> Enum.each(&:ets.insert_new(@ets_cities, locations_ids(&1)))

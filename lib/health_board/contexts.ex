@@ -24,7 +24,7 @@ defmodule HealthBoard.Contexts do
     apply(__MODULE__, Map.fetch!(@functions, context), [value, key])
   end
 
-  @geographic_locations %{
+  @geographic_locations_ids %{
     country: 0,
     region: 1,
     state: 2,
@@ -32,8 +32,22 @@ defmodule HealthBoard.Contexts do
     city: 4
   }
 
-  @spec location!(integer, atom) :: integer
-  def location!(value \\ 0, key), do: Map.fetch!(@geographic_locations, key) + value
+  @geographic_locations_from_ids %{
+    0 => :country,
+    1 => :region,
+    2 => :state,
+    3 => :health_region,
+    4 => :city
+  }
+
+  @spec location(atom | integer) :: atom | integer
+  def location(key) do
+    if is_atom(key) do
+      Map.get(@geographic_locations_ids, key)
+    else
+      Map.get(@geographic_locations_from_ids, key)
+    end
+  end
 
   @registry_locations %{
     residence: 0,

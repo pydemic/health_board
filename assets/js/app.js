@@ -9,7 +9,7 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import NProgress from "nprogress"
 import { LiveSocket } from "phoenix_live_view"
-import datetime from "tail.datetime/js/tail.datetime-full.min.js"
+import tail from "tail.datetime/js/tail.datetime-full.min.js"
 
 import { renderMap } from "./map_render"
 import { renderChart } from "./chart_render"
@@ -19,7 +19,7 @@ window.UIkit = UIkit
 window.UIkit.use(Icons)
 
 window.ChartJS = ChartJS
-window.datetime = datetime
+window.tail = tail
 
 window.L = L
 window.MathJax = { MathML: { extensions: ["mml3.js", "content-mathml.js"] } }
@@ -27,8 +27,10 @@ window.MathJax = { MathML: { extensions: ["mml3.js", "content-mathml.js"] } }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
 let Hooks = {}
+
 let maps = {}
 let charts = {}
+let datePickers = {}
 
 Hooks.Chart = {
   mounted() {
@@ -42,7 +44,12 @@ Hooks.Map = {
   }
 }
 
-renderDatePicker(datetime)
+Hooks.DatePicker = {
+  mounted() {
+    this.handleEvent("date_picker_data", (data) => renderDatePicker(this, tail, datePickers, data))
+  }
+}
+
 
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })
 
@@ -52,4 +59,3 @@ window.addEventListener("phx:page-loading-stop", info => NProgress.done())
 liveSocket.connect()
 
 window.liveSocket = liveSocket
-

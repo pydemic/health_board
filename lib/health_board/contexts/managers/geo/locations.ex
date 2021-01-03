@@ -34,7 +34,10 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
   @spec children(schema, atom | integer) :: list(schema)
   def children(schema, context) do
-    Enum.map(preload_children(schema, context).children, & &1.child)
+    case preload_children(schema, context) do
+      %{children: children} -> Enum.map(children, & &1.child)
+      _nil -> []
+    end
   end
 
   @spec list_siblings(integer) :: list(schema)
@@ -45,18 +48,18 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
       %{context: context} = location ->
         case preload_parent(location, context - 1) do
-          %{parents: [parent]} -> children(parent, context)
+          %{parents: [%{parent: parent}]} -> children(parent, context)
           _parent -> []
         end
     end
   end
 
-  @spec context!(integer, atom) :: integer
-  defdelegate context!(value \\ 0, key), to: HealthBoard.Contexts, as: :location!
+  @spec context(atom | integer) :: atom | integer
+  defdelegate context(context), to: HealthBoard.Contexts, as: :location
 
   @spec preload_children(schema | list(schema), atom | integer) :: schema | list(schema)
   def preload_children(struct_or_structs, children_context) do
-    children_context = if is_integer(children_context), do: children_context, else: context!(children_context)
+    children_context = if is_integer(children_context), do: children_context, else: context(children_context)
 
     preloads = [
       children: {
@@ -70,7 +73,7 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
   @spec preload_parent(schema | list(schema), atom | integer) :: schema | list(schema)
   def preload_parent(struct_or_structs, parents_context) do
-    parents_context = if is_integer(parents_context), do: parents_context, else: context!(parents_context)
+    parents_context = if is_integer(parents_context), do: parents_context, else: context(parents_context)
 
     preloads = [
       parents: {
@@ -81,6 +84,15 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
     Repo.preload(struct_or_structs, preloads)
   end
+
+  @spec region_id(integer, atom) :: integer
+  def region_id(id, :state), do: div(id, 10)
+  def region_id(id, :health_region), do: div(id, 10_000)
+  def region_id(id, :city), do: div(id, 1_000_000)
+
+  @spec state_id(integer, atom) :: integer
+  def state_id(id, :health_region), do: div(id, 1_000)
+  def state_id(id, :city), do: div(id, 100_000)
 
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
