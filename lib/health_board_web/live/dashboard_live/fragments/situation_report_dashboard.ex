@@ -3,8 +3,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SituationReportDashboard do
 
   alias HealthBoardWeb.DashboardLive.Fragments.SituationReportDashboard.{
     DailySummary,
-    PandemicSummary,
-    HospitalCapacity
+    HospitalCapacity,
+    PandemicSummary
   }
 
   alias Phoenix.LiveView

@@ -26,9 +26,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.PandemicSummary.P
       <Grid>
         <IncidencePerAgeGender card={{ Enum.at(@section.cards, 0) }} />
         <IncidenceRatePerAgeGender card={{ Enum.at(@section.cards, 1) }} />
-        <IncidencePerRace card={{ Enum.at(@section.cards, 2) }} />
-        <DeathsPerAgeGender card={{ Enum.at(@section.cards, 3) }} />
-        <DeathRatePerAgeGender card={{ Enum.at(@section.cards, 4) }} />
+        <DeathsPerAgeGender card={{ Enum.at(@section.cards, 2) }} />
+        <DeathRatePerAgeGender card={{ Enum.at(@section.cards, 3) }} />
+        <IncidencePerRace card={{ Enum.at(@section.cards, 4) }} />
         <DeathsPerRace card={{ Enum.at(@section.cards, 5) }} />
         <HospitalizationsPerSymptom card={{ Enum.at(@section.cards, 6) }} />
         <HospitalizationsPerComorbidity card={{ Enum.at(@section.cards, 7) }} />

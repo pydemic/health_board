@@ -271,6 +271,7 @@ defmodule HealthBoardWeb.DashboardLive.EventData do
     }
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp geo_json_path(%{context: context, id: id} = location, children_context) do
     cond do
       context == @city ->

@@ -29,7 +29,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.HospitalizationsRanking do
 
             <tbody>
               <tr :for.with_index={{ {element, index} <- data.result.ranking }}>
-                <th>{{ index }}</th>
+                <th>{{ index + 1 }}</th>
                 <th>{{ element.name }}</th>
                 <th>{{ Humanize.number element.hospitalizations}}</th>
               </tr>

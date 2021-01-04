@@ -1,4 +1,40 @@
 defmodule HealthBoardWeb.Helpers.Math do
+  @spec death_rate(integer, integer) :: float
+  def death_rate(deaths, population) do
+    if population > 0 do
+      deaths * 100_000 / population
+    else
+      0.0
+    end
+  end
+
+  @spec fatality_rate(integer, integer) :: float
+  def fatality_rate(deaths, incidence) do
+    if incidence > 0 do
+      deaths * 100 / incidence
+    else
+      0.0
+    end
+  end
+
+  @spec hospitalization_fatality_rate(integer, integer) :: float
+  def hospitalization_fatality_rate(deaths, hospitalizations) do
+    if hospitalizations > 0 do
+      deaths * 100 / hospitalizations
+    else
+      0.0
+    end
+  end
+
+  @spec hospitalization_rate(integer, integer) :: float
+  def hospitalization_rate(hospitalizations, population) do
+    if population > 0 do
+      hospitalizations * 10_000 / population
+    else
+      0.0
+    end
+  end
+
   @spec incidence_rate(integer, integer) :: float
   def incidence_rate(incidence, population) do
     if population > 0 do
@@ -46,18 +82,18 @@ defmodule HealthBoardWeb.Helpers.Math do
   end
 
   @spec positivity_rate(integer, integer) :: float
-  def positivity_rate(confirmed, discarded) do
-    if confirmed > 0 and discarded > 0 do
-      confirmed * 100 / (confirmed + discarded)
+  def positivity_rate(confirmed, samples) do
+    if samples > 0 do
+      confirmed * 100 / samples
     else
       0.0
     end
   end
 
   @spec test_capacity(integer, integer) :: float
-  def test_capacity(confirmed, discarded) do
-    if discarded > 0 do
-      confirmed * 100 / discarded
+  def test_capacity(confirmed, cases) do
+    if cases > 0 do
+      confirmed * 100 / cases
     else
       0.0
     end

@@ -1,8 +1,8 @@
 defmodule HealthBoardWeb.DashboardLive.Components.CardOffcanvasMenu do
   use Surface.Component
 
-  alias HealthBoardWeb.Helpers.Humanize
   alias HealthBoardWeb.DashboardLive.Components.CardOffcanvasDescription
+  alias HealthBoardWeb.Helpers.Humanize
   alias Phoenix.LiveView
 
   prop card, :map, required: true

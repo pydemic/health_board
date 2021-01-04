@@ -33,7 +33,7 @@ const fetchGeoJson = (L, map, info, data, geojson) => {
       fillColor: item !== undefined && item !== null ? item.color : "#AAAAAA",
       weight: 1,
       opacity: 1,
-      color: "white",
+      color: item !== undefined && item !== null ? item.color : "#AAAAAA",
       dashArray: "3",
       fillOpacity: 0.7
     }

@@ -37,11 +37,27 @@ defmodule HealthBoard.Contexts.SARS.PandemicSARSSymptoms do
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
-      {:context, context}, dynamic -> dynamic([row], ^dynamic and row.context == ^context)
-      {:contexts, contexts}, dynamic -> dynamic([row], ^dynamic and row.context in ^contexts)
-      {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
-      {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
-      _param, dynamic -> dynamic
+      {:context, context}, dynamic ->
+        if is_atom(context) do
+          case context do
+            :residence -> dynamic([row], ^dynamic and row.context == 0)
+            :notification -> dynamic([row], ^dynamic and row.context == 1)
+          end
+        else
+          dynamic([row], ^dynamic and row.context == ^context)
+        end
+
+      {:contexts, contexts}, dynamic ->
+        dynamic([row], ^dynamic and row.context in ^contexts)
+
+      {:location_id, id}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id == ^id)
+
+      {:locations_ids, ids}, dynamic ->
+        dynamic([row], ^dynamic and row.location_id in ^ids)
+
+      _param, dynamic ->
+        dynamic
     end)
   end
 end

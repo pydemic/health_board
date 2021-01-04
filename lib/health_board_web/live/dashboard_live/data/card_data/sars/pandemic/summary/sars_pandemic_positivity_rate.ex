@@ -1,9 +1,9 @@
-defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromePandemicTestCapacity do
+defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicPositivityRate do
   alias HealthBoardWeb.Helpers.Math
 
   @spec fetch(pid, map, map) :: map
   def fetch(_pid, _card, data) do
-    %{confirmed: confirmed, discarded: discarded} = data.incidence
+    %{confirmed: confirmed, samples: samples} = data.incidence
 
     %{
       filters: %{
@@ -12,8 +12,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromePandemicTestCapacity 
       },
       result: %{
         confirmed: confirmed,
-        discarded: discarded,
-        test_capacity: Math.test_capacity(confirmed, discarded)
+        samples: samples,
+        positivity_rate: Math.positivity_rate(confirmed, samples)
       }
     }
   end

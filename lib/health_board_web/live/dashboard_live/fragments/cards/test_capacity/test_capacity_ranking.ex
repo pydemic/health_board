@@ -23,7 +23,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.TestCapacityRanking do
               <tr>
                 <th></th>
                 <th>Local</th>
-                <th>Taxa</th>
+                <th>Capacidade</th>
               </tr>
             </thead>
 

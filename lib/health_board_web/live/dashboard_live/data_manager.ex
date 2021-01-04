@@ -103,7 +103,7 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
 
   defp filters_assigns(filters, socket) do
     today = Date.utc_today()
-    filters = Map.merge(%{id: "situation_report", date: today}, filters)
+    filters = Map.merge(%{id: "flu_syndrome", date: today}, filters)
 
     unless is_nil(socket.root_pid) do
       send(

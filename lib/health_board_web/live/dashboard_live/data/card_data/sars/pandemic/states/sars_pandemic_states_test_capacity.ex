@@ -1,7 +1,7 @@
-defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeDayStatesTestCapacity do
+defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicStatesTestCapacity do
   @spec fetch(pid, map, map) :: map
   def fetch(_pid, _card, data) do
-    data.day_states_incidence
+    data.states_incidence
     |> Enum.sort(&(&1.test_capacity >= &2.test_capacity))
     |> Enum.take(10)
     |> Enum.map(&%{name: &1.location_name, test_capacity: &1.test_capacity})

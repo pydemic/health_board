@@ -115,8 +115,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
       location_abbr: location.abbr,
       confirmed: confirmed,
       health_professional: day_cases.health_professional,
-      positivity_rate: Math.positivity_rate(confirmed, discarded),
-      test_capacity: Math.test_capacity(confirmed, discarded)
+      positivity_rate: Math.positivity_rate(confirmed, confirmed + discarded)
     }
   end
 
@@ -124,7 +123,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
 
   defp fetch_cities_incidence(%{changed_filters: changes, states_incidence: states_incidence} = data) do
     if DataManager.filters_changed?(changes, @cities_incidence_keys) do
-      [context: :residence, locations_ids: data.cities_ids, date: data.date]
+      [context: :residence, locations_ids: data.cities_ids]
       |> PandemicFluSyndromeCases.list_by()
       |> PandemicFluSyndromeCases.preload()
       |> Enum.map(&extract_cities_incidence(&1, states_incidence))
@@ -149,16 +148,15 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
       location_name: location_name,
       confirmed: confirmed,
       health_professional: day_cases.health_professional,
-      positivity_rate: Math.positivity_rate(confirmed, discarded),
-      test_capacity: Math.test_capacity(confirmed, discarded)
+      positivity_rate: Math.positivity_rate(confirmed, confirmed + discarded)
     }
   end
 
-  @incidence_keys [:location_id, :date]
+  @incidence_keys [:location_id]
 
   defp fetch_incidence(%{changed_filters: changes} = data) do
     if DataManager.filters_changed?(changes, @incidence_keys) do
-      [context: :residence, location_id: data.location_id, date: data.date, default: :new]
+      [context: :residence, location_id: data.location_id, default: :new]
       |> PandemicFluSyndromeCases.get_by()
       |> put_data(:incidence, data)
     else
@@ -220,7 +218,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
 
   defp fetch_day_cities_incidence(%{changed_filters: changes, day_states_incidence: states_incidence} = data) do
     if DataManager.filters_changed?(changes, @day_cities_incidence_keys) do
-      [context: :residence, cities_ids: data.cities_ids, date: data.date]
+      [context: :residence, locations_ids: data.cities_ids, date: data.date]
       |> DailyFluSyndromeCases.list_by()
       |> DailyFluSyndromeCases.preload()
       |> Enum.map(&extract_cities_incidence(&1, states_incidence))

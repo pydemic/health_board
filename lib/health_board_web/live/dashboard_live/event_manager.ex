@@ -28,12 +28,15 @@ defmodule HealthBoardWeb.DashboardLive.EventManager do
     socket
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp merge_filters(socket, %{"_target" => target} = params) do
     to_drop =
       if Enum.any?(target) do
         [target | _target] = target
 
         case {target, params[target]} do
+          {"region", "nil"} -> [:region, :state, :health_region, :city]
+          {"region", _region} -> [:state, :health_region, :city]
           {"state", "nil"} -> [:state, :health_region, :city]
           {"state", _state} -> [:health_region, :city]
           {"health_region", "nil"} -> [:health_region, :city]

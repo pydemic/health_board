@@ -34,6 +34,11 @@ defmodule HealthBoard.Contexts.SARS.PandemicSARSCases do
     |> Repo.all()
   end
 
+  @spec preload(schema | list(schema)) :: schema | list(schema)
+  def preload(struct_or_structs) do
+    Repo.preload(struct_or_structs, :location)
+  end
+
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn

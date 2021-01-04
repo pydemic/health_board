@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.CardData do
-  alias HealthBoardWeb.DashboardLive.DataManager
   alias HealthBoardWeb.DashboardLive.Components.DataCard
+  alias HealthBoardWeb.DashboardLive.DataManager
 
   @spec request_to_fetch(pid, map, map) :: :ok
   def request_to_fetch(pid, section_card, data) do

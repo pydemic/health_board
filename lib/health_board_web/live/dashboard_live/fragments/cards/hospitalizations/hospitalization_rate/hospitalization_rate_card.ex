@@ -19,6 +19,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.HospitalizationRateCard do
       <template slot="body" :let={{ data: data }} >
         <div class="uk-card-body">
           <h2 :if={{ Enum.any?(data) }}>{{ Humanize.number data.result.hospitalization_rate }}</h2>
+          <small :if={{ Enum.any?(data) }}>/10 mil habitantes</small>
           <IndeterminateLoading :if={{ Enum.empty?(data) }} />
         </div>
       </template>

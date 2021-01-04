@@ -1,4 +1,4 @@
-defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeTestCapacityEpicurve do
+defmodule HealthBoardWeb.DashboardLive.CardData.SarsHospitalizationsEpicurve do
   alias HealthBoardWeb.Helpers.{Colors, Math}
 
   @first_case_date Date.from_erl!({2020, 2, 26})
@@ -20,12 +20,12 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeTestCapacityEpicurve 
     %{
       section_card_id: id,
       date: to_date,
-      daily_incidence: daily_incidence
+      daily_hospitalizations: daily_hospitalizations
     } = data
 
     dates = Date.range(@first_case_date, to_date)
-    rates = Enum.map(dates, &fetch_rate(daily_incidence, &1))
-    trend = Math.moving_average(rates)
+    hospitalizations_per_day = Enum.map(dates, &fetch_hospitalizations(daily_hospitalizations, &1))
+    trend = Math.moving_average(hospitalizations_per_day)
 
     {background_color, border_color} = Colors.blue_with_border()
 
@@ -46,23 +46,19 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeTestCapacityEpicurve 
         },
         %{
           type: "bar",
-          label: "Capacidade de testagem",
+          label: "Internações",
           backgroundColor: background_color,
           borderColor: border_color,
           pointRadius: 2,
           borderWidth: 3,
           fill: false,
-          data: rates
+          data: hospitalizations_per_day
         }
       ]
     }
   end
 
-  defp fetch_rate(day_incidence, date) do
-    Enum.find_value(
-      day_incidence,
-      0,
-      &if(Date.compare(date, &1.date) == :eq, do: Math.test_capacity(&1.confirmed, &1.discarded))
-    )
+  defp fetch_hospitalizations(day_incidence, date) do
+    Enum.find_value(day_incidence, 0, &if(Date.compare(date, &1.date) == :eq, do: &1.confirmed))
   end
 end

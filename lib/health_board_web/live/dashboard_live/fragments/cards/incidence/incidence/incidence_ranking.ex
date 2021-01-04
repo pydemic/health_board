@@ -42,7 +42,6 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.IncidenceRanking do
         </div>
       </template>
 
-
       <CardOffcanvasMenu card={{ @card }} data={{ data }} />
     </DataCard>
     """
