@@ -425,6 +425,8 @@ defmodule HealthBoard.Release.DataPuller.SARS.Consolidator do
 
       @discarded_index ->
         [@discarded_index]
+        |> maybe_add_sample_index(sample)
+        |> Enum.sort()
     end
   end
 
