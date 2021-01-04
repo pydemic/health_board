@@ -13,6 +13,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.PandemicSummary.P
     IncidenceRanking,
     IncidenceRateRanking,
     PositivityRateRanking,
+    SamplesRanking,
     TestCapacityRanking
   }
 
@@ -28,14 +29,15 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.PandemicSummary.P
       <Grid>
         <IncidenceRanking card={{ Enum.at(@section.cards, 0) }} />
         <IncidenceRateRanking card={{ Enum.at(@section.cards, 1) }} />
-        <PositivityRateRanking card={{ Enum.at(@section.cards, 2) }} />
-        <TestCapacityRanking card={{ Enum.at(@section.cards, 3) }} />
-        <HospitalizationsRanking card={{ Enum.at(@section.cards, 4) }} />
-        <HospitalizationRateRanking card={{ Enum.at(@section.cards, 5) }} />
-        <DeathsRanking card={{ Enum.at(@section.cards, 6) }} />
-        <DeathRateRanking card={{ Enum.at(@section.cards, 7) }} />
-        <FatalityRateRanking card={{ Enum.at(@section.cards, 8) }} />
-        <HospitalizationFatalityRateRanking card={{ Enum.at(@section.cards, 9) }} />
+        <SamplesRanking card={{ Enum.at(@section.cards, 2) }} />
+        <PositivityRateRanking card={{ Enum.at(@section.cards, 3) }} />
+        <TestCapacityRanking card={{ Enum.at(@section.cards, 4) }} />
+        <HospitalizationsRanking card={{ Enum.at(@section.cards, 5) }} />
+        <HospitalizationRateRanking card={{ Enum.at(@section.cards, 6) }} />
+        <DeathsRanking card={{ Enum.at(@section.cards, 7) }} />
+        <DeathRateRanking card={{ Enum.at(@section.cards, 8) }} />
+        <FatalityRateRanking card={{ Enum.at(@section.cards, 9) }} />
+        <HospitalizationFatalityRateRanking card={{ Enum.at(@section.cards, 10) }} />
       </Grid>
     </Section>
     """

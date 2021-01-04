@@ -138,13 +138,14 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Sars do
     end
   end
 
-  defp extract_states_incidence(%{location: location, confirmed: confirmed} = day_cases) do
+  defp extract_states_incidence(%{location: location, confirmed: confirmed, samples: samples} = day_cases) do
     %{
       location_id: location.id,
       location_name: location.name,
       location_abbr: location.abbr,
       confirmed: confirmed,
-      positivity_rate: Math.positivity_rate(confirmed, day_cases.samples),
+      samples: samples,
+      positivity_rate: Math.positivity_rate(confirmed, samples),
       test_capacity: Math.test_capacity(confirmed, confirmed + day_cases.discarded)
     }
   end
@@ -217,6 +218,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Sars do
       location_id: location.id,
       location_name: location_name,
       confirmed: confirmed,
+      samples: samples,
       positivity_rate: Math.positivity_rate(confirmed, samples),
       test_capacity: Math.test_capacity(confirmed, confirmed + discarded)
     }

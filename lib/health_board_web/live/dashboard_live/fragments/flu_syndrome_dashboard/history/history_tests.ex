@@ -1,8 +1,8 @@
-defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.History.HistoryPositivityRate do
+defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.History.HistoryTests do
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Components.{Grid, Section, SubSectionHeader}
-  alias HealthBoardWeb.DashboardLive.Fragments.PositivityRateEpicurve
+  alias HealthBoardWeb.DashboardLive.Fragments.{PositivityRateEpicurve, SamplesEpicurve}
   alias Phoenix.LiveView
 
   prop section, :map, required: true
@@ -13,7 +13,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.History.HistoryPo
     <Section>
       <SubSectionHeader title={{ @section.name }} description={{ @section.description }} />
       <Grid>
-        <PositivityRateEpicurve card={{ Enum.at(@section.cards, 0) }} />
+        <SamplesEpicurve card={{ Enum.at(@section.cards, 0) }} />
+        <PositivityRateEpicurve card={{ Enum.at(@section.cards, 1) }} />
       </Grid>
     </Section>
     """

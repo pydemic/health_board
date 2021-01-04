@@ -109,13 +109,16 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
   end
 
   defp extract_states_incidence(%{location: location, confirmed: confirmed, discarded: discarded} = day_cases) do
+    samples = confirmed + discarded
+
     %{
       location_id: location.id,
       location_name: location.name,
       location_abbr: location.abbr,
       confirmed: confirmed,
+      samples: samples,
       health_professional: day_cases.health_professional,
-      positivity_rate: Math.positivity_rate(confirmed, confirmed + discarded)
+      positivity_rate: Math.positivity_rate(confirmed, samples)
     }
   end
 
@@ -143,12 +146,15 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
         state_abbr -> "#{location.name} - #{state_abbr}"
       end
 
+    samples = confirmed + discarded
+
     %{
       location_id: location.id,
       location_name: location_name,
       confirmed: confirmed,
+      samples: samples,
       health_professional: day_cases.health_professional,
-      positivity_rate: Math.positivity_rate(confirmed, confirmed + discarded)
+      positivity_rate: Math.positivity_rate(confirmed, samples)
     }
   end
 

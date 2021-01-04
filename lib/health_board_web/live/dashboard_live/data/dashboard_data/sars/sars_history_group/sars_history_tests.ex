@@ -1,4 +1,4 @@
-defmodule HealthBoardWeb.DashboardLive.SectionData.SarsHistoryTestCapacity do
+defmodule HealthBoardWeb.DashboardLive.SectionData.SarsHistoryTests do
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
   @changes_keys [:index, :date, :daily_incidence]

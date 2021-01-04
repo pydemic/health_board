@@ -7,7 +7,8 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.DailySumma
     HealthProfessionalIncidenceRanking,
     IncidenceRanking,
     IncidenceRateRanking,
-    PositivityRateRanking
+    PositivityRateRanking,
+    SamplesRanking
   }
 
   alias Phoenix.LiveView
@@ -22,8 +23,9 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.DailySumma
       <Grid>
         <IncidenceRanking card={{ Enum.at(@section.cards, 0) }} />
         <IncidenceRateRanking card={{ Enum.at(@section.cards, 1) }} />
-        <HealthProfessionalIncidenceRanking card={{ Enum.at(@section.cards, 2) }} />
+        <SamplesRanking card={{ Enum.at(@section.cards, 2) }} />
         <PositivityRateRanking card={{ Enum.at(@section.cards, 3) }} />
+        <HealthProfessionalIncidenceRanking card={{ Enum.at(@section.cards, 4) }} />
       </Grid>
     </Section>
     """

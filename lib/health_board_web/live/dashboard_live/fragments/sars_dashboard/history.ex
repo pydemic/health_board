@@ -5,8 +5,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.History do
     HistoryDeaths,
     HistoryHospitalizations,
     HistoryIncidence,
-    HistoryPositivityRate,
-    HistoryTestCapacity
+    HistoryTests
   }
 
   alias Phoenix.LiveView
@@ -21,8 +20,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.SarsDashboard.History do
       <HistoryIncidence section={{ Enum.at(@group.sections, 0) }} />
       <HistoryDeaths section={{ Enum.at(@group.sections, 1) }} />
       <HistoryHospitalizations section={{ Enum.at(@group.sections, 2) }} />
-      <HistoryPositivityRate section={{ Enum.at(@group.sections, 3) }} />
-      <HistoryTestCapacity section={{ Enum.at(@group.sections, 4) }} />
+      <HistoryTests section={{ Enum.at(@group.sections, 3) }} />
     </div>
     """
   end
