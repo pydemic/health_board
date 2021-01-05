@@ -3,7 +3,8 @@ defmodule HealthBoard.Release.DataPuller.SARS do
 
   alias HealthBoard.Release.DataPuller.SARS.Consolidator
 
-  @dir Path.join(File.cwd!(), ".misc/sandbox")
+  @app :health_board
+  @dir Path.join(File.cwd!(), ".misc/sandbox/smallbox")
 
   @spec consolidate(String.t()) :: :ok
   def consolidate(dir \\ @dir) do
@@ -65,7 +66,11 @@ defmodule HealthBoard.Release.DataPuller.SARS do
 
     chunk_file_path = Path.join(dir, "#{name}_")
 
-    {_result, 0} = System.cmd("split", ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}])
+    {_result, 0} =
+      System.cmd(
+        Application.fetch_env!(@app, :split_command),
+        ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}]
+      )
 
     File.rm!(file_path)
 

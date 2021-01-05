@@ -3,6 +3,7 @@ defmodule HealthBoard.Release.DataPuller.FluSyndrome do
 
   alias HealthBoard.Release.DataPuller.FluSyndrome.Consolidator
 
+  @app :health_board
   @dir Path.join(File.cwd!(), ".misc/sandbox")
 
   @spec consolidate(String.t()) :: :ok
@@ -65,7 +66,11 @@ defmodule HealthBoard.Release.DataPuller.FluSyndrome do
 
     chunk_file_path = Path.join(dir, "#{name}_")
 
-    {_result, 0} = System.cmd("split", ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}])
+    {_result, 0} =
+      System.cmd(
+        Application.fetch_env!(@app, :split_command),
+        ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}]
+      )
 
     File.rm!(file_path)
 
