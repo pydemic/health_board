@@ -61,14 +61,16 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     # URL to small box
     # url = "http://dl.dropboxusercontent.com/s/481hq2lssmd2vi6/INFLUD-#{date.day}-#{date.month}-#{date.year}.csv"
 
-    path_with_filename = "./.misc/source_data/sivep_srag/SIVEP_SRAG_#{date.day}-#{date.month}-#{date.year}.csv"
+    path = "./.misc/source_data/sivep_srag/"
+    filename = "SIVEP_SRAG_#{date.day}-#{date.month}-#{date.year}.csv"
 
-    File.rm(path_with_filename)
+    File.rm_rf!(path)
+    File.mkdir_p!(path)
 
     :inets.start()
     :ssl.start()
 
-    :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path_with_filename))
+    :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path <> filename))
   end
 
   defp do_consolidate_and_seed() do
