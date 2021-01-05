@@ -1,6 +1,6 @@
 defmodule HealthBoard.Release.DataPuller.SarsServer do
-  alias HealthBoard.Release.DataPuller
   alias HealthBoard.Release.DataManager
+  alias HealthBoard.Release.DataPuller
   use GenServer
 
   @name :sars_server
@@ -73,7 +73,7 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path <> filename))
   end
 
-  defp do_consolidate_and_seed() do
+  defp do_consolidate_and_seed do
     DataPuller.SARS.consolidate()
     DataManager.SARS.reseed()
   end
