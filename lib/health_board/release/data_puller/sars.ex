@@ -4,14 +4,15 @@ defmodule HealthBoard.Release.DataPuller.SARS do
   alias HealthBoard.Release.DataPuller.SARS.Consolidator
 
   @app :health_board
-  @dir Path.join(File.cwd!(), ".misc/sandbox/smallbox")
+  @input_path Path.join(File.cwd!(), ".misc/source_data")
+  @output_path Path.join(File.cwd!(), ".misc/data")
 
-  @spec consolidate(String.t()) :: :ok
-  def consolidate(dir \\ @dir) do
+  @spec consolidate() :: :ok
+  def consolidate() do
     Consolidator.setup()
 
-    dir
-    |> Path.join("input")
+    @input_path
+    |> Path.join("sivep_srag")
     |> fetch_files_streams()
     |> Flow.from_enumerables()
     |> Flow.map(&Consolidator.parse/1)
@@ -19,7 +20,7 @@ defmodule HealthBoard.Release.DataPuller.SARS do
 
     Logger.info("Parsing finished")
 
-    output_dir = Path.join(dir, "output")
+    output_dir = Path.join(@output_path, "sars")
     File.rm_rf!(output_dir)
     File.mkdir_p!(output_dir)
 

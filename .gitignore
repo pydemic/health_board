@@ -36,3 +36,5 @@ npm-debug.log
 
 .DS_Store
 *.log
+
+.misc/source_data/
