@@ -18,8 +18,12 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
   # Server Callbacks
 
   def init(_state) do
+    :inets.start()
+    :ssl.start()
+
     initial_state = run_tasks_to_get_sars_data()
     schedule_refresh()
+
     {:ok, initial_state}
   end
 
@@ -47,7 +51,7 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
 
     date = ~D[2020-12-28]
 
-    case downalod_sars_file_from_date(date) do
+    case download_sars_file_from_date(date) do
       {:ok, :saved_to_file} -> do_consolidate_and_seed()
       _ -> IO.puts("Has some problem with URL, stopping downalod and parser")
     end
@@ -55,7 +59,7 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     {:ok, :sars_populed}
   end
 
-  defp downalod_sars_file_from_date(date) do
+  defp download_sars_file_from_date(date) do
     year = maybe_put_zero_before_number(date.year)
     month = maybe_put_zero_before_number(date.month)
     day = maybe_put_zero_before_number(date.day)
@@ -70,9 +74,6 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
 
     File.rm_rf!(path)
     File.mkdir_p!(path)
-
-    :inets.start()
-    :ssl.start()
 
     :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path <> filename))
   end
