@@ -12,6 +12,7 @@ defmodule HealthBoard.Contexts.Info.Source do
 
     field :update_rate, :string
 
+    field :last_update_date, :date
     field :extraction_date, :date
   end
 end

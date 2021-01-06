@@ -4,7 +4,7 @@ defmodule HealthBoard.Release.DataManager.Sources do
 
   @context "info"
   @table_name "sources"
-  @columns ~w[id name description link update_rate extraction_date]a
+  @columns ~w[id name description link update_rate last_update_date extraction_date]a
 
   @spec up :: :ok
   def up do

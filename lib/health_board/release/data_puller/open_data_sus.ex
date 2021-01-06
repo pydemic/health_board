@@ -7,7 +7,8 @@ defmodule HealthBoard.Release.DataPuller.OpenDataSUS do
   def get_flu_syndrome_source_information do
     case get("/action/package_show?id=casos-nacionais") do
       {:ok, tesla_result} ->
-        {:ok, %{last_update: get_last_update_flu_syndrome(tesla_result), urls: get_urls_flu_syndrome!(tesla_result)}}
+        {:ok,
+         %{last_update_date: get_last_update_flu_syndrome(tesla_result), urls: get_urls_flu_syndrome!(tesla_result)}}
 
       _ ->
         {:error, "Tesla can't get flu dyndrome"}
@@ -41,7 +42,7 @@ defmodule HealthBoard.Release.DataPuller.OpenDataSUS do
   def get_sars_source_information do
     case get("/action/package_show?id=bd-srag-2020") do
       {:ok, tesla_result} ->
-        {:ok, %{last_update: get_last_update_sars!(tesla_result), url: get_url_sars!(tesla_result)}}
+        {:ok, %{last_update_date: get_last_update_sars!(tesla_result), url: get_url_sars!(tesla_result)}}
 
       _ ->
         {:error, "Tesla can't get flu dyndrome"}

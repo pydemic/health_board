@@ -38,6 +38,7 @@ defmodule HealthBoard.Repo.Migrations.CreateInfo do
       add :link, :text
       add :update_rate, :string
 
+      add :last_update_date, :date
       add :extraction_date, :date
     end
 

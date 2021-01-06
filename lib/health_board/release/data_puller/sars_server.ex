@@ -1,10 +1,18 @@
 defmodule HealthBoard.Release.DataPuller.SarsServer do
+  alias HealthBoard.Contexts.Info.Source
   alias HealthBoard.Release.DataManager
   alias HealthBoard.Release.DataPuller
+  alias HealthBoard.Release.DataPuller.OpenDataSUS
+  alias HealthBoard.Repo
+
   use GenServer
+
+  require Logger
 
   @name :sars_server
 
+  @schema Source
+  @source_id "sivep_srag"
   # Client Interface
 
   def start do
@@ -21,15 +29,17 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     :inets.start()
     :ssl.start()
 
-    initial_state = run_tasks_to_get_sars_data()
+    source = Repo.get(@schema, @source_id)
+    initial_state = run_tasks_to_get_sars_data(source.last_update_date)
     schedule_refresh()
 
     {:ok, initial_state}
   end
 
-  def handle_info(:refresh, _state) do
-    IO.puts("Refreshing the data...")
-    new_state = run_tasks_to_get_sars_data()
+  def handle_info(:refresh, state) do
+    Logger.info("Refreshing the data...")
+    {:ok, last_update_date} = state
+    new_state = run_tasks_to_get_sars_data(last_update_date)
     schedule_refresh()
     {:noreply, new_state}
   end
@@ -46,30 +56,38 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     {:reply, state, state}
   end
 
-  defp run_tasks_to_get_sars_data do
-    IO.puts("Running tasks to get sars data...")
+  defp run_tasks_to_get_sars_data(last_update_date_database) do
+    Logger.info("Running tasks to get sars data...")
 
-    date = ~D[2020-12-28]
+    case OpenDataSUS.get_sars_source_information() do
+      {:ok, source_information} ->
+        if is_there_update_from_source?(last_update_date_database, source_information.last_update_date) do
+          case download_sars_file(source_information) do
+            {:ok, :saved_to_file} -> do_consolidate_and_seed(source_information)
+            _ -> {:error, :error_download_file}
+          end
+        else
+          {:ok, last_update_date_database}
+        end
 
-    case download_sars_file_from_date(date) do
-      {:ok, :saved_to_file} -> do_consolidate_and_seed()
-      _ -> IO.puts("Has some problem with URL, stopping downalod and parser")
+      _ ->
+        {:error, :data_sus_source_information}
     end
-
-    {:ok, :sars_populed}
   end
 
-  defp download_sars_file_from_date(date) do
-    year = maybe_put_zero_before_number(date.year)
-    month = maybe_put_zero_before_number(date.month)
-    day = maybe_put_zero_before_number(date.day)
+  defp is_there_update_from_source?(database_date, source_date) do
+    Date.diff(database_date, source_date) < 0
+  end
 
-    url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/#{year}/INFLUD-#{day}-#{month}-#{year}.csv"
+  defp download_sars_file(source_information) do
+    date = source_information.last_update_date
+    url = source_information.url
 
-    # URL to small box
-    # url = "http://dl.dropboxusercontent.com/s/481hq2lssmd2vi6/INFLUD-#{day}-#{month}-#{year}.csv"
+    year = maybe_put_zero_before_number!(date.year)
+    month = maybe_put_zero_before_number!(date.month)
+    day = maybe_put_zero_before_number!(date.day)
 
-    path = "./.misc/source_data/sivep_srag/"
+    path = "/tmp/sivep_srag/"
     filename = "SIVEP_SRAG_#{day}-#{month}-#{year}.csv"
 
     File.rm_rf!(path)
@@ -78,7 +96,7 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path <> filename))
   end
 
-  defp maybe_put_zero_before_number(number) do
+  defp maybe_put_zero_before_number!(number) do
     if String.length(Integer.to_string(number)) == 1 do
       "0" <> Integer.to_string(number)
     else
@@ -86,8 +104,16 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     end
   end
 
-  defp do_consolidate_and_seed do
+  defp do_consolidate_and_seed(source_information) do
     DataPuller.SARS.consolidate()
     DataManager.SARS.reseed()
+
+    source = Repo.get!(@schema, @source_id)
+    source = Ecto.Changeset.change(source, last_update_date: source_information.last_update_date)
+
+    case Repo.update(source) do
+      {:ok, _struct} -> {:ok, source_information.last_update_date}
+      {:error, _changeset} -> {:error, :error_during_update_date}
+    end
   end
 end

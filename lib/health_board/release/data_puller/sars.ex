@@ -4,7 +4,7 @@ defmodule HealthBoard.Release.DataPuller.SARS do
   alias HealthBoard.Release.DataPuller.SARS.Consolidator
 
   @app :health_board
-  @input_path Path.join(File.cwd!(), ".misc/source_data")
+  @input_path "/tmp"
   @output_path Path.join(File.cwd!(), ".misc/data")
 
   @spec consolidate() :: :ok
