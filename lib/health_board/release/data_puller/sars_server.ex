@@ -4,7 +4,6 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
   use GenServer
 
   @name :sars_server
-  @refresh_interval :timer.hours(24)
 
   # Client Interface
 
@@ -32,7 +31,11 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
   end
 
   defp schedule_refresh do
-    Process.send_after(self(), :refresh, @refresh_interval)
+    Process.send_after(self(), :refresh, calculate_timer_until_next_cycle(-3))
+  end
+
+  defp calculate_timer_until_next_cycle(time_zone) do
+    :timer.hours(24 - time_zone) - rem(:os.system_time(:millisecond), :timer.hours(24))
   end
 
   def handle_call(:get_sars_puller_status, _from, state) do
@@ -53,16 +56,17 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
   end
 
   defp downalod_sars_file_from_date(date) do
-    url =
-      "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/#{date.year}/INFLUD-#{date.day}-#{date.month}-#{
-        date.year
-      }.csv"
+    year = maybe_put_zero_before_number(date.year)
+    month = maybe_put_zero_before_number(date.month)
+    day = maybe_put_zero_before_number(date.day)
+
+    url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/#{year}/INFLUD-#{day}-#{month}-#{year}.csv"
 
     # URL to small box
-    # url = "http://dl.dropboxusercontent.com/s/481hq2lssmd2vi6/INFLUD-#{date.day}-#{date.month}-#{date.year}.csv"
+    # url = "http://dl.dropboxusercontent.com/s/481hq2lssmd2vi6/INFLUD-#{day}-#{month}-#{year}.csv"
 
     path = "./.misc/source_data/sivep_srag/"
-    filename = "SIVEP_SRAG_#{date.day}-#{date.month}-#{date.year}.csv"
+    filename = "SIVEP_SRAG_#{day}-#{month}-#{year}.csv"
 
     File.rm_rf!(path)
     File.mkdir_p!(path)
@@ -71,6 +75,14 @@ defmodule HealthBoard.Release.DataPuller.SarsServer do
     :ssl.start()
 
     :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path <> filename))
+  end
+
+  defp maybe_put_zero_before_number(number) do
+    if String.length(Integer.to_string(number)) == 1 do
+      "0" <> Integer.to_string(number)
+    else
+      Integer.to_string(number)
+    end
   end
 
   defp do_consolidate_and_seed do
