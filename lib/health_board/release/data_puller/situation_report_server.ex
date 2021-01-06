@@ -1,26 +1,26 @@
-defmodule HealthBoard.Release.DataPuller.SARSServer do
+defmodule HealthBoard.Release.DataPuller.SituationReportServer do
   alias HealthBoard.Contexts.Info.Source
   alias HealthBoard.Release.DataManager
   alias HealthBoard.Release.DataPuller
-  alias HealthBoard.Release.DataPuller.ExternalServices.OpenDataSUS
+  alias HealthBoard.Release.DataPuller.ExternalServices.SituationReport
   alias HealthBoard.Repo
 
   use GenServer
 
   require Logger
 
-  @name :sars_server
+  @name :situation_report_server
 
   @schema Source
-  @source_id "sivep_srag"
+  @source_id "health_board_situation_report"
   # Client Interface
 
   def start do
     GenServer.start(__MODULE__, %{}, name: @name)
   end
 
-  def get_sars_puller_status do
-    GenServer.call(@name, :get_sars_puller_status)
+  def get_situation_report_puller_status do
+    GenServer.call(@name, :get_situation_report_puller_status)
   end
 
   # Server Callbacks
@@ -30,7 +30,7 @@ defmodule HealthBoard.Release.DataPuller.SARSServer do
     :ssl.start()
 
     source = Repo.get(@schema, @source_id)
-    initial_state = run_tasks_to_get_sars_data(source.last_update_date)
+    initial_state = run_tasks_to_get_situation_report_data(source.last_update_date)
     schedule_refresh()
 
     {:ok, initial_state}
@@ -39,7 +39,7 @@ defmodule HealthBoard.Release.DataPuller.SARSServer do
   def handle_info(:refresh, state) do
     Logger.info("Refreshing the data...")
     {:ok, last_update_date} = state
-    new_state = run_tasks_to_get_sars_data(last_update_date)
+    new_state = run_tasks_to_get_situation_report_data(last_update_date)
     schedule_refresh()
     {:noreply, new_state}
   end
@@ -52,21 +52,26 @@ defmodule HealthBoard.Release.DataPuller.SARSServer do
     :timer.hours(24 - time_zone) - rem(:os.system_time(:millisecond), :timer.hours(24))
   end
 
-  def handle_call(:get_sars_puller_status, _from, state) do
+  def handle_call(:get_situation_report_puller_status, _from, state) do
     {:reply, state, state}
   end
 
-  defp run_tasks_to_get_sars_data(last_update_date_database) do
-    Logger.info("Running tasks to get sars data...")
+  defp run_tasks_to_get_situation_report_data(last_update_date_database) do
+    Logger.info("Running tasks to get situation report data...")
 
-    case OpenDataSUS.get_sars_source_information() do
+    case SituationReport.get_situation_report() do
       {:ok, source_information} ->
+        Logger.info("Information about situation report was obtained")
+
         if is_there_update_from_source?(last_update_date_database, source_information.last_update_date) do
-          case download_sars_file(source_information) do
+          Logger.info("The database is outdated, it will be updated")
+
+          case download_situation_report_file(source_information) do
             {:ok, :saved_to_file} -> do_consolidate_and_seed(source_information)
             _ -> {:error, :error_download_file}
           end
         else
+          Logger.info("The database is updated")
           {:ok, last_update_date_database}
         end
 
@@ -79,7 +84,7 @@ defmodule HealthBoard.Release.DataPuller.SARSServer do
     Date.diff(database_date, source_date) < 0
   end
 
-  defp download_sars_file(source_information) do
+  defp download_situation_report_file(source_information) do
     date = source_information.last_update_date
     url = source_information.url
 
@@ -88,7 +93,7 @@ defmodule HealthBoard.Release.DataPuller.SARSServer do
     day = maybe_put_zero_before_number!(date.day)
 
     path = "/tmp/#{@source_id}/"
-    filename = "SIVEP_SRAG_#{day}-#{month}-#{year}.csv"
+    filename = "COVID_REPORT_#{day}-#{month}-#{year}.csv"
 
     File.rm_rf!(path)
     File.mkdir_p!(path)
@@ -105,8 +110,8 @@ defmodule HealthBoard.Release.DataPuller.SARSServer do
   end
 
   defp do_consolidate_and_seed(source_information) do
-    DataPuller.SARS.consolidate()
-    DataManager.SARS.reseed()
+    DataPuller.CovidReports.consolidate()
+    DataManager.SituationReport.reseed()
 
     source = Repo.get!(@schema, @source_id)
 

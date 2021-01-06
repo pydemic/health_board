@@ -2,7 +2,7 @@ defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
   alias HealthBoard.Contexts.Info.Source
   alias HealthBoard.Release.DataManager
   alias HealthBoard.Release.DataPuller
-  alias HealthBoard.Release.DataPuller.OpenDataSUS
+  alias HealthBoard.Release.DataPuller.ExternalServices.OpenDataSUS
   alias HealthBoard.Repo
 
   use GenServer

@@ -1,4 +1,4 @@
-defmodule HealthBoard.Release.DataPuller.OpenDataSUS do
+defmodule HealthBoard.Release.DataPuller.ExternalServices.OpenDataSUS do
   use Tesla
 
   plug Tesla.Middleware.BaseUrl, "https://opendatasus.saude.gov.br/api/3"

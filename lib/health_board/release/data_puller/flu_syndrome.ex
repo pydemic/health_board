@@ -70,7 +70,7 @@ defmodule HealthBoard.Release.DataPuller.FluSyndrome do
     {_result, 0} =
       System.cmd(
         Application.fetch_env!(@app, :split_command),
-        ~w[-d -a 4 -l 500000 --additional-suffix=.csv #{file_path} #{chunk_file_path}]
+        ~w[-d -a 4 -l 250000 --additional-suffix=.csv #{file_path} #{chunk_file_path}]
       )
 
     File.rm!(file_path)

@@ -3,7 +3,8 @@ defmodule HealthBoard.Release.DataPuller.CovidReports do
 
   alias HealthBoard.Release.DataPuller.CovidReports.Consolidator
 
-  @dir Path.join(File.cwd!(), ".misc/sandbox")
+  @input_path "/tmp"
+  @output_path Path.join(File.cwd!(), ".misc/data")
 
   @spec consolidate(keyword) :: :ok
   def consolidate(opts \\ []) do
@@ -18,7 +19,7 @@ defmodule HealthBoard.Release.DataPuller.CovidReports do
     after_date = Keyword.get(opts, :after_date)
 
     opts
-    |> Keyword.get_lazy(:input_dir, fn -> Path.join(@dir, "input") end)
+    |> Keyword.get_lazy(:input_dir, fn -> Path.join(@input_path, "health_board_situation_report") end)
     |> fetch_file_stream()
     |> Flow.from_enumerable()
     |> Flow.map(&Consolidator.parse(&1, after_date))
@@ -27,8 +28,11 @@ defmodule HealthBoard.Release.DataPuller.CovidReports do
     Logger.info("Parsing finished")
 
     case Keyword.get(opts, :type, :file) do
-      :file -> Consolidator.write(Keyword.get_lazy(opts, :output_dir, fn -> Path.join(@dir, "output") end))
-      :database -> Consolidator.save()
+      :file ->
+        Consolidator.write(Keyword.get_lazy(opts, :output_dir, fn -> Path.join(@output_path, "situation_report") end))
+
+      :database ->
+        Consolidator.save()
     end
 
     if Keyword.get(opts, :shutdown, false) do
