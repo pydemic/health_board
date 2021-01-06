@@ -12,7 +12,14 @@ const createInfoControl = (L, map, data) => {
 
       if (item !== null && item !== undefined) {
         L.DomUtil.removeClass(info._infoDiv, "hb-hide")
-        info._infoDiv.innerHTML = `<div class="uk-card-header"><h3 class="uk-card-title">${item.label}</h3><span class="uk-label" style="background: ${item.color};">${item.value}</span></div>`
+        info._infoDiv.innerHTML = `
+          <div class="uk-card-header">
+            <h3 class="uk-card-title">
+              ${item.label}
+            </h3>
+            <span class="uk-label hb-choropleth-${item.group}">${item.value}</span>
+          </div>
+        `
       }
     } else {
       L.DomUtil.addClass(info._infoDiv, "hb-hide")

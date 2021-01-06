@@ -46,6 +46,8 @@ defmodule HealthBoardWeb.Helpers.Humanize do
     if is_nil(number) do
       "N/A"
     else
+      options = if is_float(number), do: Keyword.put_new(options, :fractional_digits, 1), else: options
+
       case Cldr.Number.to_string(number, options) do
         {:ok, humanized_number} -> humanized_number
         {:error, _reason} -> "N/A"

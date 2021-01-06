@@ -3,6 +3,7 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.FluSyndromeHistoryGroup do
 
   @changes_keys [
     :index,
+    :date,
     :daily_incidence,
     :monthly_incidence,
     :weekly_incidence

@@ -2,7 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.PandemicSu
   use Surface.Component
 
   alias HealthBoardWeb.DashboardLive.Components.{Grid, Section, SubSectionHeader}
-  alias HealthBoardWeb.DashboardLive.Fragments.IncidenceMap
+  alias HealthBoardWeb.DashboardLive.Fragments.IncidenceRateMap
   alias Phoenix.LiveView
 
   prop section, :map, required: true
@@ -13,7 +13,7 @@ defmodule HealthBoardWeb.DashboardLive.Fragments.FluSyndromeDashboard.PandemicSu
     <Section>
       <SubSectionHeader title={{ @section.name }} description={{ @section.description }} />
       <Grid>
-        <IncidenceMap card={{ Enum.at(@section.cards, 0) }} />
+        <IncidenceRateMap card={{ Enum.at(@section.cards, 0) }} />
       </Grid>
     </Section>
     """

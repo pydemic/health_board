@@ -1,8 +1,8 @@
 defmodule HealthBoardWeb.DashboardLive.SectionData.SarsPandemicMaps do
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
-  @changes_keys [:index, :cities_incidence, :cities_deaths, :location_id]
-  @data_keys [:cities_incidence, :cities_deaths, :location]
+  @changes_keys [:index, :cities_incidence, :cities_deaths, :year_cities_population, :location_id]
+  @data_keys [:cities_incidence, :cities_deaths, :year_cities_population, :location]
 
   @spec fetch(pid, map, map) :: nil
   def fetch(pid, section, %{changed_filters: changes} = data) do

@@ -103,12 +103,14 @@ defmodule HealthBoardWeb.DashboardLive.DataManager do
 
   defp filters_assigns(filters, socket) do
     today = Date.utc_today()
-    filters = Map.merge(%{id: "flu_syndrome", date: today}, filters)
+    day_after_today = Date.add(today, 1)
+    filters = Map.merge(%{id: "situation_report", date: today}, filters)
 
     unless is_nil(socket.root_pid) do
       send(
         socket.root_pid,
-        {:exec_and_emit, & &1, %{id: "date", from: @first_case_date, to: today, date: filters.date}, {:picker, :date}}
+        {:exec_and_emit, & &1, %{id: "date", from: @first_case_date, to: day_after_today, date: filters.date},
+         {:picker, :date}}
       )
     end
 
