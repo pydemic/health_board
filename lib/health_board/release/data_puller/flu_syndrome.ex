@@ -4,14 +4,15 @@ defmodule HealthBoard.Release.DataPuller.FluSyndrome do
   alias HealthBoard.Release.DataPuller.FluSyndrome.Consolidator
 
   @app :health_board
-  @dir Path.join(File.cwd!(), ".misc/sandbox")
+  @input_path "/tmp"
+  @output_path Path.join(File.cwd!(), ".misc/data")
 
-  @spec consolidate(String.t()) :: :ok
-  def consolidate(dir \\ @dir) do
+  @spec consolidate() :: :ok
+  def consolidate do
     Consolidator.setup()
 
-    dir
-    |> Path.join("input")
+    @input_path
+    |> Path.join("e_sus_sg")
     |> fetch_files_streams()
     |> Flow.from_enumerables()
     |> Flow.map(&Consolidator.parse/1)
@@ -19,7 +20,7 @@ defmodule HealthBoard.Release.DataPuller.FluSyndrome do
 
     Logger.info("Parsing finished")
 
-    output_dir = Path.join(dir, "output")
+    output_dir = Path.join(@output_path, "flu_syndrome")
     File.rm_rf!(output_dir)
     File.mkdir_p!(output_dir)
 
