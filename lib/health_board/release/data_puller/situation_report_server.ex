@@ -1,8 +1,8 @@
 defmodule HealthBoard.Release.DataPuller.SituationReportServer do
   alias HealthBoard.Contexts.Info.Source
-  alias HealthBoard.Release.DataManager
   alias HealthBoard.Release.DataPuller
   alias HealthBoard.Release.DataPuller.ExternalServices.SituationReport
+  alias HealthBoard.Release.DataPuller.SeedingServer
   alias HealthBoard.Repo
 
   use GenServer
@@ -15,33 +15,31 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
   @source_id "health_board_situation_report"
   # Client Interface
 
-  def start do
+  def start_link(_arg) do
     GenServer.start(__MODULE__, %{}, name: @name)
-  end
-
-  def get_situation_report_puller_status do
-    GenServer.call(@name, :get_situation_report_puller_status)
   end
 
   # Server Callbacks
 
-  def init(_state) do
+  def init(init_arg) do
     :inets.start()
     :ssl.start()
 
     source = Repo.get(@schema, @source_id)
-    initial_state = run_tasks_to_get_situation_report_data(source.last_update_date)
+    run_tasks_to_get_situation_report_data(source.last_update_date)
     schedule_refresh()
 
-    {:ok, initial_state}
+    {:ok, init_arg}
   end
 
   def handle_info(:refresh, state) do
     Logger.info("Refreshing the data...")
-    {:ok, last_update_date} = state
-    new_state = run_tasks_to_get_situation_report_data(last_update_date)
+
+    source = Repo.get(@schema, @source_id)
+    run_tasks_to_get_situation_report_data(source)
     schedule_refresh()
-    {:noreply, new_state}
+
+    {:noreply, state}
   end
 
   defp schedule_refresh do
@@ -50,10 +48,6 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
 
   defp calculate_timer_until_next_cycle(time_zone) do
     :timer.hours(24 - time_zone) - rem(:os.system_time(:millisecond), :timer.hours(24))
-  end
-
-  def handle_call(:get_situation_report_puller_status, _from, state) do
-    {:reply, state, state}
   end
 
   defp run_tasks_to_get_situation_report_data(last_update_date_database) do
@@ -71,8 +65,8 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
             _ -> {:error, :error_download_file}
           end
         else
-          Logger.info("The database is updated")
-          {:ok, last_update_date_database}
+          Logger.info("The database is updated for situation report data")
+          {:ok, :database_is_already_updated}
         end
 
       _ ->
@@ -111,19 +105,8 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
 
   defp do_consolidate_and_seed(source_information) do
     DataPuller.CovidReports.consolidate()
-    DataManager.SituationReport.reseed()
+    SeedingServer.insert_queue(:situation_report, source_information.last_update_date)
 
-    source = Repo.get!(@schema, @source_id)
-
-    source =
-      Ecto.Changeset.change(source, %{
-        last_update_date: source_information.last_update_date,
-        extraction_date: Date.utc_today()
-      })
-
-    case Repo.update(source) do
-      {:ok, _struct} -> {:ok, source_information.last_update_date}
-      {:error, _changeset} -> {:error, :error_during_update_date}
-    end
+    {:ok, :database_will_be_updated}
   end
 end

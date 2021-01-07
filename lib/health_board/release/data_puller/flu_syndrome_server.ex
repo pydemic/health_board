@@ -1,8 +1,8 @@
 defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
   alias HealthBoard.Contexts.Info.Source
-  alias HealthBoard.Release.DataManager
   alias HealthBoard.Release.DataPuller
   alias HealthBoard.Release.DataPuller.ExternalServices.OpenDataSUS
+  alias HealthBoard.Release.DataPuller.SeedingServer
   alias HealthBoard.Repo
 
   use GenServer
@@ -15,12 +15,8 @@ defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
   @source_id "e_sus_sg"
   # Client Interface
 
-  def start do
+  def start_link(_arg) do
     GenServer.start(__MODULE__, %{}, name: @name)
-  end
-
-  def get_flu_syndrome_puller_status do
-    GenServer.call(@name, :get_flu_syndrome_puller_status)
   end
 
   # Server Callbacks
@@ -52,10 +48,6 @@ defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
     :timer.hours(24 - time_zone) - rem(:os.system_time(:millisecond), :timer.hours(24))
   end
 
-  def handle_call(:get_flu_syndrome_puller_status, _from, state) do
-    {:reply, state, state}
-  end
-
   defp run_tasks_to_get_flu_syndrome_data(last_update_date_database) do
     Logger.info("Running tasks to get flu syndrome data...")
 
@@ -67,7 +59,8 @@ defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
             _ -> {:error, :error_download_file}
           end
         else
-          {:ok, last_update_date_database}
+          Logger.info("The database is updated for flu syndrome data")
+          {:ok, :database_is_already_updated}
         end
 
       _ ->
@@ -117,19 +110,8 @@ defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
 
   defp do_consolidate_and_seed(source_information) do
     DataPuller.FluSyndrome.consolidate()
-    DataManager.FluSyndrome.reseed()
+    SeedingServer.insert_queue(:situation_report, source_information.last_update_date)
 
-    source = Repo.get!(@schema, @source_id)
-
-    source =
-      Ecto.Changeset.change(source, %{
-        last_update_date: source_information.last_update_date,
-        extraction_date: Date.utc_today()
-      })
-
-    case Repo.update(source) do
-      {:ok, _struct} -> {:ok, source_information.last_update_date}
-      {:error, _changeset} -> {:error, :error_during_update_date}
-    end
+    {:ok, :database_will_be_updated}
   end
 end
