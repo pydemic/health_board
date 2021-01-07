@@ -16,32 +16,34 @@ defmodule HealthBoard.Release.DataPuller.FluSyndromeServer do
   # Client Interface
 
   def start_link(_arg) do
-    GenServer.start(__MODULE__, %{}, name: @name)
+    GenServer.start(__MODULE__, nil, name: @name)
   end
 
   # Server Callbacks
 
-  def init(_state) do
+  def init(init_arg) do
     :inets.start()
     :ssl.start()
 
-    source = Repo.get(@schema, @source_id)
-    initial_state = run_tasks_to_get_flu_syndrome_data(source.last_update_date)
-    schedule_refresh()
+    schedule_refresh(init_arg)
 
-    {:ok, initial_state}
+    {:ok, init_arg}
   end
 
   def handle_info(:refresh, state) do
     Logger.info("Refreshing the data...")
     {:ok, last_update_date} = state
     new_state = run_tasks_to_get_flu_syndrome_data(last_update_date)
-    schedule_refresh()
+    schedule_refresh(state)
     {:noreply, new_state}
   end
 
-  defp schedule_refresh do
-    Process.send_after(self(), :refresh, calculate_timer_until_next_cycle(-3))
+  defp schedule_refresh(state) do
+    if is_nil(state) do
+      send(self(), :refresh)
+    else
+      Process.send_after(self(), :refresh, calculate_timer_until_next_cycle(-3))
+    end
   end
 
   defp calculate_timer_until_next_cycle(time_zone) do

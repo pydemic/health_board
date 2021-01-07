@@ -16,7 +16,7 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
   # Client Interface
 
   def start_link(_arg) do
-    GenServer.start(__MODULE__, %{}, name: @name)
+    GenServer.start(__MODULE__, nil, name: @name)
   end
 
   # Server Callbacks
@@ -25,62 +25,63 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
     :inets.start()
     :ssl.start()
 
-    source = Repo.get(@schema, @source_id)
-    run_tasks_to_get_situation_report_data(source.last_update_date)
-    schedule_refresh()
+    schedule_refresh(3_000)
 
     {:ok, init_arg}
   end
 
   def handle_info(:refresh, state) do
-    Logger.info("Refreshing the data...")
+    Logger.info("[situation_report] Running tasks to get data...")
 
-    source = Repo.get(@schema, @source_id)
-    run_tasks_to_get_situation_report_data(source)
-    schedule_refresh()
+    case fetch_data() do
+      :ok -> schedule_refresh()
+      _error -> schedule_refresh(60_000)
+    end
 
     {:noreply, state}
   end
 
-  defp schedule_refresh do
-    Process.send_after(self(), :refresh, calculate_timer_until_next_cycle(-3))
-  end
-
-  defp calculate_timer_until_next_cycle(time_zone) do
-    :timer.hours(24 - time_zone) - rem(:os.system_time(:millisecond), :timer.hours(24))
-  end
-
-  defp run_tasks_to_get_situation_report_data(last_update_date_database) do
-    Logger.info("Running tasks to get situation report data...")
-
+  defp fetch_data() do
     case SituationReport.get_situation_report() do
       {:ok, source_information} ->
-        Logger.info("Information about situation report was obtained")
+        Logger.info("[situation_report] Information was obtained")
 
-        if is_there_update_from_source?(last_update_date_database, source_information.last_update_date) do
-          Logger.info("The database is outdated, it will be updated")
-
-          case download_situation_report_file(source_information) do
-            {:ok, :saved_to_file} -> do_consolidate_and_seed(source_information)
-            _ -> {:error, :error_download_file}
-          end
-        else
-          Logger.info("The database is updated for situation report data")
-          {:ok, :database_is_already_updated}
+        case maybe_download_data(source_information) do
+          :ok -> consolidate_and_seed(source_information)
+          {:ok, :already_updated} -> :ok
+          error -> error
         end
 
-      _ ->
-        {:error, :data_sus_source_information}
+      _error ->
+        Logger.error("[situation_report] Failed to get information from API")
+        :error
     end
   end
 
-  defp is_there_update_from_source?(database_date, source_date) do
-    Date.diff(database_date, source_date) < 0
+  defp maybe_download_data(source_information) do
+    if download_data?(source_information.last_update_date) do
+      Logger.info("[situation_report] The database is outdated, it will be updated")
+
+      case download_situation_report_file(source_information) do
+        {:ok, :saved_to_file} -> :ok
+        _error -> {:error, :failed_to_download}
+      end
+    else
+      Logger.info("[situation_report] The database is updated")
+      {:ok, :already_updated}
+    end
+  end
+
+  defp download_data?(source_date) do
+    case Repo.get(@schema, @source_id) do
+      nil -> true
+      %{last_update_date: date} -> Date.compare(source_date, date) == :gt
+    end
   end
 
   defp download_situation_report_file(source_information) do
     date = source_information.last_update_date
-    url = source_information.url
+    url = String.to_charlist(source_information.url)
 
     year = maybe_put_zero_before_number!(date.year)
     month = maybe_put_zero_before_number!(date.month)
@@ -92,7 +93,7 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
     File.rm_rf!(path)
     File.mkdir_p!(path)
 
-    :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(path <> filename))
+    :httpc.request(:get, {url, []}, [], stream: String.to_charlist(path <> filename))
   end
 
   defp maybe_put_zero_before_number!(number) do
@@ -103,10 +104,31 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
     end
   end
 
-  defp do_consolidate_and_seed(source_information) do
+  defp consolidate_and_seed(source_information) do
     DataPuller.CovidReports.consolidate()
+
     SeedingServer.insert_queue(:situation_report, source_information.last_update_date)
 
-    {:ok, :database_will_be_updated}
+    :ok
+  rescue
+    error ->
+      Logger.error(
+        "[situation_report] consolidation failed. Reason: " <>
+          Exception.message(error) <> "\n" <> Exception.format_stacktrace(__STACKTRACE__)
+      )
+
+      :error
+  end
+
+  defp schedule_refresh(milliseconds \\ nil) do
+    if is_nil(milliseconds) do
+      Process.send_after(self(), :refresh, milliseconds_to_midnight())
+    else
+      Process.send_after(self(), :refresh, milliseconds)
+    end
+  end
+
+  defp milliseconds_to_midnight() do
+    :timer.hours(27) - rem(:os.system_time(:millisecond), :timer.hours(24))
   end
 end

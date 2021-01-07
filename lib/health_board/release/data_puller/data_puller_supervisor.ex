@@ -13,7 +13,7 @@ defmodule HealthBoard.Release.DataPuller.DataPullerSupervisor do
   def init(:ok) do
     children = [
       # FluSyndromeServer,
-      SARSServer,
+      # SARSServer,
       SeedingServer,
       SituationReportServer
     ]
