@@ -13,21 +13,24 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
 
   @schema Source
   @source_id "health_board_situation_report"
+
   # Client Interface
 
+  @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(_arg) do
     GenServer.start(__MODULE__, nil, name: @name)
   end
 
   # Server Callbacks
 
-  def init(init_arg) do
+  @spec init(any) :: {:ok, any}
+  def init(args) do
     :inets.start()
     :ssl.start()
 
     schedule_refresh(3_000)
 
-    {:ok, init_arg}
+    {:ok, args}
   end
 
   def handle_info(:refresh, state) do
@@ -41,7 +44,7 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
     {:noreply, state}
   end
 
-  defp fetch_data() do
+  defp fetch_data do
     case SituationReport.get_situation_report() do
       {:ok, source_information} ->
         Logger.info("[situation_report] Information was obtained")
@@ -128,7 +131,7 @@ defmodule HealthBoard.Release.DataPuller.SituationReportServer do
     end
   end
 
-  defp milliseconds_to_midnight() do
+  defp milliseconds_to_midnight do
     :timer.hours(27) - rem(:os.system_time(:millisecond), :timer.hours(24))
   end
 end

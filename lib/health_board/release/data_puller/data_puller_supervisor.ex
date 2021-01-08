@@ -1,5 +1,4 @@
 defmodule HealthBoard.Release.DataPuller.DataPullerSupervisor do
-  # alias HealthBoard.Release.DataPuller.FluSyndromeServer
   alias HealthBoard.Release.DataPuller.SARSServer
   alias HealthBoard.Release.DataPuller.SeedingServer
   alias HealthBoard.Release.DataPuller.SituationReportServer
@@ -12,8 +11,7 @@ defmodule HealthBoard.Release.DataPuller.DataPullerSupervisor do
 
   def init(:ok) do
     children = [
-      # FluSyndromeServer,
-      # SARSServer,
+      SARSServer,
       SeedingServer,
       SituationReportServer
     ]

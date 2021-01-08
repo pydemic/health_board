@@ -19,7 +19,7 @@ defmodule HealthBoard.Application do
       HealthBoardWeb.Endpoint
     ]
 
-    if true do
+    if Application.fetch_env!(@app, :start_data_puller) do
       children ++ [DataPullerSupervisor]
     else
       children
