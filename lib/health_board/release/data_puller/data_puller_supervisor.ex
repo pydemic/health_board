@@ -2,10 +2,13 @@ defmodule HealthBoard.Release.DataPuller.DataPullerSupervisor do
   alias HealthBoard.Release.DataPuller.SARSServer
   alias HealthBoard.Release.DataPuller.SeedingServer
   alias HealthBoard.Release.DataPuller.SituationReportServer
+
+  require Logger
+
   use Supervisor
 
   def start_link(_arg) do
-    IO.puts("Starting the data puller supervisor...")
+    Logger.info("Starting the data puller supervisor...")
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
