@@ -41,7 +41,16 @@ defmodule HealthBoard.Releases.Helper do
 
   def health_board_settings do
     [
-      data_path: get_env!("DATA_PATH")
+      basic_auth_dashboard_password: get_env!("BASIC_AUTH_DASHBOARD_PASSWORD"),
+      basic_auth_system_password: get_env!("BASIC_AUTH_SYSTEM_PASSWORD"),
+      covid_reports_update_at_hour: get_env("COVID_REPORTS_UPDATE_AT_HOUR", :integer, 3),
+      data_path: get_env!("DATA_PATH"),
+      data_updates_path: get_env!("DATA_UPDATES_PATH"),
+      google_api_key: get_env!("GOOGLE_API_KEY"),
+      sars_update_at_hour: get_env("SARS_UPDATE_AT_HOUR", :integer, 3),
+      spreadsheet_id: get_env!("SPREADSHEET_ID"),
+      spreadsheet_page: get_env!("SPREADSHEET_PAGE"),
+      start_updater: get_env("START_UPDATER", :boolean, true)
     ]
   end
 

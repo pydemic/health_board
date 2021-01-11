@@ -1,6 +1,4 @@
 defmodule HealthBoard.Release.Repo do
-  @app :health_board
-
   @spec migrate :: :ok
   def migrate do
     load_app()
@@ -20,10 +18,10 @@ defmodule HealthBoard.Release.Repo do
   end
 
   defp repos do
-    Application.fetch_env!(@app, :ecto_repos)
+    Application.fetch_env!(:health_board, :ecto_repos)
   end
 
   defp load_app do
-    Application.load(@app)
+    Application.load(:health_board)
   end
 end

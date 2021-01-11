@@ -31,6 +31,7 @@ services:
       POSTGRES_PASSWORD: health_board
     volumes:
       - postgres:/var/lib/postgresql/data
+      - ../.misc/data_updates:/app/.misc/data_updates
       - ../.misc/data:/app/.misc/data
     ports:
       - 5432:5432

@@ -1,5 +1,6 @@
 defmodule HealthBoard.Contexts.Info.Source do
   use Ecto.Schema
+  import Ecto.Changeset, only: [cast: 3]
 
   @type schema :: %__MODULE__{}
 
@@ -14,5 +15,10 @@ defmodule HealthBoard.Contexts.Info.Source do
 
     field :last_update_date, :date
     field :extraction_date, :date
+  end
+
+  @spec changeset(struct, map) :: Ecto.Changeset.t()
+  def changeset(struct, params \\ %{}) do
+    cast(struct, params, [:last_update_date, :extraction_date])
   end
 end

@@ -21,7 +21,7 @@ defmodule HealthBoard.MixProject do
   def application do
     [
       mod: {HealthBoard.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon]
+      extra_applications: [:logger, :runtime_tools, :os_mon, :inets, :ssl]
     ]
   end
 
@@ -48,26 +48,26 @@ defmodule HealthBoard.MixProject do
   defp deps do
     [
       {:colour_hash, "~> 1.0.3"},
-      {:credo, "~> 1.4.1", only: :test, runtime: false},
-      {:ecto_psql_extras, "~> 0.4.1"},
+      {:credo, "~> 1.5.4", only: :test, runtime: false},
+      {:ecto_psql_extras, "~> 0.4.3"},
       {:ecto_sql, "~> 3.5.2"},
       {:ex_cldr, "~> 2.18.2"},
       {:ex_cldr_calendars, "~> 1.12.0"},
       {:ex_cldr_numbers, "~> 2.16.1"},
-      {:ex_cldr_dates_times, "~> 2.6.0"},
+      {:ex_cldr_dates_times, "~> 2.6.4"},
       {:ex_doc, "~> 0.23.0", only: :test, runtime: false},
-      {:excoveralls, "~> 0.13.3", only: :test},
+      {:excoveralls, "~> 0.13.4", only: :test},
       {:floki, "~> 0.29.0", only: [:dev, :test]},
       {:flow, "~> 1.1.0"},
       {:gettext, "~> 0.18.2"},
-      {:hackney, "~> 1.16.0"},
+      {:hackney, "~> 1.17.0"},
       {:jason, "~> 1.2.2"},
       {:nimble_csv, "~> 1.1.0"},
       {:phoenix_ecto, "~> 4.2.1"},
-      {:phoenix_html, "~> 2.14.2"},
+      {:phoenix_html, "~> 2.14.3"},
       {:phoenix_live_dashboard, "~> 0.4.0"},
-      {:phoenix_live_reload, "~> 1.2.4", only: :dev},
-      {:phoenix_live_view, "~> 0.15.0"},
+      {:phoenix_live_reload, "~> 1.3.0", only: :dev},
+      {:phoenix_live_view, "~> 0.15.3"},
       {:phoenix, "~> 1.5.6"},
       {:plug_cowboy, "~> 2.4.0"},
       {:postgrex, "~> 0.15.7"},
@@ -76,7 +76,7 @@ defmodule HealthBoard.MixProject do
       {:surface, "~> 0.1.1"},
       {:telemetry_metrics, "~> 0.6.0"},
       {:telemetry_poller, "~> 0.5.1"},
-      {:tesla, "~> 1.3.3"}
+      {:tesla, "~> 1.4.0"}
     ]
   end
 

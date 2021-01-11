@@ -3,6 +3,8 @@ FROM erlang:22.3.4-alpine
 
 WORKDIR /app
 
+RUN apk add coreutils
+
 COPY --from=release /app/_build/prod/rel/health_board .
 COPY start.sh start.sh
 

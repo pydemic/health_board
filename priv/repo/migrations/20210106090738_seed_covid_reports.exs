@@ -1,8 +1,8 @@
 defmodule HealthBoard.Repo.Migrations.SeedCOVIDReports do
   use Ecto.Migration
 
-  alias HealthBoard.Release.DataManager
+  alias HealthBoard.Contexts.Seeders
 
-  def up, do: DataManager.SituationReport.up(:covid_reports)
-  def down, do: DataManager.SituationReport.down(:covid_reports)
+  def down, do: Seeders.SituationReport.down!(what: :covid_reports)
+  def up, do: Seeders.SituationReport.up!(what: :covid_reports)
 end
