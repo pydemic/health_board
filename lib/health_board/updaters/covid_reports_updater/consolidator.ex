@@ -85,7 +85,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   end
 
   defp update_bucket(bucket_name, key, cases, deaths) do
-    :ets.update_counter(bucket_name, key, [{2, cases}, {3, deaths}], {key, cases, deaths})
+    :ets.update_counter(bucket_name, key, [{2, cases}, {3, deaths}], {key, 0, 0})
   end
 
   @spec save :: :ok

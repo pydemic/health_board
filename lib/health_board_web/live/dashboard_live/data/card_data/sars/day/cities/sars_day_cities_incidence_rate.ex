@@ -21,7 +21,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayCitiesIncidenceRate do
     %{
       filters: %{
         date: data.date,
-        locations_context: "Estado"
+        locations_context: "UF"
       },
       result: %{
         ranking: ranking

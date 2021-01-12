@@ -28,7 +28,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Filters do
 
             <Grid>
               <Select field={{ :region }} name={{ "Região" }} selected={{ @filters[:region] }} options={{ @options[:region] || [] }} width_l={{ 4 }} width_m={{ 1 }} />
-              <Select field={{ :state }} name={{ "Estado" }} selected={{ @filters[:state] }} options={{ @options[:state] || [] }} width_l={{ 4 }} width_m={{ 1 }} />
+              <Select field={{ :state }} name={{ "UF" }} selected={{ @filters[:state] }} options={{ @options[:state] || [] }} width_l={{ 4 }} width_m={{ 1 }} />
               <Select field={{ :health_region }} name={{ "Regional de saúde" }} selected={{ @filters[:health_region] }} options={{ @options[:health_region] || [] }} width_l={{ 4 }} width_m={{ 1 }} />
               <Select field={{ :city }} name={{ "Município" }} selected={{ @filters[:city] }} options={{ @options[:city] || [] }} width_l={{ 4 }} width_m={{ 1 }} />
             </Grid>

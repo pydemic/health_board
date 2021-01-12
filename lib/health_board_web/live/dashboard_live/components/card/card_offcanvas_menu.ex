@@ -105,6 +105,8 @@ defmodule HealthBoardWeb.DashboardLive.Components.CardOffcanvasMenu do
               <dd>{{ indicator_source.source.update_rate }}</dd>
               <dt>Data de extração</dt>
               <dd>{{ Humanize.date(indicator_source.source.extraction_date) }}</dd>
+              <dt>Data da última atualização</dt>
+              <dd>{{ Humanize.date(indicator_source.source.last_update_date) }}</dd>
             </dl>
           </div>
         </div>

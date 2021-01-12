@@ -318,7 +318,7 @@ Foram definidos os seguintes `schemas`:
 
 - `YearPopulation` - População residente de um local em um determinado ano;
 
-- `Location` - Definição de um local (País, região, estado, regional de saúde e município);
+- `Location` - Definição de um local (País, região, UF, regional de saúde e município);
 
 - `Card` - Informações de representação visual de um indicador;
 
@@ -386,7 +386,9 @@ Os dados são mapeados de acordo com o código definido em `dashboard_live.ex` e
 ## 3.2. Resultados obtidos: Painel analítico
 
 <!-- markdownlint-disable MD033 -->
+
 <img src="imgs/analytic_full.png"></img>
+
 <!-- markdownlint-enable MD033 -->
 
 > Figura 5 - Visão geral do painel analítico.

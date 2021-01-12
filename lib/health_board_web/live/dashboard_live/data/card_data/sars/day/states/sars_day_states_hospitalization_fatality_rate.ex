@@ -28,7 +28,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayStatesHospitalizationFata
     %{
       filters: %{
         date: data.date,
-        locations_context: "Estado"
+        locations_context: "UF"
       },
       result: %{
         ranking: ranking

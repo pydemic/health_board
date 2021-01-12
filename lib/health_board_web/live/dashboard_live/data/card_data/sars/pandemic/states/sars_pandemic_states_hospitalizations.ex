@@ -12,7 +12,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicStatesHospitalizatio
     %{
       filters: %{
         date: data.date,
-        locations_context: "Estado"
+        locations_context: "UF"
       },
       result: %{
         ranking: ranking

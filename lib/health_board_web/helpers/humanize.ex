@@ -13,6 +13,7 @@ defmodule HealthBoardWeb.Helpers.Humanize do
     first_record_date: "Data do primeiro registro",
     from_year: "Início do período anual",
     last_record_date: "Data do último registro",
+    last_update_date: "Data da última atualização",
     location: "Localidade",
     locations: "Localidades",
     male: "Masculino",
