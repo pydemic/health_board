@@ -1,24 +1,48 @@
 version: '3.8'
 
 services:
+  health_board:
+    image: pydemic/health_board:dev
+    container_name: health_board
+    volumes:
+      - ../../../:/app
+      - mix:/root/.mix
+    ports:
+      - 4000:4000
+      - 4001:4001
+    networks:
+      - network
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:13.0
-    command: >
-      postgres
-      -c shared_preload_libraries=pg_stat_statements
-      -c pg_stat_statements.track=all
-      -c pg_stat_statements.max=10000
+    # command: >
+    #   postgres
+    #   -c shared_preload_libraries=pg_stat_statements
+    #   -c pg_stat_statements.track=all
+    #   -c pg_stat_statements.max=10000
     container_name: health_board_postgres
     environment:
       POSTGRES_DB: health_board_dev
       POSTGRES_USER: health_board
       POSTGRES_PASSWORD: health_board
     volumes:
-      - ../../data:/Users/laercios/Projects/OPAS/health_board/.misc/data/
       - postgres:/var/lib/postgresql/data
+      - ../../data_updates:/app/.misc/data_updates
+      - ../../data:/app/.misc/data
     ports:
       - 5432:5432
+    networks:
+      - network
+
+networks:
+  network:
+    name: health_board
 
 volumes:
+  mix:
+    name: health_board_mix
+
   postgres:
     name: health_board_postgres
