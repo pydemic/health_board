@@ -36,7 +36,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeIncidenceEpicurve do
       datasets: [
         %{
           type: "line",
-          label: "Tendência",
+          label: "Tendência (Média móvel de 7 dias)",
           backgroundColor: "#000",
           borderColor: "#000",
           borderWidth: 2,
