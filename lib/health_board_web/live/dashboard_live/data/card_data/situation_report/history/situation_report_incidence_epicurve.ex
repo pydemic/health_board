@@ -42,7 +42,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SituationReportIncidenceEpicurve
           borderWidth: 2,
           pointRadius: 1,
           fill: false,
-          data: trend,
+          data: trend
         },
         %{
           type: "bar",
