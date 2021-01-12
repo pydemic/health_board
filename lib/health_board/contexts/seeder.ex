@@ -35,7 +35,7 @@ defmodule HealthBoard.Contexts.Seeder do
 
     path
     |> csv_copy_query(table_name, fields)
-    |> Repo.query!()
+    |> Repo.query!([], timeout: :infinity)
 
     :ok
   end
@@ -51,7 +51,7 @@ defmodule HealthBoard.Contexts.Seeder do
 
   @spec down!(String.t()) :: :ok
   def down!(table_name) do
-    Repo.query!("TRUNCATE #{table_name} CASCADE;")
+    Repo.query!("TRUNCATE #{table_name} CASCADE;", [], timeout: :infinity)
     :ok
   end
 end

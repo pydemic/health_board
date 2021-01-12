@@ -47,11 +47,11 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
   @impl GenServer
   @spec handle_info(atom, t()) :: {:noreply, t()}
   def handle_info(:update, %{status: status} = state) do
-    Logger.info("Update request received")
+    Logger.info("Update request received. Current status: #{inspect(status)}")
 
     state =
       if state.error? do
-        state = struct(state, error?: false, status: :idle)
+        state = struct(state, error?: false)
 
         case status do
           :extracting_data -> extract_and_continue(state)
@@ -61,7 +61,9 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
           _status -> extract_and_continue(state)
         end
       else
-        extract_and_continue(state)
+        state
+        |> struct(status: :extracting_data)
+        |> extract_and_continue()
       end
 
     {:noreply, state}
@@ -168,21 +170,20 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
     backup_dir = Path.join(dir, "backup/hospital_capacity")
     output_dir = Path.join(dir, "output/hospital_capacity")
 
-    unless File.dir?(backup_dir) do
-      File.mkdir_p!(backup_dir)
+    File.mkdir_p!(backup_dir)
+    remove_consolidations(backup_dir)
 
-      if File.dir?(output_dir) do
-        Logger.info("Backing up data from previous update")
+    if File.dir?(output_dir) do
+      Logger.info("Backing up data from previous update")
 
-        copy_consolidations(output_dir, backup_dir)
-      else
-        with {:ok, data_path} <- Application.fetch_env(:health_board, :data_path) do
-          Logger.info("Backing up data from base data")
+      copy_consolidations(output_dir, backup_dir)
+    else
+      with {:ok, data_path} <- Application.fetch_env(:health_board, :data_path) do
+        Logger.info("Backing up data from base data")
 
-          data_path
-          |> Path.join("hospital_capacity")
-          |> copy_consolidations(backup_dir)
-        end
+        data_path
+        |> Path.join("hospital_capacity")
+        |> copy_consolidations(backup_dir)
       end
     end
 

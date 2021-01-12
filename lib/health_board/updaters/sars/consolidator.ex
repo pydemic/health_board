@@ -47,7 +47,6 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
   @ignored_race @race_native + 1
 
   @first_symptom_index 2
-  @last_symptom_index 25
 
   @cases_residence Contexts.registry_location!(:cases_residence)
   @cases_notification Contexts.registry_location!(:cases_notification)
@@ -557,7 +556,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
         [@race_native | indexes]
 
       _ ->
-        indexes
+        [@ignored_race | indexes]
     end
   end
 
@@ -576,7 +575,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     indexes_additions = Enum.map(indexes, &{&1, 1})
 
     for location_id <- locations, bucket <- buckets_from_date(date) do
-      update_bucket(registry_context, bucket, location_id, indexes_additions, indexes, false)
+      update_bucket(registry_context, bucket, location_id, indexes_additions, false)
     end
   end
 
@@ -585,7 +584,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     indexes_additions = Enum.map(indexes, &{&1, 1})
 
     for location_id <- locations do
-      update_bucket(registry_context, @ets_symptons_buckets, location_id, indexes_additions, indexes, true)
+      update_bucket(registry_context, @ets_symptons_buckets, location_id, indexes_additions, true)
     end
   end
 
@@ -600,35 +599,24 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     ]
   end
 
-  defp update_bucket(registry_context, bucket, location_id, indexes_additions, indexes, is_symptom_bucket) do
+  defp update_bucket(registry_context, bucket, location_id, indexes_additions, is_symptom_bucket?) do
     {bucket_name, key} =
       case bucket do
         {bucket_name, date} -> {bucket_name, {registry_context, location_id, date}}
         bucket_name -> {bucket_name, {registry_context, location_id}}
       end
 
-    try do
-      :ets.update_counter(bucket_name, key, indexes_additions)
-    rescue
-      _error ->
-        unless :ets.insert_new(bucket_name, new_bucket_record(key, indexes, is_symptom_bucket)) do
-          :ets.update_counter(bucket_name, key, indexes_additions)
-        end
+    :ets.update_counter(bucket_name, key, indexes_additions, new_bucket_record(key, is_symptom_bucket?))
+  end
+
+  defp new_bucket_record(key, is_symptom_bucket?) do
+    if is_symptom_bucket? do
+      {key, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    else
+      {key, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 0}
     end
   end
-
-  defp new_bucket_record(key, indexes, true) do
-    {values, _indexes} = Enum.reduce(2..@last_symptom_index, {[], indexes}, &new_bucket_value/2)
-    List.to_tuple([key | Enum.reverse(values)])
-  end
-
-  defp new_bucket_record(key, indexes, _is_symptom_bucket) do
-    {values, _indexes} = Enum.reduce(2..@ignored_race, {[], indexes}, &new_bucket_value/2)
-    List.to_tuple([key | Enum.reverse(values)])
-  end
-
-  defp new_bucket_value(index, {values, [index | indexes]}), do: {[1 | values], indexes}
-  defp new_bucket_value(_index, {values, indexes}), do: {[0 | values], indexes}
 
   @spec setup :: :ok
   def setup do

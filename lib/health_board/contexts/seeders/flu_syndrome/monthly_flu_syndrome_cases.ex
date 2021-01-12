@@ -52,8 +52,8 @@ defmodule HealthBoard.Contexts.Seeders.MonthlyFluSyndromeCases do
 
   @spec reseed!(String.t() | nil) :: :ok
   def reseed!(base_path \\ nil) do
-    up!(base_path)
     down!()
+    up!(base_path)
   end
 
   @spec up!(String.t() | nil) :: :ok
