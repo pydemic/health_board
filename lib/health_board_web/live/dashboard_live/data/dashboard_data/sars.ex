@@ -341,13 +341,16 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.Sars do
 
   defp fetch_daily_consolidations(%{changed_filters: changes} = data) do
     if DataManager.filters_changed?(changes, @daily_consolidations_keys) do
-      [contexts: @contexts, location_id: data.location_id]
-      |> DailySARSCases.list_by()
+      daily_consolidations =
+        DailySARSCases.list_by(contexts: @contexts, location_id: data.location_id, order_by: [desc: :date])
+
+      daily_consolidations
       |> Enum.group_by(& &1.context)
       |> Enum.reduce(data, &fetch_daily_consolidation/2)
       |> put_new_data(:daily_incidence, [])
       |> put_new_data(:daily_deaths, [])
       |> put_new_data(:daily_hospitalizations, [])
+      |> put_new_data(:last_record_date, Map.get(Enum.at(daily_consolidations, 0, %{}), :date))
     else
       data
     end

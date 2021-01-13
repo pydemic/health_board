@@ -10,6 +10,7 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayStatesHospitalizationFata
     |> Enum.sort(&(&1.hospitalization_fatality_rate >= &2.hospitalization_fatality_rate))
     |> Enum.take(10)
     |> wrap_result(data)
+    |> Map.put(:last_record_date, data.last_record_date)
   end
 
   defp fetch_hospitalization_fatality_rate(day_deaths, states_hospitalizations) do
@@ -32,7 +33,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayStatesHospitalizationFata
       },
       result: %{
         ranking: ranking
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

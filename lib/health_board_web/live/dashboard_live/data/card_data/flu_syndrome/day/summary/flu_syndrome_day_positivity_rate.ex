@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeDayPositivityRate do
         confirmed: confirmed,
         discarded: discarded,
         positivity_rate: Math.positivity_rate(confirmed, confirmed + discarded)
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

@@ -15,7 +15,8 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.FluSyndromeHistoryGroup do
     :location_name,
     :daily_incidence,
     :monthly_incidence,
-    :weekly_incidence
+    :weekly_incidence,
+    :last_record_date
   ]
 
   @spec fetch(pid, map, map) :: nil

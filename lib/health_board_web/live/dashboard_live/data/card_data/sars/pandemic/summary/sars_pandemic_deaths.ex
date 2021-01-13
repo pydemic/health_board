@@ -6,7 +6,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicDeaths do
         date: data.date,
         location: data.location_name
       },
-      result: %{deaths: data.deaths.confirmed}
+      result: %{deaths: data.deaths.confirmed},
+      last_record_date: data.last_record_date
     }
   end
 end

@@ -6,7 +6,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SituationReportDayIncidence do
         date: data.date,
         location: data.location_name
       },
-      result: %{incidence: data.day_covid_reports.cases}
+      result: %{incidence: data.day_covid_reports.cases},
+      last_record_date: data.last_record_date
     }
   end
 end

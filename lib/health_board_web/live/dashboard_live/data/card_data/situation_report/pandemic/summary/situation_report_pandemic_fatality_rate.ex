@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SituationReportPandemicFatalityR
         fatality_rate: Math.fatality_rate(deaths, incidence),
         deaths: deaths,
         incidence: incidence
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

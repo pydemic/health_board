@@ -6,7 +6,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayHospitalizations do
         date: data.date,
         location: data.location_name
       },
-      result: %{hospitalizations: data.day_hospitalizations.confirmed}
+      result: %{hospitalizations: data.day_hospitalizations.confirmed},
+      last_record_date: data.last_record_date
     }
   end
 end

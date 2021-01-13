@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeDayIncidenceRate do
         incidence_rate: Math.incidence_rate(incidence, population),
         incidence: incidence,
         population: population
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

@@ -2,7 +2,14 @@ defmodule HealthBoardWeb.DashboardLive.SectionData.SituationReportHistoryInciden
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
   @changes_keys [:index, :date, :daily_covid_reports, :weekly_covid_reports, :monthly_covid_reports]
-  @data_keys [:date, :location_name, :daily_covid_reports, :weekly_covid_reports, :monthly_covid_reports]
+  @data_keys [
+    :date,
+    :location_name,
+    :daily_covid_reports,
+    :weekly_covid_reports,
+    :monthly_covid_reports,
+    :last_record_date
+  ]
 
   @spec fetch(pid, map, map) :: nil
   def fetch(pid, section, %{changed_filters: changes} = data) do

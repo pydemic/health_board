@@ -8,7 +8,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDaySamples do
       },
       result: %{
         samples: data.day_incidence.samples
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

@@ -16,7 +16,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SituationReportPandemicStatesFat
       },
       result: %{
         ranking: ranking
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

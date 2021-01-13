@@ -32,7 +32,8 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.SarsDailySummaryGroup do
     :day_states_hospitalizations,
     :year_cities_population,
     :year_states_population,
-    :year_population
+    :year_population,
+    :last_record_date
   ]
 
   @spec fetch(pid, map, map) :: nil

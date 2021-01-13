@@ -35,7 +35,8 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.SarsPandemicSummaryGroup do
     :symptoms,
     :year_cities_population,
     :year_states_population,
-    :year_population
+    :year_population,
+    :last_record_date
   ]
 
   @spec fetch(pid, map, map) :: nil

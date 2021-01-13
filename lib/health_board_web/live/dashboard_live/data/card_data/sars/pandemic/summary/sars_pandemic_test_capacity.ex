@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicTestCapacity do
         confirmed: confirmed,
         discarded: discarded,
         test_capacity: Math.test_capacity(confirmed, confirmed + discarded)
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

@@ -6,7 +6,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeDayHealthProfessional
         date: data.date,
         location: data.location_name
       },
-      result: %{health_professional_incidence: data.day_incidence.health_professional}
+      result: %{health_professional_incidence: data.day_incidence.health_professional},
+      last_record_date: data.last_record_date
     }
   end
 end

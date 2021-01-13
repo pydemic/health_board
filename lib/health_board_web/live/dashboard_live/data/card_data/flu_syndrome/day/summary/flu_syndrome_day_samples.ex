@@ -12,7 +12,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.FluSyndromeDaySamples do
         confirmed: confirmed,
         discarded: discarded,
         samples: confirmed + discarded
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

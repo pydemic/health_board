@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayPositivityRate do
         confirmed: confirmed,
         samples: samples,
         positivity_rate: Math.positivity_rate(confirmed, samples)
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

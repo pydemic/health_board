@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicHospitalizationFatal
         hospitalization_fatality_rate: Math.hospitalization_fatality_rate(deaths, hospitalizations),
         deaths: deaths,
         hospitalizations: hospitalizations
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

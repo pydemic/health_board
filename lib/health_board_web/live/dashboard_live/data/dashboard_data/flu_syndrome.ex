@@ -201,6 +201,12 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
       [context: :residence, location_id: data.location_id]
       |> DailyFluSyndromeCases.list_by()
       |> put_data(:daily_incidence, data)
+
+      # daily_incidence = DailyFluSyndromeCases.list_by(context: :residence, order_by: [desc: :date])
+
+      # data = put_data(daily_incidence, :daily_incidence, data)
+
+      # put_data(Map.get(Enum.at(daily_incidence, 0, %{}), :date), :last_record_date, data)
     else
       data
     end

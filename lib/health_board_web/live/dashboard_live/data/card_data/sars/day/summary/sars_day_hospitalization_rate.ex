@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayHospitalizationRate do
         hospitalization_rate: Math.hospitalization_rate(hospitalizations, population),
         hospitalizations: hospitalizations,
         population: population
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

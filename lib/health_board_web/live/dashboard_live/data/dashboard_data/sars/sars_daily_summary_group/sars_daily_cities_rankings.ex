@@ -9,7 +9,14 @@ defmodule HealthBoardWeb.DashboardLive.SectionData.SarsDailyCitiesRankings do
     :year_cities_population
   ]
 
-  @data_keys [:date, :day_cities_incidence, :day_cities_deaths, :day_cities_hospitalizations, :year_cities_population]
+  @data_keys [
+    :date,
+    :day_cities_incidence,
+    :day_cities_deaths,
+    :day_cities_hospitalizations,
+    :year_cities_population,
+    :last_record_date
+  ]
 
   @spec fetch(pid, map, map) :: nil
   def fetch(pid, section, %{changed_filters: changes} = data) do

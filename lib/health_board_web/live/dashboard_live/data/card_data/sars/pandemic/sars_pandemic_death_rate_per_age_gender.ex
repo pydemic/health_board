@@ -8,7 +8,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicDeathRatePerAgeGende
     %{
       filters: %{
         location: data.location_name
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 

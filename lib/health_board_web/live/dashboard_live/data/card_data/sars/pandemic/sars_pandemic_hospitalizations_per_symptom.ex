@@ -6,7 +6,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsPandemicHospitalizationsPerS
     %{
       filters: %{
         location: data.location_name
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 

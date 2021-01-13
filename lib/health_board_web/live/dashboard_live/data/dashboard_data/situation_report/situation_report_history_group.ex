@@ -15,7 +15,8 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.SituationReportHistoryGroup do
     :location_name,
     :daily_covid_reports,
     :monthly_covid_reports,
-    :weekly_covid_reports
+    :weekly_covid_reports,
+    :last_record_date
   ]
 
   @spec fetch(pid, map, map) :: nil

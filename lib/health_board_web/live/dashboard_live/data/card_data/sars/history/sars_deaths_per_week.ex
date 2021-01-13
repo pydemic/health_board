@@ -9,7 +9,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDeathsPerWeek do
     %{
       filters: %{
         location: data.location_name
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 

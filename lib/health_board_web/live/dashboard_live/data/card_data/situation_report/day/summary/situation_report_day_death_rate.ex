@@ -14,7 +14,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SituationReportDayDeathRate do
         death_rate: Math.death_rate(deaths, population),
         deaths: deaths,
         population: population
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

@@ -2,7 +2,15 @@ defmodule HealthBoardWeb.DashboardLive.SectionData.SarsDailySummary do
   alias HealthBoardWeb.DashboardLive.{CardData, DataManager}
 
   @changes_keys [:index, :day_incidence, :day_deaths, :day_hospitalizations, :year_population]
-  @data_keys [:date, :location_name, :day_incidence, :day_deaths, :day_hospitalizations, :year_population]
+  @data_keys [
+    :date,
+    :location_name,
+    :day_incidence,
+    :day_deaths,
+    :day_hospitalizations,
+    :year_population,
+    :last_record_date
+  ]
 
   @spec fetch(pid, map, map) :: nil
   def fetch(pid, section, %{changed_filters: changes} = data) do

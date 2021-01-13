@@ -16,7 +16,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SituationReportDayCitiesIncidenc
       },
       result: %{
         ranking: ranking
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

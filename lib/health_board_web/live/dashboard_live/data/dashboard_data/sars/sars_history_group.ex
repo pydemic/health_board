@@ -23,7 +23,8 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.SarsHistoryGroup do
     :daily_deaths,
     :monthly_deaths,
     :weekly_deaths,
-    :daily_hospitalizations
+    :daily_hospitalizations,
+    :last_record_date
   ]
 
   @spec fetch(pid, map, map) :: nil

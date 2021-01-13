@@ -32,7 +32,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsDayCitiesHospitalizationFata
       },
       result: %{
         ranking: ranking
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 end

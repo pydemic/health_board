@@ -20,7 +20,8 @@ defmodule HealthBoardWeb.DashboardLive.GroupData.SituationReportDailySummaryGrou
     :day_states_covid_reports,
     :year_cities_population,
     :year_states_population,
-    :year_population
+    :year_population,
+    :last_record_date
   ]
 
   @spec fetch(pid, map, map) :: nil

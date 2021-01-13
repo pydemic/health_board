@@ -192,9 +192,15 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.SituationReport do
 
   defp fetch_daily_covid_reports(%{changed_filters: changes} = data) do
     if DataManager.filters_changed?(changes, @daily_covid_reports_keys) do
-      [location_id: data.location_id]
-      |> DailyCOVIDReports.list_by()
-      |> put_data(:daily_covid_reports, data)
+      daily_covid_reports = DailyCOVIDReports.list_by(location_id: data.location_id, order_by: [desc: :date])
+
+      data = put_data(daily_covid_reports, :daily_covid_reports, data)
+
+      put_data(Map.get(Enum.at(daily_covid_reports, 0, %{}), :date), :last_record_date, data)
+
+      # data
+      # |> Map.put(:daily_covid_reports, daily_covid_reports)
+      # |> Map.put(:last_record_date, Map.get(Enum.at(daily_covid_reports, 0, %{}), :date))
     else
       data
     end

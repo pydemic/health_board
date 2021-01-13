@@ -12,7 +12,8 @@ defmodule HealthBoardWeb.DashboardLive.CardData.SarsHospitalizationsEpicurve do
         from_date: @first_case_date,
         to_date: data.date,
         location: data.location_name
-      }
+      },
+      last_record_date: data.last_record_date
     }
   end
 
