@@ -11,8 +11,6 @@ defmodule HealthBoardWeb.DashboardLive.SectionData.SarsPandemicCharts do
       Enum.each(section.cards, &CardData.request_to_fetch(pid, &1, data))
     end
 
-    IO.inspect(Map.keys(data))
-
     nil
   end
 end
