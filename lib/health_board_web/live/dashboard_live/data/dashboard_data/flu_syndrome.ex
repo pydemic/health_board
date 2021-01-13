@@ -198,15 +198,16 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.FluSyndrome do
 
   defp fetch_daily_incidence(%{changed_filters: changes} = data) do
     if DataManager.filters_changed?(changes, @daily_incidence_keys) do
-      [context: :residence, location_id: data.location_id]
-      |> DailyFluSyndromeCases.list_by()
-      |> put_data(:daily_incidence, data)
+      # [context: :residence, location_id: data.location_id]
+      # |> DailyFluSyndromeCases.list_by()
+      # |> put_data(:daily_incidence, data)
 
-      # daily_incidence = DailyFluSyndromeCases.list_by(context: :residence, order_by: [desc: :date])
+      daily_incidence =
+        DailyFluSyndromeCases.list_by(context: :residence, location_id: data.location_id, order_by: [desc: :date])
 
-      # data = put_data(daily_incidence, :daily_incidence, data)
+      data = put_data(daily_incidence, :daily_incidence, data)
 
-      # put_data(Map.get(Enum.at(daily_incidence, 0, %{}), :date), :last_record_date, data)
+      put_data(Map.get(Enum.at(daily_incidence, 0, %{}), :date), :last_record_date, data)
     else
       data
     end
