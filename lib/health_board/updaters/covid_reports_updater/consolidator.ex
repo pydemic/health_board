@@ -3,6 +3,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   alias HealthBoard.Contexts.Geo.Locations
 
   @ets_cities :situation_report_cities
+  @ets_health_regions :situation_report_health_regions
+  @ets_states :situation_report_states
 
   @ets_daily_buckets :situation_report_consolidation_daily
   @ets_weekly_buckets :situation_report_consolidation_weekly
@@ -15,11 +17,17 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   @spec init :: :ok
   def init do
     :ets.new(@ets_cities, [:set, :public, :named_table])
+    :ets.new(@ets_health_regions, [:set, :public, :named_table])
+    :ets.new(@ets_states, [:set, :public, :named_table])
 
     [context: Locations.context(:city)]
     |> Locations.list_by()
     |> Locations.preload_parent(:health_region)
-    |> Enum.each(&:ets.insert_new(@ets_cities, locations_ids(&1)))
+    |> Enum.each(&:ets.insert_new(@ets_cities, cities_ids(&1)))
+
+    [context: Locations.context(:state)]
+    |> Locations.list_by()
+    |> Enum.each(&:ets.insert_new(@ets_states, states_ids(&1)))
 
     :ets.new(@ets_daily_buckets, [:set, :public, :named_table])
     :ets.new(@ets_weekly_buckets, [:set, :public, :named_table])
@@ -30,16 +38,23 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     :ok
   end
 
-  defp locations_ids(%{id: city_id, parents: [%{parent_id: health_region_id}]}) do
-    state_id = Locations.state_id(city_id, :city)
-    region_id = Locations.region_id(state_id, :state)
+  defp cities_ids(%{id: location_id, parents: [%{parent_id: health_region_id}]}) do
+    {
+      Integer.to_string(div(location_id, 10)),
+      [
+        location_id,
+        health_region_id
+      ]
+    }
+  end
+
+  defp states_ids(%{id: location_id}) do
+    region_id = Locations.region_id(location_id, :state)
 
     {
-      Integer.to_string(div(city_id, 10)),
+      Integer.to_string(location_id),
       [
-        city_id,
-        health_region_id,
-        state_id,
+        location_id,
         region_id
       ]
     }
@@ -47,33 +62,45 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
 
   @spec parse({list(String.t()), integer}) :: :ok
   def parse({line, line_index}) do
-    [_region, _state, _city, _state_id, city_id | line] = line
+    [_region, _state, _city, state_id, city_id | line] = line
 
-    if city_id != "" do
-      with [{_city_id, locations_ids}] <- :ets.lookup(@ets_cities, city_id) do
-        [_health_region_id, _health_region, date | line] = line
-
-        date = Date.from_iso8601!(date)
-
-        [
-          _week,
-          _population,
-          _total_cases,
-          cases,
-          _total_deaths,
-          deaths | _line
-        ] = line
-
-        cases = String.to_integer(cases)
-        deaths = String.to_integer(deaths)
-
-        Enum.each([@brazil_id | locations_ids], &update_buckets(&1, date, cases, deaths))
+    if state_id != Integer.to_string(@brazil_id) do
+      if city_id == "" do
+        with [{_state_id, locations_ids}] <- :ets.lookup(@ets_states, state_id) do
+          Enum.each(locations_ids, &extract_information_update_buckets(&1, line))
+        end
+      else
+        with [{_city_id, locations_ids}] <- :ets.lookup(@ets_cities, city_id) do
+          Enum.each(locations_ids, &extract_information_update_buckets(&1, line))
+        end
       end
+    else
+      extract_information_update_buckets(@brazil_id, line)
     end
 
     :ok
   rescue
     error -> Logger.error("[#{line_index}] #{Exception.message(error)}\n#{Exception.format_stacktrace(__STACKTRACE__)}")
+  end
+
+  defp extract_information_update_buckets(location_id, line) do
+    [_health_region_id, _health_region, date | line] = line
+
+    date = Date.from_iso8601!(date)
+
+    [
+      _week,
+      _population,
+      _total_cases,
+      cases,
+      _total_deaths,
+      deaths | _line
+    ] = line
+
+    cases = String.to_integer(cases)
+    deaths = String.to_integer(deaths)
+
+    update_buckets(location_id, date, cases, deaths)
   end
 
   defp update_buckets(location_id, %{year: year, month: month, day: day}, cases, deaths) do

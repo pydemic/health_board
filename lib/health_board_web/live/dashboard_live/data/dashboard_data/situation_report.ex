@@ -197,10 +197,6 @@ defmodule HealthBoardWeb.DashboardLive.DashboardData.SituationReport do
       data = put_data(daily_covid_reports, :daily_covid_reports, data)
 
       put_data(Map.get(Enum.at(daily_covid_reports, 0, %{}), :date), :last_record_date, data)
-
-      # data
-      # |> Map.put(:daily_covid_reports, daily_covid_reports)
-      # |> Map.put(:last_record_date, Map.get(Enum.at(daily_covid_reports, 0, %{}), :date))
     else
       data
     end
