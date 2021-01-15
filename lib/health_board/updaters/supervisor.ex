@@ -1,5 +1,5 @@
 defmodule HealthBoard.Updaters.Supervisor do
-  alias HealthBoard.Updaters.{CovidReportsUpdater, ICURateUpdater, Reseeder, SARSUpdater}
+  alias HealthBoard.Updaters.{CovidReportsUpdater, FluSyndromeUpdater, ICURateUpdater, Reseeder, SARSUpdater}
 
   require Logger
 
@@ -16,6 +16,7 @@ defmodule HealthBoard.Updaters.Supervisor do
     children = [
       Reseeder,
       CovidReportsUpdater,
+      FluSyndromeUpdater,
       ICURateUpdater,
       SARSUpdater
     ]

@@ -6,6 +6,14 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   alias HealthBoard.Contexts.{Info, Seeders}
   alias HealthBoard.Updaters.{CovidReportsUpdater, Reseeder}
 
+  @folders [
+    "daily_covid_reports",
+    "weekly_covid_reports",
+    "monthly_covid_reports",
+    "yearly_covid_reports",
+    "pandemic_covid_reports"
+  ]
+
   @source_id "health_board_situation_report"
 
   @type t :: %CovidReportsUpdater{
@@ -224,7 +232,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     File.mkdir_p!(backup_dir)
     remove_consolidations(backup_dir)
 
-    if File.dir?(output_dir) do
+    if dir_and_children?(output_dir, @folders) do
       Logger.info("Backing up data from previous update")
 
       copy_consolidations(output_dir, backup_dir)
@@ -245,17 +253,26 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
       struct(state, error?: true, last_error: error, last_stacktrace: __STACKTRACE__)
   end
 
+  defp dir_and_children?(dir, children) do
+    Enum.all?(children, &(File.dir?(Path.join(dir, &1))))
+  end
+
   defp consolidate_data(%{temporary_dir: dir} = state) do
+    temp_output_dir = Path.join(dir, "temp/situation_report")
     output_dir = Path.join(dir, "output/situation_report")
 
-    remove_consolidations(output_dir)
+    remove_consolidations(temp_output_dir)
 
     CovidReportsUpdater.ConsolidatorManager.consolidate(
       init: false,
       setup: true,
       input_dir: Path.join(dir, "input/situation_report/covid_reports"),
-      output_dir: output_dir
+      output_dir: temp_output_dir
     )
+
+    File.rm_rf!(output_dir)
+    File.cp_r!(temp_output_dir, output_dir)
+    File.rm_rf!(temp_output_dir)
 
     state
   rescue
@@ -369,13 +386,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
 
   defp copy_consolidations(source_dir, target_dir) do
     Enum.map(
-      [
-        "daily_covid_reports",
-        "weekly_covid_reports",
-        "monthly_covid_reports",
-        "yearly_covid_reports",
-        "pandemic_covid_reports"
-      ],
+      @folders,
       fn dir ->
         File.cp_r!(
           Path.join(source_dir, dir),
@@ -387,13 +398,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
 
   defp remove_consolidations(dir) do
     Enum.map(
-      [
-        "daily_covid_reports",
-        "weekly_covid_reports",
-        "monthly_covid_reports",
-        "yearly_covid_reports",
-        "pandemic_covid_reports"
-      ],
+      @folders,
       &File.rm_rf!(Path.join(dir, "situation_report/#{&1}"))
     )
   end

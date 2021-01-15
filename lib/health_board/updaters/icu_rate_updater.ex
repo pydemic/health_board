@@ -6,6 +6,8 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
   alias HealthBoard.Contexts.{Info, Seeders}
   alias HealthBoard.Updaters.{ICURateUpdater, Reseeder}
 
+  @folders ["daily_icu_rate"]
+
   @source_id "health_board_hospitalization"
 
   @type t :: %ICURateUpdater{
@@ -173,7 +175,7 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
     File.mkdir_p!(backup_dir)
     remove_consolidations(backup_dir)
 
-    if File.dir?(output_dir) do
+    if dir_and_children?(output_dir, @folders) do
       Logger.info("Backing up data from previous update")
 
       copy_consolidations(output_dir, backup_dir)
@@ -192,6 +194,10 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
     error ->
       Logger.error("Failed to backup data. Reason: #{Exception.message(error)}")
       struct(state, error?: true, last_error: error, last_stacktrace: __STACKTRACE__)
+  end
+
+  defp dir_and_children?(dir, children) do
+    Enum.all?(children, &(File.dir?(Path.join(dir, &1))))
   end
 
   defp seed_data(%{temporary_dir: dir} = state) do
@@ -299,7 +305,7 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
 
   defp copy_consolidations(source_dir, target_dir) do
     Enum.map(
-      ["daily_icu_rate"],
+      @folders,
       fn dir ->
         File.cp_r!(
           Path.join(source_dir, dir),
@@ -311,7 +317,7 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
 
   defp remove_consolidations(dir) do
     Enum.map(
-      ["daily_icu_rate"],
+      @folders,
       &File.rm_rf!(Path.join(dir, "hospital_capacity/#{&1}"))
     )
   end

@@ -1,22 +1,21 @@
-defmodule HealthBoard.Updaters.SARSUpdater do
+defmodule HealthBoard.Updaters.FluSyndromeUpdater do
   use GenServer
 
   require Logger
 
   alias HealthBoard.Contexts.{Info, Seeders}
-  alias HealthBoard.Updaters.{Reseeder, SARSUpdater}
+  alias HealthBoard.Updaters.{FluSyndromeUpdater, Reseeder}
 
   @folders [
-    "daily_sars_cases",
-    "weekly_sars_cases",
-    "monthly_sars_cases",
-    "pandemic_sars_cases",
-    "pandemic_sars_symptoms"
+    "daily_flu_syndrome_cases",
+    "weekly_flu_syndrome_cases",
+    "monthly_flu_syndrome_cases",
+    "pandemic_flu_syndrome_cases"
   ]
 
-  @source_id "sivep_srag"
+  @source_id "e_sus_sg"
 
-  @type t :: %SARSUpdater{
+  @type t :: %FluSyndromeUpdater{
           status: atom,
           error?: boolean,
           header: map | nil,
@@ -42,7 +41,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
 
   @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(_args) do
-    GenServer.start(SARSUpdater, nil, [])
+    GenServer.start(FluSyndromeUpdater, nil, [])
   end
 
   @impl GenServer
@@ -73,7 +72,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
         end
       else
         if status == :new do
-          SARSUpdater.Consolidator.init()
+          FluSyndromeUpdater.Consolidator.init()
         end
 
         state
@@ -176,7 +175,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   defp fetch_header(state) do
     Logger.info("Fetching header")
 
-    case SARSUpdater.HeaderAPI.get() do
+    case FluSyndromeUpdater.HeaderAPI.get() do
       {:ok, header} ->
         struct(state, header: header)
 
@@ -190,23 +189,17 @@ defmodule HealthBoard.Updaters.SARSUpdater do
     if download_data?(last_header, header) do
       Logger.info("Downloading data")
 
-      input_dir = Path.join(dir, "input/sars")
+      input_dir = Path.join(dir, "input/flu_syndrome")
 
       File.rm_rf!(input_dir)
       File.mkdir_p!(input_dir)
 
-      stream =
-        input_dir
-        |> Path.join("#{Date.to_iso8601(header.updated_at)}.csv")
-        |> String.to_charlist()
+      donwload_result = Enum.map(header.urls, &download_file(&1, header.updated_at, input_dir))
 
-      case :httpc.request(:get, {String.to_charlist(header.url), []}, [], stream: stream) do
-        {:ok, _result} ->
-          struct(state, last_header: header)
-
-        {:error, error} ->
-          Logger.error("Failed to download data. Reason: #{inspect(error)}")
-          struct(state, error?: true, last_error: error)
+      if Enum.any?(donwload_result, &(&1 == {:ok, :saved_to_file})) do
+        struct(state, last_header: header)
+      else
+        Enum.each(donwload_result, &maybe_inform_error(&1, state))
       end
     else
       Logger.info("Database is updated")
@@ -217,17 +210,44 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   defp download_data?(last_header, %{updated_at: updated_at}) do
     if is_nil(last_header) do
       case Info.Sources.get(@source_id) do
-        {:ok, %{last_update_date: date}} -> Date.compare(updated_at, date) == :gt
+        {:ok, %{last_update_date: date}} -> Date.compare(NaiveDateTime.to_date(updated_at), date) == :gt
         _error -> true
       end
     else
-      Date.compare(updated_at, last_header.updated_at) == :gt
+      NaiveDateTime.compare(updated_at, last_header.updated_at) == :gt
+    end
+  end
+
+  defp download_file(url, updated_at, input_dir) do
+    filename = get_filename!(url)
+    Logger.info("Downloading file: #{filename}")
+
+    stream =
+      input_dir
+      |> Path.join("#{filename}_#{NaiveDateTime.to_iso8601(updated_at)}.csv")
+      |> String.to_charlist()
+
+    :httpc.request(:get, {String.to_charlist(url), []}, [], stream: stream)
+    {:ok, :saved_to_file}
+  end
+
+  defp get_filename!(url) do
+    url
+    |> String.split("/")
+    |> List.last()
+  end
+
+  defp maybe_inform_error(download_result, state) do
+    if elem(download_result, 0) == :error do
+      error = elem(download_result, 1)
+      Logger.error("Failed to download data. Reason: #{inspect(error)}")
+      struct(state, error?: true, last_error: error)
     end
   end
 
   defp backup_data(%{temporary_dir: dir} = state) do
-    backup_dir = Path.join(dir, "backup/sars")
-    output_dir = Path.join(dir, "output/sars")
+    backup_dir = Path.join(dir, "backup/flu_syndrome")
+    output_dir = Path.join(dir, "output/flu_syndrome")
 
     File.mkdir_p!(backup_dir)
     remove_consolidations(backup_dir)
@@ -241,7 +261,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
         Logger.info("Backing up data from base data")
 
         data_path
-        |> Path.join("sars")
+        |> Path.join("flu_syndrome")
         |> copy_consolidations(backup_dir)
       end
     end
@@ -258,15 +278,15 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   end
 
   defp consolidate_data(%{temporary_dir: dir} = state) do
-    temp_output_dir = Path.join(dir, "temp/output/sars")
-    output_dir = Path.join(dir, "output/sars")
+    temp_output_dir = Path.join(dir, "temp/flu_syndrome")
+    output_dir = Path.join(dir, "output/flu_syndrome")
 
     remove_consolidations(temp_output_dir)
 
-    SARSUpdater.ConsolidatorManager.consolidate(
+    FluSyndromeUpdater.ConsolidatorManager.consolidate(
       init: false,
       setup: true,
-      input_dir: Path.join(dir, "input/sars"),
+      input_dir: Path.join(dir, "input/flu_syndrome"),
       output_dir: temp_output_dir
     )
 
@@ -282,7 +302,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   end
 
   defp seed_data(%{temporary_dir: dir} = state) do
-    case Reseeder.reseed(Seeders.SARS, base_path: Path.join(dir, "output"), what: :sars) do
+    case Reseeder.reseed(Seeders.FluSyndrome, base_path: Path.join(dir, "output"), what: :flu_syndrome) do
       :ok ->
         dir
         |> Path.join("backup")
@@ -301,7 +321,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
       %{updated_at: updated_at} ->
         params = %{
           extraction_date: Date.utc_today(),
-          last_update_date: updated_at
+          last_update_date: NaiveDateTime.to_date(updated_at)
         }
 
         case Info.Sources.update(@source_id, params) do
@@ -319,7 +339,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   defp rollback_data(%{temporary_dir: dir}) do
     backup_dir = Path.join(dir, "backup")
 
-    case Reseeder.reseed(Seeders.SARS, base_path: backup_dir, what: :sars) do
+    case Reseeder.reseed(Seeders.SituationReport, base_path: backup_dir, what: :flu_syndrome) do
       :ok -> Logger.info("Data rolled back")
       _error -> Logger.error("Failed to rollback data")
     end
@@ -355,13 +375,13 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   end
 
   defp new_state do
-    %SARSUpdater{}
+    %FluSyndromeUpdater{}
     |> maybe_update_update_at_hour()
     |> maybe_update_temporary_dir()
   end
 
   defp maybe_update_update_at_hour(state) do
-    case Application.get_env(:health_board, :sars_update_at_hour) do
+    case Application.get_env(:health_board, :flu_syndrome_update_at_hour) do
       nil -> state
       update_at_hour -> struct(state, update_at_hour: update_at_hour)
     end
@@ -399,7 +419,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   defp remove_consolidations(dir) do
     Enum.map(
       @folders,
-      &File.rm_rf!(Path.join(dir, "sars/#{&1}"))
+      &File.rm_rf!(Path.join(dir, "flu_syndrome/#{&1}"))
     )
   end
 end

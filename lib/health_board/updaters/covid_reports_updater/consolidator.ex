@@ -3,7 +3,6 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   alias HealthBoard.Contexts.Geo.Locations
 
   @ets_cities :situation_report_cities
-  @ets_health_regions :situation_report_health_regions
   @ets_states :situation_report_states
 
   @ets_daily_buckets :situation_report_consolidation_daily
@@ -17,7 +16,6 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   @spec init :: :ok
   def init do
     :ets.new(@ets_cities, [:set, :public, :named_table])
-    :ets.new(@ets_health_regions, [:set, :public, :named_table])
     :ets.new(@ets_states, [:set, :public, :named_table])
 
     [context: Locations.context(:city)]
