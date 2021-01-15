@@ -197,7 +197,7 @@ defmodule HealthBoard.Updaters.ICURateUpdater do
   end
 
   defp dir_and_children?(dir, children) do
-    Enum.all?(children, &(File.dir?(Path.join(dir, &1))))
+    Enum.all?(children, &File.dir?(Path.join(dir, &1)))
   end
 
   defp seed_data(%{temporary_dir: dir} = state) do
