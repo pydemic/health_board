@@ -78,6 +78,7 @@ defmodule HealthBoard.Updaters.Helpers do
     end
   end
 
+  @spec schedule(updater, integer) :: updater
   def schedule(%{__struct__: module, attempts: attempts} = state, milliseconds) do
     Logger.info("#{module} attempt ##{attempts} in #{humanize_milliseconds(milliseconds)}")
 
@@ -86,6 +87,7 @@ defmodule HealthBoard.Updaters.Helpers do
     state
   end
 
+  @spec schedule_at_hour(updater, integer) :: updater
   def schedule_at_hour(state, at_hour) do
     schedule(state, milliseconds_to_midnight(at_hour))
   end

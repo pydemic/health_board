@@ -59,7 +59,7 @@ defmodule HealthBoard.Contexts.Seeder do
   end
 
   defp data_path do
-    Application.get_env(:health_board, :data_path)
+    Application.fetch_env!(:health_board, :data_path)
   end
 
   @spec down!(String.t()) :: :ok

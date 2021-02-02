@@ -9,7 +9,7 @@ defmodule HealthBoardWeb.Router do
     plug :put_root_layout, {HealthBoardWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug :health_board_basic_auth, env: :basic_auth_dashboard_password
+    plug :health_board_basic_auth, env: :dashboard_password
   end
 
   scope "/" do
@@ -36,7 +36,7 @@ defmodule HealthBoardWeb.Router do
     plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug :health_board_basic_auth, env: :basic_auth_system_password
+    plug :health_board_basic_auth, env: :system_password
   end
 
   scope "/admin/system" do
@@ -46,7 +46,11 @@ defmodule HealthBoardWeb.Router do
   end
 
   defp health_board_basic_auth(conn, env: env) do
-    password = Application.fetch_env!(:health_board, env)
+    password =
+      :health_board
+      |> Application.get_env(:router, [])
+      |> Keyword.get(env, "Pass@123")
+
     Plug.BasicAuth.basic_auth(conn, username: "admin", password: password)
   end
 end

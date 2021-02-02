@@ -8,7 +8,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
             output_path: Path.join(@dir, "output/consolidations"),
             read_ahead: 100_000,
             setup: false,
-            shutdown: false
+            shutdown: false,
+            split_command: "split"
 
   @spec consolidate(keyword) :: :ok
   def consolidate(opts \\ []) do
@@ -18,7 +19,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
       output_path: output_path,
       read_ahead: read_ahead,
       setup: setup,
-      shutdown: shutdown
+      shutdown: shutdown,
+      split_command: split_command
     } = struct(__MODULE__, opts)
 
     if init == true do
@@ -34,7 +36,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
     file_name
     |> File.stream!(read_ahead: read_ahead)
     |> NimbleCSV.Semicolon.parse_stream()
-    |> Consolidator.consolidate(output_path)
+    |> Consolidator.consolidate(output_path, split_command)
 
     if shutdown == true do
       Consolidator.shutdown()

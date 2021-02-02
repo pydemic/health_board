@@ -10,8 +10,8 @@ defmodule HealthBoard.Application do
       {Phoenix.PubSub, name: HealthBoard.PubSub},
       {HealthBoardWeb.Endpoint, []},
       # Health Board
-      {HealthBoardWeb.DashboardLive.Supervisor, Application.fetch_env!(:health_board, :dashboard_live)},
-      {HealthBoard.Updaters.Supervisor, Application.fetch_env!(:health_board, :updaters)}
+      {HealthBoardWeb.DashboardLive.Supervisor, Application.get_env(:health_board, :dashboard_live, [])},
+      {HealthBoard.Updaters.Supervisor, Application.get_env(:health_board, :updaters, [])}
     ]
 
     opts = [strategy: :one_for_one, name: HealthBoard.Supervisor]

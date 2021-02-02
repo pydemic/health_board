@@ -156,17 +156,19 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   end
 
   @spec consolidate_data(t()) :: t()
-  def consolidate_data(%{path: path} = state) do
+  def consolidate_data(%{consolidator_opts: opts, path: path} = state) do
     output_path = Path.join(path, "output")
 
     File.rm_rf!(output_path)
     File.mkdir_p!(output_path)
 
     CovidReportsUpdater.ConsolidatorManager.consolidate(
-      init: false,
-      setup: true,
-      input_path: Path.join(path, "input"),
-      output_path: output_path
+      Keyword.merge(opts,
+        init: false,
+        setup: true,
+        input_path: Path.join(path, "input"),
+        output_path: output_path
+      )
     )
 
     state

@@ -16,10 +16,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   @cases_group_name "morbidities_covid_reports_cases"
   @deaths_group_name "morbidities_covid_reports_deaths"
 
-  @split_command Application.compile_env!(:health_board, :split_command)
-
-  @spec consolidate(Enumerable.t(), String.t()) :: :ok
-  def consolidate(stream, output_path) do
+  @spec consolidate(Enumerable.t(), String.t(), String.t()) :: :ok
+  def consolidate(stream, output_path, split_command) do
     Logger.info("Parsing")
 
     stream
@@ -30,7 +28,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
 
     Logger.info("Finished parsing. Writing")
 
-    write(output_path)
+    write(output_path, split_command)
 
     Logger.info("Finished writing")
 
@@ -103,7 +101,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     :ets.update_counter(bucket_name, key, [{2, cases}, {3, deaths}], {key, 0, 0})
   end
 
-  defp write(dir) do
+  defp write(dir, split_command) do
     cases_id = :ets.lookup_element(@ets_consolidations_groups, :cases, 2)
     deaths_id = :ets.lookup_element(@ets_consolidations_groups, :deaths, 2)
     groups_ids = {cases_id, deaths_id}
@@ -115,7 +113,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
       write_buckets(@ets_weekly_locations_buckets, dir, :weekly_locations, groups_ids),
       write_buckets(@ets_daily_locations_buckets, dir, :daily_locations, groups_ids)
     ]
-    |> Enum.each(fn files -> Enum.each(files, &sort_and_chunk_file/1) end)
+    |> Enum.each(fn files -> Enum.each(files, &sort_and_chunk_file(&1, split_command)) end)
   end
 
   defp write_buckets(bucket_name, dir, consolidation_type, {cases_id, deaths_id} = groups_ids) do
@@ -164,7 +162,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     }
   end
 
-  defp sort_and_chunk_file(file_path) do
+  defp sort_and_chunk_file(file_path, split_command) do
     name = Path.basename(file_path, ".csv")
 
     Logger.info("Sorting and chunking #{name}")
@@ -176,7 +174,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     File.rm_rf!(dir)
     File.mkdir_p!(dir)
 
-    {_result, 0} = System.cmd(@split_command, ~w[-d -a 4 -l 100000 --additional-suffix=.csv #{file_path} #{dir}/])
+    {_result, 0} = System.cmd(split_command, ~w[-d -a 4 -l 100000 --additional-suffix=.csv #{file_path} #{dir}/])
 
     File.rm!(file_path)
   end

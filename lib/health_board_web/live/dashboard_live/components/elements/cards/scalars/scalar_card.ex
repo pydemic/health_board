@@ -10,14 +10,14 @@ defmodule HealthBoardWeb.DashboardLive.Components.ScalarCard do
   def render(assigns) do
     ~H"""
     <ElementsFragments.Card :let={{ data: data }} element={{ @card }} params={{ @params }}>
-      <p :if={{ Map.has_key?(data, :value) }} class="text-2xl font-bold">
+      <p :if={{ not is_nil(Map.get(data, :value)) }} class="text-2xl font-bold">
         {{ data.value }}
         <span :if={{ Map.has_key?(@params, :suffix) }} class="text-sm font-normal">
           {{ @params.suffix }}
         </span>
       </p>
 
-      <p :if={{ not Map.has_key?(data, :value) }} class="text-2xl font-bold">
+      <p :if={{ is_nil(Map.get(data, :value)) }} class="text-2xl font-bold">
         N/A
       </p>
     </ElementsFragments.Card>
