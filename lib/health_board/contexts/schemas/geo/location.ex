@@ -7,7 +7,7 @@ defmodule HealthBoard.Contexts.Geo.Location do
 
   @primary_key {:id, :integer, autogenerate: false}
   schema "locations" do
-    field :context, :integer
+    field :group, :integer
 
     field :name, :string
     field :abbr, :string

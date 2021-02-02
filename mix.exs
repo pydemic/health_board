@@ -47,7 +47,6 @@ defmodule HealthBoard.MixProject do
 
   defp deps do
     [
-      {:colour_hash, "~> 1.0.3"},
       {:credo, "~> 1.5.4", only: :test, runtime: false},
       {:ecto_psql_extras, "~> 0.4.3"},
       {:ecto_sql, "~> 3.5.2"},
@@ -71,7 +70,6 @@ defmodule HealthBoard.MixProject do
       {:phoenix, "~> 1.5.6"},
       {:plug_cowboy, "~> 2.4.0"},
       {:postgrex, "~> 0.15.7"},
-      {:recase, "~> 0.7.0"},
       {:statistics, "~> 0.6.2"},
       {:surface, "~> 0.1.1"},
       {:telemetry_metrics, "~> 0.6.0"},

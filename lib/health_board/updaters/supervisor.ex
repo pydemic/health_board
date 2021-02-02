@@ -1,26 +1,24 @@
 defmodule HealthBoard.Updaters.Supervisor do
-  alias HealthBoard.Updaters.{CovidReportsUpdater, FluSyndromeUpdater, ICURateUpdater, Reseeder, SARSUpdater}
-
-  require Logger
-
   use Supervisor
+  alias HealthBoard.Updaters
 
-  @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
-  def start_link(_args) do
-    Supervisor.start_link(__MODULE__, nil, name: __MODULE__)
+  @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
+  def start_link(args) do
+    children = Keyword.fetch!(args, :children)
+
+    if Enum.any?(children) do
+      Supervisor.start_link(__MODULE__, args, name: __MODULE__)
+    else
+      :ignore
+    end
   end
 
   @impl Supervisor
-  @spec init(any) :: {:ok, {:supervisor.sup_flags(), [:supervisor.child_spec()]}} | :ignore
-  def init(_args) do
-    children = [
-      Reseeder,
-      CovidReportsUpdater,
-      FluSyndromeUpdater,
-      ICURateUpdater,
-      SARSUpdater
-    ]
-
-    Supervisor.init(children, strategy: :one_for_one)
+  @spec init(keyword) :: {:ok, {:supervisor.sup_flags(), [:supervisor.child_spec()]}} | :ignore
+  def init(args) do
+    args
+    |> Keyword.fetch!(:children)
+    |> Enum.map(&{Module.concat(Updaters, Keyword.fetch!(&1, :module)), Keyword.get(&1, :args, [])})
+    |> Supervisor.init(strategy: :one_for_one)
   end
 end

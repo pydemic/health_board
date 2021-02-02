@@ -1,25 +1,22 @@
 defmodule HealthBoard.Application do
   use Application
-  alias HealthBoard.Updaters
 
   @spec start(any(), any()) :: {:ok, pid} | {:error, any()}
   def start(_type, _args) do
-    opts = [strategy: :one_for_one, name: HealthBoard.Supervisor]
-    Supervisor.start_link(children(), opts)
-  end
-
-  defp children do
     children = [
-      HealthBoard.Repo,
+      # Ecto
+      {HealthBoard.Repo, []},
+      # Phoenix
       {Phoenix.PubSub, name: HealthBoard.PubSub},
-      HealthBoardWeb.Endpoint
+      {HealthBoardWeb.Endpoint, []},
+      # Health Board
+      {HealthBoardWeb.DashboardLive.Supervisor, Application.fetch_env!(:health_board, :dashboard_live)},
+      {HealthBoard.Updaters.Supervisor, Application.fetch_env!(:health_board, :updaters)}
     ]
 
-    if Application.fetch_env!(:health_board, :start_updater) do
-      children ++ [Updaters.Supervisor]
-    else
-      children
-    end
+    opts = [strategy: :one_for_one, name: HealthBoard.Supervisor]
+
+    Supervisor.start_link(children, opts)
   end
 
   @spec config_change(any(), any(), any()) :: :ok

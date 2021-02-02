@@ -6,8 +6,8 @@ defmodule HealthBoard.Contexts.Geo.LocationChild do
   @type schema :: %__MODULE__{}
 
   schema "locations_children" do
-    field :parent_context, :integer
-    field :child_context, :integer
+    field :parent_group, :integer
+    field :child_group, :integer
 
     belongs_to :parent, Geo.Location
     belongs_to :child, Geo.Location

@@ -1,9 +1,9 @@
-defmodule HealthBoard.Contexts.Seeders.Locations do
+defmodule HealthBoard.Contexts.Seeders.Geo.Locations do
   alias HealthBoard.Contexts.Seeder
 
   @context "geo"
   @table_name "locations"
-  @columns ~w[context id name abbr]a
+  @columns ~w[group id name abbr]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

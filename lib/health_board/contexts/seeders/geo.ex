@@ -1,13 +1,11 @@
 defmodule HealthBoard.Contexts.Seeders.Geo do
-  alias HealthBoard.Contexts.Seeders
-
   @spec down!(keyword) :: :ok
   def down!(opts \\ []) do
     what = Keyword.get(opts, :what, :all)
 
     if what in [:all, :locations, :locations_children] do
-      Seeders.LocationsChildren.down!()
-      Seeders.Locations.down!()
+      __MODULE__.LocationsChildren.down!()
+      __MODULE__.Locations.down!()
     end
 
     :ok
@@ -25,8 +23,8 @@ defmodule HealthBoard.Contexts.Seeders.Geo do
     base_path = Keyword.get(opts, :base_path)
 
     if what in [:all, :locations, :locations_children] do
-      Seeders.Locations.up!(base_path)
-      Seeders.LocationsChildren.up!(base_path)
+      __MODULE__.Locations.up!(base_path)
+      __MODULE__.LocationsChildren.up!(base_path)
     end
 
     :ok

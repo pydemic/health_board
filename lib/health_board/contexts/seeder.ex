@@ -20,18 +20,27 @@ defmodule HealthBoard.Contexts.Seeder do
 
   @spec csvs_from_path!(String.t(), String.t(), list(atom), String.t() | nil) :: :ok
   def csvs_from_path!(path, table_name, fields, base_path \\ nil) do
-    path = Path.join(base_path || data_path(), path)
+    root_path = Path.join(base_path || data_path(), path)
 
-    path
+    root_path
     |> File.ls!()
     |> Enum.sort()
-    |> Enum.map(&Path.join(path, &1))
-    |> Enum.each(&csv_from_file_path!(&1, table_name, fields))
+    |> Enum.each(fn name ->
+      current_path = Path.join(root_path, name)
+
+      if File.dir?(current_path) do
+        path
+        |> Path.join(name)
+        |> csvs_from_path!(table_name, fields, base_path)
+      else
+        csv_from_file_path!(current_path, table_name, fields)
+      end
+    end)
   end
 
   @spec csv_from_file_path!(String.t(), String.t(), list(atom)) :: :ok
   def csv_from_file_path!(path, table_name, fields) do
-    Logger.info(~s(Seeding #{Path.basename(path)} for table #{table_name}))
+    Logger.info(~s(Seeding #{path} for table #{table_name}))
 
     path
     |> csv_copy_query(table_name, fields)
@@ -41,7 +50,11 @@ defmodule HealthBoard.Contexts.Seeder do
   end
 
   defp csv_copy_query(csv_path, table_name, fields) do
-    fields = Enum.join(fields, ",")
+    fields =
+      fields
+      |> Enum.map(fn field -> ~s("#{field}") end)
+      |> Enum.join(",")
+
     "COPY #{table_name}(#{fields}) FROM '#{csv_path}' WITH CSV;"
   end
 

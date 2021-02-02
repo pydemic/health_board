@@ -5,6 +5,7 @@
   "workspaceFolder": "/app",
   "shutdownAction": "none",
   "extensions": [
+    "bradlc.vscode-tailwindcss",
     "coenraads.bracket-pair-colorizer-2",
     "davidanson.vscode-markdownlint",
     "jakebecker.elixir-ls",
@@ -39,12 +40,10 @@
         "html-eex"
       ]
     },
-    "editor.formatOnSave": true,
+    "elixirLS.dialyzerEnabled": true,
     "emmet.includeLanguages": {
       "html-eex": "html"
     },
-    "elixir.autoSpawnElixirSenseServers": true,
-    "elixir.useElixirSense": true,
     "files.associations": {
       "*.eex": "html-eex",
       "*.leex": "html-eex"

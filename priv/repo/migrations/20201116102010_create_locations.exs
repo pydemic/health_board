@@ -3,15 +3,15 @@ defmodule HealthBoard.Repo.Migrations.CreateLocations do
 
   def change do
     create table(:locations) do
-      add :context, :integer, null: false
+      add :group, :integer, null: false
 
       add :name, :string, null: false
       add :abbr, :string
     end
 
     create table(:locations_children) do
-      add :parent_context, :integer, null: false
-      add :child_context, :integer, null: false
+      add :parent_group, :integer, null: false
+      add :child_group, :integer, null: false
 
       add :parent_id, references(:locations, on_delete: :delete_all)
       add :child_id, references(:locations, on_delete: :delete_all)

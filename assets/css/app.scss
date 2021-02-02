@@ -1,261 +1,27 @@
+@import '../node_modules/tailwindcss/base.css';
+@import '../node_modules/tailwindcss/components.css';
+@import '../node_modules/tailwindcss/utilities.css';
 @import '../node_modules/leaflet/dist/leaflet.css';
 @import '../node_modules/nprogress/nprogress.css';
-@import '../node_modules/uikit/dist/css/uikit.min.css';
-@import '../node_modules/css.gg/icons/all.css';
-@import '../node_modules/tail.datetime/css/tail.datetime-harx-light.min.css';
 
-$success: #4aac63;
-$warning: #ffee00;
-$danger: #af1038;
-$disabled: #777;
-
-$blue-1: #1d3a87;
-$blue-2: #3653a1;
-$blue-3: #546cac;
-$blue-4: #5675ca;
-
-.hb-border {
-  border-style: solid;
-  border-width: 3px;
-
-  &.hb-border-bottom {
-    border-width: 0;
-    border-bottom-width: 3px;
-  }
-
-  &.hb-border-success {
-    border-color: $success;
-  }
-  &.hb-border-warning {
-    border-color: $warning;
-  }
-  &.hb-border-danger {
-    border-color: $danger;
-  }
-  &.hb-border-disabled {
-    border-color: $disabled;
-  }
+iframe[hidden] {
+  display: none;
 }
 
-.hb-title-link,
-.hb-title-link:link,
-.hb-title-link:hover {
-  color: inherit;
-}
-
-.hb-map {
-  height: 100%;
-  max-height: calc(100% - 150px);
-  min-height: 500px;
-  overflow: hidden;
-}
-
-.hb-no-padding {
-  padding: 0 0;
-}
-
-i.hb-right {
-  margin-left: auto;
-}
-
-.hb-clickable {
+.overflow-x-auto::-webkit-scrollbar {
   cursor: pointer;
 }
 
-.hb-hide {
-  visibility: hidden;
+.overflow-x-auto::-webkit-scrollbar-track {
+  cursor: pointer;
+  background: #5356f1;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
-.hb-root-navbar {
-  background-color: #1d3a87;
-}
-
-.hb-page-navbar {
-  background-color: #3653a1;
-}
-
-.hb-section-navbar {
-  background-color: #546cac;
-}
-
-.hb-sub-section-navbar {
-  background-color: #5675ca;
-}
-
-.hb-va-center {
-  display: flex;
-  align-items: center;
-}
-
-.hb-map-info {
-  padding: 6px 8px;
-  background: white;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-
-  &.h5 {
-    color: #777;
-  }
-}
-
-.hb-map-legend {
-  text-align: start;
-  color: #555;
-
-  i {
-    width: 18px;
-    height: 18px;
-    float: left;
-    margin-right: 8px;
-    opacity: 0.7;
-  }
-}
-
-.hb-offcanvas {
-  background-color: #3b56a3;
-}
-
-.hb-empty {
-  padding: 0 0 !important;
-  width: 10px !important;
-}
-
-.hb-table {
-  width: auto;
-  margin: auto;
-  font-size: 11px;
-}
-
-.hb-table-row:hover {
-  border: 2px solid #1d3a87;
-}
-
-.hb-table-header > div {
-  width: 30px;
-  white-space: nowrap;
-  transform-origin: top left;
-  transform: rotate(-45deg) translate(-13px, 13px);
-}
-
-.hb-table-header > div > span {
-  font-size: 11px !important;
-  border-bottom: 1px solid #222;
-}
-
-.hb-table-item {
-  border: 1px solid #222;
-  font-size: 10px;
-  width: 25px;
-  height: 25px;
-}
-
-.hb-choropleth-0 {
-  background-color: #cccccc;
-  color: #222;
-}
-
-.hb-choropleth-1 {
-  background-color: #018571;
-  color: #eee;
-}
-
-.hb-choropleth-2 {
-  background-color: #80cdc1;
-  color: #222;
-}
-
-.hb-choropleth-3 {
-  background-color: #ffffbf;
-  color: #222;
-}
-
-.hb-choropleth-4 {
-  background-color: #dfc27d;
-  color: #222;
-}
-
-.hb-choropleth-5 {
-  background-color: #a6611a;
-  color: #eee;
-}
-
-.hb-label {
-  display: inline-block;
-  height: 1em;
-  width: 1em;
-}
-
-.show-when-not-hover {
-  display: block;
-}
-
-.show-when-not-hover-container:hover .show-when-not-hover {
-  display: none;
-}
-
-.hb-card-menu {
-  height: 33px;
-}
-
-.hb-description-list > dt {
-  color: white;
-}
-
-.hb-none {
-  display: none;
-  visibility: hidden;
-}
-
-.hb-circular {
-  animation: rotate 2s linear infinite;
-  height: 100px;
-  width: 100px;
-  position: relative;
-}
-
-.hb-path {
-  stroke-dasharray: 1, 200;
-  stroke-dashoffset: 0;
-  stroke: #b6463a;
-  animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
-  stroke-linecap: round;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 89, 200;
-    stroke-dashoffset: -35;
-  }
-  100% {
-    stroke-dasharray: 89, 200;
-    stroke-dashoffset: -124;
-  }
-}
-
-@keyframes color {
-  100%,
-  0% {
-    stroke: $blue-1;
-  }
-  40% {
-    stroke: $blue-2;
-  }
-  66% {
-    stroke: $blue-3;
-  }
-  80%,
-  90% {
-    stroke: $blue-4;
-  }
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  background-color: white;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
