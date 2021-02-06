@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Consolidations.LocationsConsolidations do
 
   @context "consolidations"
   @table_name "locations_consolidations"
-  @columns ~w[group_id location_id total values from_date to_date]a
+  @columns ~w[consolidation_group_id location_id total values from_date to_date]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

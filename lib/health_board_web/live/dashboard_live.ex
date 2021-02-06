@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive do
   use Surface.LiveView
-  alias HealthBoardWeb.DashboardLive.Components.{DynamicElement, NoDashboard}
+  alias HealthBoardWeb.DashboardLive.Components.{DynamicElement, Fragments.Otherwise, NoDashboard}
   alias Phoenix.LiveView
 
   prop dashboard, :map
@@ -32,8 +32,12 @@ defmodule HealthBoardWeb.DashboardLive do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <DynamicElement :if={{ Map.has_key?(assigns, :dashboard) }} element={{ @dashboard }} />
-    <NoDashboard :if={{ not Map.has_key?(assigns, :dashboard) }} />
+    <Otherwise condition={{  Map.has_key?(assigns, :dashboard) }}>
+      <DynamicElement element={{ @dashboard }} />
+      <template slot="otherwise">
+        <NoDashboard/>
+      </template>
+    </Otherwise>
     """
   end
 end

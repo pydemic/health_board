@@ -38,3 +38,4 @@ npm-debug.log
 *.log
 
 .misc/source_data/
+.misc/dashboards/
