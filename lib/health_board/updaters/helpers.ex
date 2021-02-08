@@ -17,26 +17,22 @@ defmodule HealthBoard.Updaters.Helpers do
     Logger.info("#{module} received request to update. Current status: #{state.status}")
 
     case state do
-      %{status: :new} -> module.new(state)
+      %{status: :new} -> struct(module.new(state), status: List.first(state.statuses))
       %{error?: true} -> struct(state, error?: false)
-      state -> struct(state, status: List.first(state.statuses))
+      state -> state
     end
     |> attempt_to_update()
   rescue
     error ->
-      Logger.error("""
-      Unhandled failure from #{module}. Reason: #{Exception.message(error)}
-      #{inspect(state, pretty: true, limit: :infinity)}
-      #{Exception.format_stacktrace(__STACKTRACE__)}
-      """)
-
-      handle_error(state)
+      state
+      |> handle_error("Unhandled failure from #{module}", error, __STACKTRACE__)
+      |> handle_attempt()
   end
 
   defp attempt_to_update(%{__struct__: module, status: status} = state) do
     case apply(module, status, [state]) do
       %{error?: false} = state -> continue(state)
-      state -> handle_error(state)
+      state -> handle_attempt(state)
     end
   end
 
@@ -57,10 +53,11 @@ defmodule HealthBoard.Updaters.Helpers do
   end
 
   defp next_status(_status, []), do: nil
+  defp next_status(:new, [first_status | _statuses]), do: first_status
   defp next_status(status, [status, next_status | _statuses]), do: next_status
   defp next_status(status, [_other_status | statuses]), do: next_status(status, statuses)
 
-  defp handle_error(%{__struct__: module, attempts: attempts} = state) do
+  defp handle_attempt(%{__struct__: module, attempts: attempts} = state) do
     if attempts < 5 do
       attempts = attempts + 1
 
@@ -78,9 +75,42 @@ defmodule HealthBoard.Updaters.Helpers do
     end
   end
 
+  @spec handle_error(updater, String.t(), any, Exception.stacktrace() | nil) :: updater
+  def handle_error(state, message, error, stacktrace \\ nil) do
+    Logger.error(fn ->
+      error_message =
+        if Exception.exception?(error) do
+          Exception.message(error)
+        else
+          inspect(error)
+        end
+
+      if is_nil(stacktrace) do
+        """
+        #{message}. Reason: #{error_message}
+        #{inspect(state, pretty: true, limit: :infinity)}
+        """
+      else
+        """
+        #{message}. Reason: #{error_message}
+        #{inspect(state, pretty: true, limit: :infinity)}
+        #{Exception.format_stacktrace(stacktrace)}
+        """
+      end
+    end)
+
+    struct(state, error?: true, last_error: error, last_stacktrace: stacktrace)
+  end
+
   @spec schedule(updater, integer) :: updater
   def schedule(%{__struct__: module, attempts: attempts} = state, milliseconds) do
-    Logger.info("#{module} attempt ##{attempts} in #{humanize_milliseconds(milliseconds)}")
+    Logger.info(fn ->
+      if attempts == 0 do
+        "#{module} new attempt in #{humanize_milliseconds(milliseconds)}"
+      else
+        "#{module} attempt ##{attempts + 1} in #{humanize_milliseconds(milliseconds)}"
+      end
+    end)
 
     Process.send_after(self(), :update, milliseconds)
 

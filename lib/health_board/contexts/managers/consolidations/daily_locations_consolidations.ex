@@ -1,12 +1,12 @@
 defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
   import Ecto.Query, only: [order_by: 2, where: 2, dynamic: 1, dynamic: 2]
 
-  alias HealthBoard.Contexts.Consolidations.DailyLocationConsolidation
+  alias HealthBoard.Contexts.Consolidations.DayLocationConsolidation
   alias HealthBoard.Repo
 
-  @type schema :: DailyLocationConsolidation.schema()
+  @type schema :: DayLocationConsolidation.schema()
 
-  @schema DailyLocationConsolidation
+  @schema DayLocationConsolidation
 
   @spec new(keyword) :: schema
   def new(params \\ []), do: struct(@schema, params)

@@ -33,7 +33,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
 
     [file_name] = File.ls!(input_path)
 
-    file_name
+    input_path
+    |> Path.join(file_name)
     |> File.stream!(read_ahead: read_ahead)
     |> NimbleCSV.Semicolon.parse_stream()
     |> Consolidator.consolidate(output_path, split_command)

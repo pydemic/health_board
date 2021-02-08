@@ -27,43 +27,48 @@ defmodule HealthBoard.Updaters.Reseeder do
 
   defp do_reseed(path) do
     path
+    |> Path.join("consolidations")
     |> File.ls!()
-    |> Enum.map(&reseed_from_consolidation_type(path, &1))
+    |> Enum.sort()
+    |> Enum.each(&reseed_from_consolidation_type(path, &1))
   rescue
     error -> {:error, {error, __STACKTRACE__}}
   end
 
   defp reseed_from_consolidation_type(path, consolidation_type) do
+    {manager, seeder} = consolidation_modules(consolidation_type)
+
     path
+    |> Path.join("consolidations")
     |> Path.join(consolidation_type)
     |> File.ls!()
-    |> Enum.map(&reseed_from_group(path, consolidation_type, &1))
+    |> Enum.sort()
+    |> Enum.each(&manager.delete_by(consolidation_group_id: extract_consolidation_group_id(&1)))
+
+    seeder.up!(path)
   end
 
-  defp reseed_from_group(path, consolidation_type, consolidation_group) do
-    [consolidation_group_id | _group] = String.split(consolidation_group, "_", parts: 2)
-    path = Path.join(path, consolidation_type)
-
+  defp consolidation_modules(consolidation_type) do
     case consolidation_type do
       "locations_consolidations" ->
-        Consolidations.LocationsConsolidations.delete_by(consolidation_group_id: consolidation_group_id)
-        Seeders.Consolidations.LocationsConsolidations.up!(path)
+        {Consolidations.LocationsConsolidations, Seeders.Consolidations.LocationsConsolidations}
 
       "yearly_locations_consolidations" ->
-        Consolidations.YearlyLocationsConsolidations.delete_by(consolidation_group_id: consolidation_group_id)
-        Seeders.Consolidations.YearlyLocationsConsolidations.up!(path)
+        {Consolidations.YearlyLocationsConsolidations, Seeders.Consolidations.YearlyLocationsConsolidations}
 
       "monthly_locations_consolidations" ->
-        Consolidations.MonthlyLocationsConsolidations.delete_by(consolidation_group_id: consolidation_group_id)
-        Seeders.Consolidations.MonthlyLocationsConsolidations.up!(path)
+        {Consolidations.MonthlyLocationsConsolidations, Seeders.Consolidations.MonthlyLocationsConsolidations}
 
       "weekly_locations_consolidations" ->
-        Consolidations.WeeklyLocationsConsolidations.delete_by(consolidation_group_id: consolidation_group_id)
-        Seeders.Consolidations.WeeklyLocationsConsolidations.up!(path)
+        {Consolidations.WeeklyLocationsConsolidations, Seeders.Consolidations.WeeklyLocationsConsolidations}
 
       "daily_locations_consolidations" ->
-        Consolidations.DailyLocationsConsolidations.delete_by(consolidation_group_id: consolidation_group_id)
-        Seeders.Consolidations.DailyLocationsConsolidations.up!(path)
+        {Consolidations.DailyLocationsConsolidations, Seeders.Consolidations.DailyLocationsConsolidations}
     end
+  end
+
+  defp extract_consolidation_group_id(consolidation_group) do
+    [consolidation_group_id | _group] = String.split(consolidation_group, "_", parts: 2)
+    String.to_integer(consolidation_group_id)
   end
 end

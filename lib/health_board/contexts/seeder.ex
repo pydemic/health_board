@@ -40,7 +40,10 @@ defmodule HealthBoard.Contexts.Seeder do
 
   @spec csv_from_file_path!(String.t(), String.t(), list(atom)) :: :ok
   def csv_from_file_path!(path, table_name, fields) do
-    Logger.info(~s(Seeding #{path} for table #{table_name}))
+    dirname = Path.basename(Path.dirname(path))
+    filename = Path.basename(path, ".csv")
+
+    Logger.info("Seeding #{dirname} (#{filename}) for table #{table_name}")
 
     path
     |> csv_copy_query(table_name, fields)

@@ -82,7 +82,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     update_buckets(location_id, date, cases, deaths)
   end
 
-  defp update_buckets(location_id, %{year: year, month: month, day: day}, cases, deaths) do
+  defp update_buckets(location_id, %{year: year, month: month, day: day} = date, cases, deaths) do
     update_bucket(@ets_daily_locations_buckets, {location_id, {year, month, day}}, cases, deaths)
 
     update_bucket(
@@ -94,11 +94,34 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
 
     update_bucket(@ets_monthly_locations_buckets, {location_id, {year, month}}, cases, deaths)
     update_bucket(@ets_yearly_locations_buckets, {location_id, year}, cases, deaths)
-    update_bucket(@ets_locations_buckets, location_id, cases, deaths)
+
+    update_locations_bucket(location_id, cases, deaths, date)
   end
 
   defp update_bucket(bucket_name, key, cases, deaths) do
     :ets.update_counter(bucket_name, key, [{2, cases}, {3, deaths}], {key, 0, 0})
+  end
+
+  defp update_locations_bucket(location_id, cases, deaths, date) do
+    case :ets.lookup(@ets_locations_buckets, location_id) do
+      [record] -> :ets.insert(@ets_locations_buckets, update_locations_tuple(record, cases, deaths, date))
+      _ -> :ets.insert(@ets_locations_buckets, create_locations_tuple(location_id, cases, deaths, date))
+    end
+  end
+
+  defp update_locations_tuple({location_id, cases_data, deaths_data}, cases, deaths, date) do
+    {location_id, update_locations_data(cases_data, cases, date), update_locations_data(deaths_data, deaths, date)}
+  end
+
+  defp update_locations_data({total, from, to}, current_total, date) do
+    {total + current_total, update_from_date(from, date), update_to_date(to, date)}
+  end
+
+  defp update_from_date(from, date), do: if(Date.compare(from, date) != :lt, do: date, else: from)
+  defp update_to_date(from, date), do: if(Date.compare(from, date) != :gt, do: date, else: from)
+
+  defp create_locations_tuple(location_id, cases, deaths, date) do
+    {location_id, {cases, date, date}, {deaths, date, date}}
   end
 
   defp write(dir, split_command) do
@@ -131,7 +154,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   end
 
   defp write_lines(lines, dir, consolidation_type, group_id, group_name) do
-    file_path = Path.join(dir, "#{consolidation_type}_consolidations/#{group_id}_#{group_name}.csv")
+    file_path = Path.join(dir, "consolidations/#{consolidation_type}_consolidations/#{group_id}_#{group_name}.csv")
 
     lines
     |> Enum.join("\n")
@@ -147,19 +170,44 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   end
 
   defp to_lines(consolidation_type, {record_key, cases, deaths}, {cases_lines, deaths_lines}, {cases_id, deaths_id}) do
-    key_cells =
-      case {consolidation_type, record_key} do
-        {:locations, location_id} -> [location_id]
-        {:yearly_locations, {location_id, year}} -> [location_id, year]
-        {:monthly_locations, {location_id, {year, month}}} -> [location_id, year, month]
-        {:weekly_locations, {location_id, {year, week}}} -> [location_id, year, week]
-        {:daily_locations, {location_id, date}} -> [location_id, Date.from_erl!(date)]
-      end
+    if consolidation_type == :locations do
+      {cases, cases_from_date, cases_to_date} = cases
+      {deaths, deaths_from_date, deaths_to_date} = deaths
 
-    {
-      [Enum.join([cases_id] ++ key_cells ++ [cases], ",") | cases_lines],
-      [Enum.join([deaths_id] ++ key_cells ++ [deaths], ",") | deaths_lines]
-    }
+      {
+        if cases > 0 do
+          [Enum.join([cases_id, record_key, cases, nil, cases_from_date, cases_to_date], ",") | cases_lines]
+        else
+          cases_lines
+        end,
+        if deaths > 0 do
+          [Enum.join([deaths_id, record_key, deaths, nil, deaths_from_date, deaths_to_date], ",") | deaths_lines]
+        else
+          deaths_lines
+        end
+      }
+    else
+      key_cells =
+        case {consolidation_type, record_key} do
+          {:yearly_locations, {location_id, year}} -> [location_id, year]
+          {:monthly_locations, {location_id, {year, month}}} -> [location_id, year, month]
+          {:weekly_locations, {location_id, {year, week}}} -> [location_id, year, week]
+          {:daily_locations, {location_id, date}} -> [location_id, Date.from_erl!(date)]
+        end
+
+      {
+        if cases > 0 do
+          [Enum.join([cases_id] ++ key_cells ++ [cases, nil], ",") | cases_lines]
+        else
+          cases_lines
+        end,
+        if deaths > 0 do
+          [Enum.join([deaths_id] ++ key_cells ++ [deaths, nil], ",") | deaths_lines]
+        else
+          deaths_lines
+        end
+      }
+    end
   end
 
   defp sort_and_chunk_file(file_path, split_command) do

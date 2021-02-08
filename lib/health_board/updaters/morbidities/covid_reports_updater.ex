@@ -62,6 +62,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   @impl GenServer
   @spec init(keyword) :: {:ok, t()}
   def init(args) do
+    CovidReportsUpdater.Consolidator.init()
+
     {:ok,
      args
      |> new()
@@ -106,37 +108,20 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     Logger.info("Fetching header")
 
     case CovidReportsUpdater.HeaderAPI.get(opts) do
-      {:ok, header} ->
-        struct(state, header: header, last_header: current_header)
-
-      {:error, error} ->
-        Logger.error("Failed to fetch header. Reason: #{inspect(error)}")
-        struct(state, error?: true, last_error: error)
+      {:ok, header} -> struct(state, header: header, last_header: current_header)
+      {:error, error} -> Helpers.handle_error(state, "Failed to fetch header", error)
     end
   end
 
   @spec download_data(t()) :: t()
-  def download_data(%{header: header, last_header: last_header, path: path, source_id: source_id} = state) do
+  def download_data(%{header: %{url: url} = header, last_header: last_header, source_id: source_id} = state) do
+    Logger.info("Downloading data")
+
     if download_data?(header, last_header, source_id) do
-      Logger.info("Downloading data")
-
-      input_path = Path.join(path, "input")
-
-      File.rm_rf!(input_path)
-      File.mkdir_p!(input_path)
-
-      stream =
-        input_path
-        |> Path.join("#{NaiveDateTime.to_iso8601(header.updated_at)}.csv")
-        |> String.to_charlist()
-
-      case :httpc.request(:get, {String.to_charlist(header.url), []}, [], stream: stream) do
-        {:ok, _result} ->
-          struct(state, last_header: header)
-
-        {:error, error} ->
-          Logger.error("Failed to download data. Reason: #{inspect(error)}")
-          struct(state, error?: true, last_error: error)
+      case Path.extname(url) do
+        ".zip" -> download_zip(state)
+        "" -> Helpers.handle_error(state, "Failed to download data", "URL #{url} is not a file")
+        ext -> Helpers.handle_error(state, "Failed to download data", "Extension #{ext} for URL #{url} is invalid")
       end
     else
       Logger.info("Database is updated")
@@ -147,6 +132,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   defp download_data?(%{updated_at: updated_at}, last_header, source_id) do
     if is_nil(last_header) do
       case Dashboards.Sources.fetch(source_id) do
+        {:ok, %{last_update_date: nil}} -> true
         {:ok, %{last_update_date: date}} -> Date.compare(NaiveDateTime.to_date(updated_at), date) == :gt
         _error -> true
       end
@@ -155,8 +141,38 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     end
   end
 
+  defp download_zip(%{header: %{url: url}} = state) do
+    input_path = input_path(state)
+
+    File.rm_rf!(input_path)
+    File.mkdir_p!(input_path)
+
+    zip_path = Path.join(input_path, Path.basename(url))
+
+    case :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(zip_path)) do
+      {:ok, _result} -> handle_zip_file(state, zip_path)
+      {:error, error} -> Helpers.handle_error(state, "Failed to download zip data", error)
+    end
+  end
+
+  defp handle_zip_file(%{header: header} = state, path) do
+    directory = Path.dirname(path)
+
+    result = :zip.unzip(String.to_charlist(path), cwd: String.to_charlist(directory))
+
+    File.rm!(path)
+
+    case result do
+      {:ok, [_file_name]} -> struct(state, last_header: header)
+      {:ok, _files} -> Helpers.handle_error(state, "Failed to handle data from downloaded zip", "Multiple files")
+      {:error, error} -> Helpers.handle_error(state, "Failed to unzip downloaded data", error)
+    end
+  end
+
   @spec consolidate_data(t()) :: t()
   def consolidate_data(%{consolidator_opts: opts, path: path} = state) do
+    Logger.info("Consolidating data")
+
     output_path = Path.join(path, "output")
 
     File.rm_rf!(output_path)
@@ -166,32 +182,30 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
       Keyword.merge(opts,
         init: false,
         setup: true,
-        input_path: Path.join(path, "input"),
+        input_path: input_path(state),
         output_path: output_path
       )
     )
 
     state
   rescue
-    error ->
-      Logger.error("Failed to consolidate. Reason: #{Exception.message(error)}")
-      struct(state, error?: true, last_error: error, last_stacktrace: __STACKTRACE__)
+    error -> Helpers.handle_error(state, "Failed to consolidate", error, __STACKTRACE__)
   end
 
   @spec seed_data(t()) :: t()
   def seed_data(%{path: path} = state) do
-    case Reseeder.reseed(Path.join(path, "output")) do
-      :ok ->
-        state
+    Logger.info("Seeding data")
 
-      {:error, {error, stacktrace}} ->
-        Logger.error("Failed to seed. Reason: #{Exception.message(error)}")
-        struct(state, error?: true, last_error: error, last_stacktrace: stacktrace)
+    case Reseeder.reseed(Path.join(path, "output")) do
+      :ok -> state
+      {:error, {error, stacktrace}} -> Helpers.handle_error(state, "Failed to seed", error, stacktrace)
     end
   end
 
   @spec update_source(t()) :: t()
   def update_source(%{header: header, source_id: source_id} = state) do
+    Logger.info("Updating source")
+
     case header do
       %{updated_at: updated_at} ->
         params = %{
@@ -200,19 +214,16 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
         }
 
         case Dashboards.Sources.update(source_id, params) do
-          {:ok, _source} ->
-            Logger.info("Updated source")
-            state
-
-          {:error, error} ->
-            Logger.error("Failed to update source. Reason: #{inspect(error)}")
-            struct(state, error?: true, last_error: error)
+          {:ok, _source} -> state
+          {:error, error} -> Helpers.handle_error(state, "Failed to update source", error)
         end
     end
   end
 
   @spec backup_data(t()) :: t()
   def backup_data(%{path: path} = state) do
+    Logger.info("Backing up data")
+
     output_path = Path.join(path, "output")
 
     if File.dir?(output_path) do
@@ -242,8 +253,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
 
     state
   rescue
-    error ->
-      Logger.error("Failed to backup data. Reason: #{Exception.message(error)}")
-      struct(state, error?: true, last_error: error, last_stacktrace: __STACKTRACE__)
+    error -> Helpers.handle_error(state, "Failed to backup data", error, __STACKTRACE__)
   end
+
+  defp input_path(state), do: Path.join(state.path, "input")
 end
