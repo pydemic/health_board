@@ -24,7 +24,10 @@ config :health_board, HealthBoardWeb.Endpoint,
       "node_modules/webpack/bin/webpack.js",
       "--mode",
       "development",
-      "--watch-stdin",
+      "--watch",
+      "--watch-options-stdin",
+      "--stats",
+      "minimal",
       cd: Path.expand("../../assets", __DIR__)
     ]
   ]
