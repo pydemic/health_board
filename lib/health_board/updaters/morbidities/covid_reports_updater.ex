@@ -118,7 +118,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     Logger.info("Downloading data")
 
     if download_data?(header, last_header, source_id) do
-      case Path.extname(url) do
+      case String.downcase(Path.extname(url)) do
+        ".csv" -> download_csv(state)
         ".zip" -> download_zip(state)
         "" -> Helpers.handle_error(state, "Failed to download data", "URL #{url} is not a file")
         ext -> Helpers.handle_error(state, "Failed to download data", "Extension #{ext} for URL #{url} is invalid")
@@ -138,6 +139,20 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
       end
     else
       NaiveDateTime.compare(updated_at, last_header.updated_at) == :gt
+    end
+  end
+
+  defp download_csv(%{header: %{url: url} = header} = state) do
+    input_path = input_path(state)
+
+    File.rm_rf!(input_path)
+    File.mkdir_p!(input_path)
+
+    csv_path = Path.join(input_path, Path.basename(url))
+
+    case :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(csv_path)) do
+      {:ok, _result} -> struct(state, last_header: header)
+      {:error, error} -> Helpers.handle_error(state, "Failed to download csv data", error)
     end
   end
 
