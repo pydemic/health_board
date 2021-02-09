@@ -2,7 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Fragments.Modal do
   use Surface.Component
 
   slot body, required: true
-  slot external_button, required: true
+  slot open_button, required: true
   slot icon, required: false
 
   prop id, :string
@@ -20,7 +20,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Fragments.Modal do
           aria-label={{  @title }}
           aria-haspopup="true"
           @click="open = !open">
-          <slot name="external_button"/>
+          <slot name="open_button"/>
         </button>
       </div>
       <div id={{ @id }}
