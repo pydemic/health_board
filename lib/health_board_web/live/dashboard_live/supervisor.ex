@@ -4,17 +4,17 @@ defmodule HealthBoardWeb.DashboardLive.Supervisor do
 
   use Supervisor
 
-  @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
-  def start_link(_args) do
-    Supervisor.start_link(__MODULE__, nil, name: __MODULE__)
+  @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
+  def start_link(args) do
+    Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   @impl Supervisor
-  @spec init(any) :: {:ok, {:supervisor.sup_flags(), [:supervisor.child_spec()]}} | :ignore
-  def init(_args) do
+  @spec init(keyword) :: {:ok, {:supervisor.sup_flags(), [:supervisor.child_spec()]}} | :ignore
+  def init(args) do
     children = [
-      DashboardsData,
-      ElementsData
+      {DashboardsData, Keyword.get(args, :dashboards_data, [])},
+      {ElementsData, Keyword.get(args, :elements_data, [])}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

@@ -8,8 +8,12 @@ defmodule HealthBoardWeb.DashboardLive.Components.Deaths do
   @spec scalar(map, map) :: LiveView.Rendered.t()
   def scalar(assigns, params) do
     ~H"""
-    <ScalarCard card={{ @element }} params={{ params }} />
+    <ScalarCard card={{ @element }} params={{ scalar_params(params) }} />
     """
+  end
+
+  defp scalar_params(params) do
+    Map.merge(params, %{suffix: "óbitos"})
   end
 
   @spec top_ten_locations_table(map, map) :: LiveView.Rendered.t()

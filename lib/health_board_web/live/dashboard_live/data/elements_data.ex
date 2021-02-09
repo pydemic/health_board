@@ -6,12 +6,22 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
 
   @cache_table :health_board_web_dashboard_live__data_cache
 
-  @spec cache_table :: atom
-  def cache_table, do: @cache_table
+  @spec database_data(module, atom, list) :: struct | nil
+  def database_data(module, function, params) do
+    case :ets.lookup(@cache_table, {module, function, params}) do
+      [{_key, value}] ->
+        value
 
-  @spec start_link(any) :: {:ok, pid} | :ignore | {:error, any}
-  def start_link(_args) do
-    GenServer.start(__MODULE__, nil, name: __MODULE__)
+      _records ->
+        value = apply(module, function, params)
+        :ets.insert(@cache_table, {{module, function, params}, value})
+        value
+    end
+  end
+
+  @spec start_link(keyword) :: {:ok, pid} | :ignore | {:error, any}
+  def start_link(args) do
+    GenServer.start(__MODULE__, args, name: __MODULE__)
   end
 
   @spec request(LiveView.Socket.t(), map) :: :ok
@@ -21,7 +31,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
   @spec init(any) :: {:ok, :empty}
   def init(_args) do
     :ets.new(@cache_table, [:set, :public, :named_table])
-
+    schedule_cache_reset()
     {:ok, :empty}
   end
 
@@ -41,6 +51,12 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
   @spec handle_info(any, :empty) :: {:noreply, :empty}
   def handle_info({:request, {pid, dashboard}}, state) do
     request_data(pid, dashboard)
+    {:noreply, state}
+  end
+
+  def handle_info(:reset_cache, state) do
+    :ets.delete_all_objects(@cache_table)
+    schedule_cache_reset()
     {:noreply, state}
   end
 
@@ -89,5 +105,13 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
       #{inspect(element, pretty: true)}
       #{Exception.format_stacktrace(__STACKTRACE__)}
       """)
+  end
+
+  defp schedule_cache_reset do
+    Process.send_after(self(), :reset_cache, milliseconds_to_midnight())
+  end
+
+  defp milliseconds_to_midnight() do
+    :timer.hours(30) - rem(:os.system_time(:millisecond), :timer.hours(24))
   end
 end

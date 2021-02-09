@@ -33,7 +33,6 @@ defmodule HealthBoard.MixProject do
       "i18n.extract": ["gettext.extract"],
       "i18n.merge.en_US": ["gettext.merge priv/gettext --locale en_US"],
       "i18n.merge.pt_BR": ["gettext.merge priv/gettext --locale pt_BR"],
-      reseed: ["ecto.reset", "seed"],
       setup: ["update.deps", "ecto.setup"],
       start: ["phx.server"],
       test: ["ecto.create", "test"],
