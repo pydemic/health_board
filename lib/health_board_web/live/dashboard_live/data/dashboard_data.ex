@@ -71,7 +71,13 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
     )
   end
 
-  defp fetch_filter(%{options_module: nil, filter: filter}, params, default), do: fetch_filter(filter, params, default)
+  defp fetch_filter(%{options_module: nil, options_params: options_params, filter: filter}, params, default) do
+    if is_nil(options_params) do
+      fetch_filter(filter, params, default)
+    else
+      fetch_filter(filter, Map.merge(params, URI.decode_query(options_params)), default)
+    end
+  end
 
   defp fetch_filter(filter, params, default) do
     HealthBoardWeb.DashboardLive.ElementsFiltersData.fetch(filter, params, default)

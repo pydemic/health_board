@@ -31,7 +31,7 @@ defmodule HealthBoard.Contexts.Consolidations.LocationsConsolidations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> order_by(^Keyword.get(params, :order_by, asc: :name))
+    |> order_by(^Keyword.get(params, :order_by, asc: :location_id))
     |> Repo.all()
   end
 

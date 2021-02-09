@@ -1,7 +1,8 @@
 defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
-  import Ecto.Query, only: [order_by: 2, where: 2, dynamic: 1, dynamic: 2]
+  import Ecto.Query, only: [from: 2, order_by: 2, where: 2, dynamic: 1, dynamic: 2]
 
   alias HealthBoard.Contexts.Consolidations.DayLocationConsolidation
+  alias HealthBoard.Contexts.Geo
   alias HealthBoard.Repo
 
   @type schema :: DayLocationConsolidation.schema()
@@ -18,6 +19,7 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
     @schema
     |> where(^filter_where(params))
     |> Repo.one!()
+    |> maybe_preload(params[:preload])
   rescue
     error ->
       case Keyword.pop(params, :default) do
@@ -31,8 +33,9 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> order_by(^Keyword.get(params, :order_by, asc: :name))
+    |> order_by(^Keyword.get(params, :order_by, asc: :location_id))
     |> Repo.all()
+    |> maybe_preload(params[:preload])
   end
 
   # Delete
@@ -42,6 +45,25 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
     @schema
     |> where(^filter_where(params))
     |> Repo.delete_all()
+  end
+
+  # Preload
+
+  defp maybe_preload(schema_or_schemas, preload) do
+    case preload do
+      :location ->
+        Repo.preload(schema_or_schemas, :location)
+
+      :location_and_state ->
+        Repo.preload(schema_or_schemas,
+          location: [
+            parents: {from(l in Geo.LocationChild, where: l.parent_group == ^Geo.Locations.group(:states)), [:parent]}
+          ]
+        )
+
+      _preload ->
+        schema_or_schemas
+    end
   end
 
   # Filtering

@@ -68,6 +68,26 @@ defmodule HealthBoard.Contexts.Geo.Locations do
     end
   end
 
+  @spec parent_siblings(schema, atom | integer) :: list(schema)
+  def parent_siblings(schema, group) do
+    case preload_parent(schema, group - 1) do
+      %{parents: [%{parent: parent}]} -> children(parent, group)
+      _schema -> []
+    end
+  end
+
+  @spec related(schema, atom | integer) :: list(schema)
+  def related(%{group: group} = schema, related_group) do
+    group = group(group)
+    related_group = group(related_group)
+
+    cond do
+      group == related_group -> siblings(schema)
+      group < related_group -> children(schema, related_group)
+      true -> parent_siblings(schema, related_group)
+    end
+  end
+
   @spec list_siblings(integer) :: list(schema)
   def list_siblings(id) do
     case get_by(id: id) do

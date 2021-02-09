@@ -1,4 +1,5 @@
 defmodule HealthBoardWeb.Helpers.Humanize do
+  alias HealthBoard.Contexts.Geo.Locations
   alias HealthBoardWeb.Cldr
   alias Phoenix.Naming
 
@@ -42,6 +43,36 @@ defmodule HealthBoardWeb.Helpers.Humanize do
     end
   end
 
+  @spec location(Locations.schema() | nil, keyword) :: String.t()
+  def location(location, _options \\ []) do
+    if is_nil(location) or Map.get(location, :__struct__) == Ecto.Association.NotLoaded do
+      "N/A"
+    else
+      case Locations.group_atom(location.group) do
+        :countries -> location.name
+        :regions -> "Região #{location.name}"
+        :states -> location.name
+        :health_regions -> "Regional de saúde #{location.name} - #{parent_state_abbr(location)}"
+        :cities -> "#{location.name} - #{parent_state_abbr(location)}"
+      end
+    end
+  end
+
+  defp parent_state_abbr(%{parents: parents} = location) do
+    states_group = Locations.group(:states)
+
+    if is_list(parents) do
+      case Enum.find(parents, &(&1.parent_group == states_group)) do
+        %{parent: %{abbr: abbr}} -> abbr
+        _result -> "N/A"
+      end
+    else
+      location
+      |> Locations.preload_parent(states_group)
+      |> parent_state_abbr()
+    end
+  end
+
   @spec number(integer | float | Decimal.t() | nil, keyword) :: String.t()
   def number(number, options \\ []) do
     if is_nil(number) do
@@ -61,7 +92,7 @@ defmodule HealthBoardWeb.Helpers.Humanize do
     if is_nil(date) do
       "N/A"
     else
-      case Cldr.Date.to_string(date) do
+      case Cldr.Date.to_string(date, format: :long) do
         {:ok, humanized_date} -> humanized_date
         {:error, _reason} -> "N/A"
       end

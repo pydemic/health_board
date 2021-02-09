@@ -89,8 +89,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     new(state)
   end
 
-  defp rollback_data(%{path: path}) do
-    case Reseeder.reseed(Path.join(path, "backup")) do
+  defp rollback_data(state) do
+    case Reseeder.reseed(backup_path(state)) do
       :ok -> Logger.info("Data rolled back")
       _error -> Logger.error("Failed to rollback data")
     end
@@ -185,10 +185,10 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   end
 
   @spec consolidate_data(t()) :: t()
-  def consolidate_data(%{consolidator_opts: opts, path: path} = state) do
+  def consolidate_data(%{consolidator_opts: opts} = state) do
     Logger.info("Consolidating data")
 
-    output_path = Path.join(path, "output")
+    output_path = output_path(state)
 
     File.rm_rf!(output_path)
     File.mkdir_p!(output_path)
@@ -208,10 +208,10 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   end
 
   @spec seed_data(t()) :: t()
-  def seed_data(%{path: path} = state) do
+  def seed_data(state) do
     Logger.info("Seeding data")
 
-    case Reseeder.reseed(Path.join(path, "output")) do
+    case Reseeder.reseed(output_path(state)) do
       :ok -> state
       {:error, {error, stacktrace}} -> Helpers.handle_error(state, "Failed to seed", error, stacktrace)
     end
@@ -236,16 +236,16 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   end
 
   @spec backup_data(t()) :: t()
-  def backup_data(%{path: path} = state) do
+  def backup_data(state) do
     Logger.info("Backing up data")
 
-    output_path = Path.join(path, "output")
+    output_path = output_path(state)
 
     if File.dir?(output_path) do
-      backup_path = Path.join(path, "backup")
+      backup_path = backup_path(state)
 
       if File.dir?(backup_path) do
-        temporary_backup_path = Path.join(path, "temporary_backup")
+        temporary_backup_path = "/tmp/covid_reports_updater_backup"
 
         File.rm_rf!(temporary_backup_path)
         File.cp_r!(backup_path, temporary_backup_path)
@@ -271,5 +271,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     error -> Helpers.handle_error(state, "Failed to backup data", error, __STACKTRACE__)
   end
 
+  defp backup_path(state), do: Path.join(state.path, "backup")
   defp input_path(state), do: Path.join(state.path, "input")
+  defp output_path(state), do: Path.join(state.path, "output")
 end
