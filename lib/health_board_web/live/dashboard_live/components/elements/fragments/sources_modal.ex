@@ -25,15 +25,6 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.SourcesModal
             <br/> <b> Data da última atualização: </b> {{ Humanize.format(item.source.last_update_date) }}
             <hr class="solid my-4">
           </div>
-          <div :for={{ item <- @data }}>
-            <b> Nome: </b> {{ Humanize.format(item.source.name) }}
-            <br/> <b> Descrição: </b> {{ Humanize.format(item.source.description) }}
-            <span :if={{ item.source.link != nil }}> <br/> <b> Endereço da fonte: </b> <a href={{ item.source.link }}>Clique aqui</a> </span>
-            <br/> <b> Frequência de atualização da base: </b> {{ Humanize.format(item.source.update_rate) }}
-            <br/> <b> Data de extração: </b> {{ Humanize.format(item.source.extraction_date) }}
-            <br/> <b> Data da última atualização: </b> {{ Humanize.format(item.source.last_update_date) }}
-            <hr class="solid my-4">
-          </div>
         </template>
         <template slot="open_button">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-5 h-5 text-gray-700">
