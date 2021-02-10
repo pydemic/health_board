@@ -13,17 +13,26 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.SourcesModal
     <span :if={{ Enum.any?(@data) }}>
       <Modal
         id="{{ @id }}-source"
-        title="FONTES">
+        title="Fontes">
         <template slot="body">
-          <hr class="solid">
+          <hr class="solid my-4">
           <div :for={{ item <- @data }}>
-            <b> NOME: </b> {{ Humanize.format(item.source.name) }}
-            <br/> <b> DESCRIÇÃO: </b> {{ Humanize.format(item.source.description) }}
-            <span :if={{ item.source.link != nil }}> <br/> <b> ENDEREÇO DA FONTE: </b> <a href={{ item.source.link }}>Clique aqui</a> </span>
-            <br/> <b> FREQUÊNCIA DE ATUALIZAÇÃO DA BASE: </b> {{ Humanize.format(item.source.update_rate) }}
-            <br/> <b> DATA DE EXTRAÇÃO: </b> {{ Humanize.format(item.source.extraction_date) }}
-            <br/> <b> DATA DA ÚLTIMA ATUALIZAÇÃO: </b> {{ Humanize.format(item.source.last_update_date) }}
-            <hr class="solid">
+            <b> Nome: </b> {{ Humanize.format(item.source.name) }}
+            <br/> <b> Descrição: </b> {{ Humanize.format(item.source.description) }}
+            <span :if={{ item.source.link != nil }}> <br/> <b> Endereço da fonte: </b> <a href={{ item.source.link }}>Clique aqui</a> </span>
+            <br/> <b> Frequência de atualização da base: </b> {{ Humanize.format(item.source.update_rate) }}
+            <br/> <b> Data de extração: </b> {{ Humanize.format(item.source.extraction_date) }}
+            <br/> <b> Data da última atualização: </b> {{ Humanize.format(item.source.last_update_date) }}
+            <hr class="solid my-4">
+          </div>
+          <div :for={{ item <- @data }}>
+            <b> Nome: </b> {{ Humanize.format(item.source.name) }}
+            <br/> <b> Descrição: </b> {{ Humanize.format(item.source.description) }}
+            <span :if={{ item.source.link != nil }}> <br/> <b> Endereço da fonte: </b> <a href={{ item.source.link }}>Clique aqui</a> </span>
+            <br/> <b> Frequência de atualização da base: </b> {{ Humanize.format(item.source.update_rate) }}
+            <br/> <b> Data de extração: </b> {{ Humanize.format(item.source.extraction_date) }}
+            <br/> <b> Data da última atualização: </b> {{ Humanize.format(item.source.last_update_date) }}
+            <hr class="solid my-4">
           </div>
         </template>
         <template slot="open_button">

@@ -25,8 +25,9 @@ defmodule HealthBoardWeb.DashboardLive.Components.Fragments.Modal do
       </div>
       <div id={{ @id }}
         x-show="open"
-        x-cloak>
-        <div class="z-50 fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center">
+        x-cloak
+        class="fixed inset-0 w-full h-full z-20 bg-black bg-opacity-75 duration-300 overflow-y-auto">
+        <div class="relative sm:w-3/4 md:w-1/2 lg:w-1/3 mx-2 sm:mx-auto mt-10 mb-24 opacity-100">
           <div x-show="open"
               x-cloak
               x-transition:enter="ease-out duration-300"
@@ -37,7 +38,6 @@ defmodule HealthBoardWeb.DashboardLive.Components.Fragments.Modal do
               x-transition:leave-end="opacity-0"
               class="fixed inset-0 transition-opacity">
           </div>
-          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
           <div x-show="open"
               x-cloak
               @click.away="open = false"
@@ -63,10 +63,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Fragments.Modal do
                       {{ @title }}
                   </h3>
                   <div class="mt-2">
-                    <p class="text-sm leading-5"
-                      id="modal-description">
-                      <slot name="body"/>
-                    </p>
+                    <slot name="body"/>
                   </div>
                 </div>
               </div>

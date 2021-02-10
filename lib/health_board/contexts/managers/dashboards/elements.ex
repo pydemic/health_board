@@ -1,5 +1,5 @@
 defmodule HealthBoard.Contexts.Dashboards.Elements do
-  import Ecto.Query, only: [where: 2]
+  import Ecto.Query, only: [where: 2, from: 2]
 
   alias HealthBoard.Contexts.Dashboards.Element
   alias HealthBoard.Repo
@@ -32,10 +32,26 @@ defmodule HealthBoard.Contexts.Dashboards.Elements do
     end
   end
 
+  @spec list_other_dashboards(integer) :: {:ok, schema} | {:error, :not_found}
+  def list_other_dashboards(id) do
+    case get_dashboards(id) do
+      nil -> {:error, :not_found}
+      dashboards -> {:ok, dashboards}
+    end
+  end
+
   defp get_dashboard(id) do
     @schema
     |> where(id: ^id, type: ^type(:dashboards))
     |> Repo.one()
+  rescue
+    _error -> nil
+  end
+
+  defp get_dashboards(id) do
+    from(d in @schema, where: d.id != ^id)
+    |> where(type: ^type(:dashboards))
+    |> Repo.all()
   rescue
     _error -> nil
   end

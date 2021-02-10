@@ -14,6 +14,8 @@ defmodule HealthBoard.Contexts.Dashboards.Element do
     field :component_function, :string, null: false
     field :component_params, :string
 
+    field :other_dashboards, :any, virtual: true, default: []
+
     has_one :link_element, __MODULE__
     has_one :parent, Dashboards.ElementChild, foreign_key: :child_id
 

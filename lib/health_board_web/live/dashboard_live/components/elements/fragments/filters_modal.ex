@@ -12,11 +12,13 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.FiltersModal
     <span :if={{ Enum.any?(@data) }}>
       <Modal
         id="{{ @id }}-filters"
-        title="FILTROS">
+        title="Filtros">
         <template slot="body">
-          <hr class="solid">
-            Filtros
-          <hr class="solid">
+          <hr class="solid my-4">
+             <div :for={{ filter <- @data }}>
+                <a> {{ filter.title }} </a>
+             </div>
+          <hr class="solid my-4">
         </template>
         <template slot="open_button">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-5 h-5 text-gray-700">

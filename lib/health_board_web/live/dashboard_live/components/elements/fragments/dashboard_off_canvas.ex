@@ -3,7 +3,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.DashboardOff
   alias HealthBoardWeb.DashboardLive.Components.Fragments.OffCanvas
   alias Phoenix.LiveView
 
-  prop dashboards, :list, required: true
+  prop other_dashboards, :list, required: true
   prop dashboard, :map, required: true
 
   @spec render(map) :: LiveView.Rendered.t()
@@ -13,20 +13,31 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.DashboardOff
         id="{{ @dashboard.id }}-dashboard"
         title={{ @dashboard.name }}>
         <template slot="body">
-          <hr class="solid"/>
-          <div :for={{ tab <- @dashboard.children }}>
-            {{ tab.child.name }}
-            <div :for={{ section <- tab.child.children }}>
-              {{ section.child.name }}
-              <div :for={{ indicators <- section.child.children }}>
-                {{ indicators.child.name }}
+          <hr class="solid my-4"/>
+          <span>
+            <ul>
+              <div class="my-2" :for={{ tab <- @dashboard.children }}>
+                <li> <a> {{ tab.child.name }} </a> </li>
+                <ul>
+                  <div class="mx-2 my-2" :for={{ section <- tab.child.children }}>
+                    <li> <a> {{ section.child.name }} </a> </li>
+                    <ul>
+                      <div class="mx-4 my-2" :for={{ indicators <- section.child.children }}>
+                        <li> <a> {{ indicators.child.name }} </a> </li>
+                      </div>
+                    </ul>
+                  </div>
+                </ul>
               </div>
-            </div>
-            <hr class="solid">
-          </div>
-          <span :if={{ Enum.any?(@dashboards) }}>
-            <hr class="solid"/>
+            </ul>
+          </span>
+          <hr class="solid my-4">
+          <span :if={{ Enum.any?(@other_dashboards) }}>
+            <hr class="solid my-4"/>
             OUTROS PAINÉIS
+            <div class="my-2" :for={{ other_dashboard <- @other_dashboards }}>
+              <a href="/{{ other_dashboard.id }}"> {{ other_dashboard.name }} </a>
+            </div>
           </span>
         </template>
         <template slot="open_button">

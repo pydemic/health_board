@@ -44,10 +44,24 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
     parse_element(dashboard, [], [], params)
   end
 
-  defp parse_element(%{children: children} = element, filters, sources, params) do
+  defp parse_element(%{children: children, id: id} = element, filters, sources, params) do
+    other_dashboards = other_dashboards(id)
     filters = filters ++ parse_filters(element.filters, params)
     sources = parse_sources(element.sources) ++ sources
-    struct(element, children: parse_children(children, filters, sources, params), filters: filters, sources: sources)
+
+    struct(element,
+      children: parse_children(children, filters, sources, params),
+      other_dashboards: other_dashboards,
+      filters: filters,
+      sources: sources
+    )
+  end
+
+  defp other_dashboards(id) do
+    case Elements.list_other_dashboards(id) do
+      {:ok, dashboards} -> dashboards
+      _result -> []
+    end
   end
 
   defp parse_filters(filters, params) do

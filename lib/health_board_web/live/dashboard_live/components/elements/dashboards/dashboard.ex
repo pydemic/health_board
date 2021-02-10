@@ -22,7 +22,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard do
             </h2>
           </div>
           <div class="w-7 h-7">
-            <DashboardOffCanvas dashboard={{ @dashboard }} dashboards={{ [] }}/>
+            <DashboardOffCanvas dashboard={{ @dashboard }} other_dashboards={{ @dashboard.other_dashboards }}/>
           </div>
         </div>
         <div class="text-white w-full py-5 justify-between items-center flex overflow-x-auto whitespace-nowrap">

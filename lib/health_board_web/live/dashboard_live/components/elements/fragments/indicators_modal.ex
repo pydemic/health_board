@@ -13,15 +13,15 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.IndicatorsMo
     <span :if={{ Enum.any?(@data) }}>
       <Modal
         id="{{ @id }}-indicator"
-        title="INDICADORES">
+        title="Indicadores">
         <template slot="body">
-          <hr class="solid">
+          <hr class="solid my-4">
           <div :for={{ item <- @data }}>
-            <b> DESCRIÇÃO: </b> {{ Humanize.format(item.indicator.description) }}
-            <span :if={{ item.indicator.link != nil }}> <br/> <b> ENDEREÇO DA FONTE: </b> <a href={{ item.indicator.link }}>Clique aqui</a> </span>
-            <br/> <b> FÓRMULA: </b> {{ Humanize.format(item.indicator.formula) }}
-            <br/> <b> UNIDADE DE MEDIDA: </b> {{ Humanize.format(item.indicator.measurement_unit) }}
-            <hr class="solid">
+            <b> Descrição: </b> {{ Humanize.format(item.indicator.description) }}
+            <span :if={{ item.indicator.link != nil }}> <br/> <b> Endereço da fonte: </b> <a href={{ item.indicator.link }}>Clique aqui</a> </span>
+            <br/> <b> Fórmula: </b> {{ Humanize.format(item.indicator.formula) }}
+            <br/> <b> Unidade de medida: </b> {{ Humanize.format(item.indicator.measurement_unit) }}
+            <hr class="solid my-4">
           </div>
         </template>
         <template slot="open_button">

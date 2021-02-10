@@ -34,7 +34,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Fragments.OffCanvas do
               x-transition:leave-end="opacity-0"
               class="fixed inset-0 transition-opacity">
           </div>
-          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+          <div class="absolute inset-0 bg-black bg-opacity-75"></div>
           <div
             x-show.transition.opacity.duration.500="open"
             @click="open = false"
