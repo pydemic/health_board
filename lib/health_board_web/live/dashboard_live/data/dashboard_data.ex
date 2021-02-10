@@ -41,26 +41,32 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
   end
 
   defp fetch_params(dashboard, params) do
-    parse_element(dashboard, [], [], params)
-  end
+    other_dashboards = other_dashboards(dashboard.id)
 
-  defp parse_element(%{children: children, id: id} = element, filters, sources, params) do
-    other_dashboards = other_dashboards(id)
-    filters = filters ++ parse_filters(element.filters, params)
-    sources = parse_sources(element.sources) ++ sources
-
-    struct(element,
-      children: parse_children(children, filters, sources, params),
-      other_dashboards: other_dashboards,
-      filters: filters,
-      sources: sources
-    )
+    parse_element(dashboard, [], [], params, other_dashboards)
   end
 
   defp other_dashboards(id) do
     case Elements.list_other_dashboards(id) do
       {:ok, dashboards} -> dashboards
       _result -> []
+    end
+  end
+
+  defp parse_element(%{children: children} = element, filters, sources, params, other_dashboards) do
+    filters = filters ++ parse_filters(element.filters, params)
+    sources = parse_sources(element.sources) ++ sources
+
+    properties = [
+      children: parse_children(children, filters, sources, params),
+      filters: filters,
+      sources: sources
+    ]
+
+    if other_dashboards != [] do
+      struct(element, properties ++ [other_dashboards: other_dashboards])
+    else
+      struct(element, properties)
     end
   end
 
@@ -108,7 +114,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
   defp parse_children(children, filters, sources, params) do
     if is_list(children) do
       Enum.map(children, fn %{child: child} = element_child ->
-        struct(element_child, child: parse_element(child, filters, sources, params))
+        struct(element_child, child: parse_element(child, filters, sources, params, []))
       end)
     else
       children
