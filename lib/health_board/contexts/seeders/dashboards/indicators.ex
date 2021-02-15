@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Dashboards.Indicators do
 
   @context "dashboards"
   @table_name "indicators"
-  @columns ~w[description formula measurement_unit link]a
+  @columns ~w[sid name description formula measurement_unit link]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

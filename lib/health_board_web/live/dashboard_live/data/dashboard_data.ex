@@ -5,34 +5,49 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
 
   @cache_table :dashboards_cache
 
-  @spec start_link(any) :: {:ok, pid} | :ignore | {:error, any}
-  def start_link(_args) do
-    GenServer.start(__MODULE__, nil, name: __MODULE__)
+  @valid_params_keys [
+    "date",
+    "group_index",
+    "id",
+    "location"
+  ]
+
+  @type t :: %__MODULE__{
+          organizations: list({String.t(), String.t()}),
+          version: String.t()
+        }
+
+  defstruct organizations: [{"https://www.paho.org/pt/brasil", "/images/logo_paho_white.svg"}],
+            version: "0.0.1"
+
+  @spec start_link(keyword) :: {:ok, pid} | :ignore | {:error, any}
+  def start_link(args) do
+    GenServer.start(__MODULE__, args, name: __MODULE__)
   end
 
   @spec fetch(integer, map) :: {:ok, map} | {:error, atom}
-  def fetch(id, params), do: GenServer.call(__MODULE__, {:fetch, {id, params}})
+  def fetch(id, params), do: GenServer.call(__MODULE__, {:fetch, {id, params}}, 10_000)
 
   @impl GenServer
-  @spec init(any) :: {:ok, :empty}
-  def init(_args) do
+  @spec init(keyword) :: {:ok, t()}
+  def init(args) do
     :ets.new(@cache_table, [:set, :public, :named_table])
 
-    {:ok, :empty}
+    {:ok, struct(__MODULE__, args)}
   end
 
   @impl GenServer
-  @spec handle_call(any, {pid, any}, :empty) :: {:reply, any, :empty}
+  @spec handle_call(any, {pid, any}, t()) :: {:reply, any, t()}
   def handle_call({:fetch, {id, params}}, _from, state) do
     case :ets.lookup(@cache_table, id) do
       [{_id, dashboard}] ->
-        {:reply, {:ok, fetch_params(dashboard, params)}, state}
+        {:reply, {:ok, fetch_params(dashboard, params, state)}, state}
 
       _result ->
         case Elements.fetch_dashboard(id) do
           {:ok, dashboard} ->
             :ets.insert(@cache_table, {id, dashboard})
-            {:reply, {:ok, fetch_params(dashboard, params)}, state}
+            {:reply, {:ok, fetch_params(dashboard, params, state)}, state}
 
           _error ->
             {:reply, {:error, :not_found}, state}
@@ -40,34 +55,46 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
     end
   end
 
-  defp fetch_params(dashboard, params) do
-    other_dashboards = other_dashboards(dashboard.id)
+  defp fetch_params(dashboard, params, state) do
+    params = parse_params(params)
 
-    parse_element(dashboard, [], [], params, other_dashboards)
+    dashboard
+    |> fetch_additional_data(params, state)
+    |> parse_element([], [], params)
   end
 
-  defp other_dashboards(id) do
-    case Elements.list_other_dashboards(id) do
-      {:ok, dashboards} -> dashboards
-      _result -> []
+  defp parse_params(params) do
+    Map.take(params, @valid_params_keys)
+  end
+
+  defp fetch_additional_data(dashboard, params, %{organizations: organizations, version: version}) do
+    struct(dashboard,
+      other_dashboards: Elements.list_other_dashboards(dashboard),
+      organizations: organizations,
+      version: version,
+      group_index: fetch_group_index(params)
+    )
+  end
+
+  defp fetch_group_index(params) do
+    case Map.fetch(params, "group_index") do
+      {:ok, group_index} -> String.to_integer(group_index)
+      :error -> 0
     end
+  rescue
+    _error -> 0
   end
 
-  defp parse_element(%{children: children} = element, filters, sources, params, other_dashboards) do
+  defp parse_element(%{children: children} = element, filters, sources, params) do
     filters = filters ++ parse_filters(element.filters, params)
     sources = parse_sources(element.sources) ++ sources
 
-    properties = [
+    struct(element,
       children: parse_children(children, filters, sources, params),
       filters: filters,
+      params: params,
       sources: sources
-    ]
-
-    if other_dashboards != [] do
-      struct(element, properties ++ [other_dashboards: other_dashboards])
-    else
-      struct(element, properties)
-    end
+    )
   end
 
   defp parse_filters(filters, params) do
@@ -79,16 +106,14 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
   end
 
   defp parse_filter(%{filter: filter} = element_filter, params) do
-    default = element_filter.default || filter.default
-
-    Map.merge(
-      fetch_filter(element_filter, params, default),
-      %{
-        title: filter.title,
-        description: filter.description,
-        disabled: element_filter.disabled || filter.disabled
-      }
-    )
+    element_filter
+    |> fetch_filter(params, element_filter.default || filter.default)
+    |> Map.merge(%{
+      sid: filter.sid,
+      name: element_filter.name || filter.name,
+      description: element_filter.description || filter.description,
+      disabled: element_filter.disabled || filter.disabled
+    })
   end
 
   defp fetch_filter(%{options_module: nil, options_params: options_params, filter: filter}, params, default) do
@@ -114,7 +139,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
   defp parse_children(children, filters, sources, params) do
     if is_list(children) do
       Enum.map(children, fn %{child: child} = element_child ->
-        struct(element_child, child: parse_element(child, filters, sources, params, []))
+        struct(element_child, child: parse_element(child, filters, sources, params))
       end)
     else
       children

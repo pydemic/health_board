@@ -48,7 +48,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
             last_stacktrace: nil,
             path: Path.join(File.cwd!(), ".misc/sandbox/updates/covid_reports"),
             update_at_hour: 3,
-            source_id: 6,
+            source_sid: "health_board_situation_report",
+            source_id: nil,
             header: nil,
             last_header: nil,
             consolidator_opts: [],
@@ -114,10 +115,12 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   end
 
   @spec download_data(t()) :: t()
-  def download_data(%{header: %{url: url} = header, last_header: last_header, source_id: source_id} = state) do
+  def download_data(%{header: %{url: url} = header, last_header: last_header} = state) do
     Logger.info("Downloading data")
 
-    if download_data?(header, last_header, source_id) do
+    {source, state} = fetch_source(state)
+
+    if download_data?(header, last_header, source) do
       case String.downcase(Path.extname(url)) do
         ".csv" -> download_csv(state)
         ".zip" -> download_zip(state)
@@ -130,12 +133,25 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
     end
   end
 
-  defp download_data?(%{updated_at: updated_at}, last_header, source_id) do
+  defp fetch_source(%{source_id: id, source_sid: sid} = state) do
+    if is_nil(id) do
+      case Dashboards.Sources.fetch_by_sid(sid) do
+        {:ok, %{id: id} = source} -> {source, struct(state, source_id: id)}
+        :error -> {nil, state}
+      end
+    else
+      case Dashboards.Sources.fetch_by_sid(id) do
+        {:ok, source} -> {source, state}
+        :error -> {nil, struct(state, source_id: nil)}
+      end
+    end
+  end
+
+  defp download_data?(%{updated_at: updated_at}, last_header, source) do
     if is_nil(last_header) do
-      case Dashboards.Sources.fetch(source_id) do
-        {:ok, %{last_update_date: nil}} -> true
-        {:ok, %{last_update_date: date}} -> Date.compare(NaiveDateTime.to_date(updated_at), date) == :gt
-        _error -> true
+      case source do
+        %{last_update_date: %Date{} = date} -> Date.compare(NaiveDateTime.to_date(updated_at), date) == :gt
+        _source -> true
       end
     else
       NaiveDateTime.compare(updated_at, last_header.updated_at) == :gt
@@ -218,21 +234,19 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
   end
 
   @spec update_source(t()) :: t()
-  def update_source(%{header: header, source_id: source_id} = state) do
+  def update_source(%{header: %{updated_at: updated_at}, source_id: source_id} = state) do
     Logger.info("Updating source")
 
-    case header do
-      %{updated_at: updated_at} ->
-        params = %{
-          extraction_date: Date.utc_today(),
-          last_update_date: NaiveDateTime.to_date(updated_at)
-        }
+    params = %{
+      extraction_date: Date.utc_today(),
+      last_update_date: NaiveDateTime.to_date(updated_at)
+    }
 
-        case Dashboards.Sources.update(source_id, params) do
-          {:ok, _source} -> state
-          {:error, error} -> Helpers.handle_error(state, "Failed to update source", error)
-        end
+    with {:error, error} <- Dashboards.Sources.update(source_id, params) do
+      Helpers.handle_error(state, "Failed to update source", error)
     end
+
+    state
   end
 
   @spec backup_data(t()) :: t()

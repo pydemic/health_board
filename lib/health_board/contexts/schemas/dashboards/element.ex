@@ -5,6 +5,8 @@ defmodule HealthBoard.Contexts.Dashboards.Element do
   @type schema :: %__MODULE__{}
 
   schema "elements" do
+    field :sid, :string, null: false
+
     field :type, :integer, null: false
 
     field :name, :string, null: false
@@ -14,9 +16,8 @@ defmodule HealthBoard.Contexts.Dashboards.Element do
     field :component_function, :string, null: false
     field :component_params, :string
 
-    field :other_dashboards, :any, virtual: true, default: []
+    field :link_element_sid, :string
 
-    has_one :link_element, __MODULE__
     has_one :parent, Dashboards.ElementChild, foreign_key: :child_id
 
     has_many :children, Dashboards.ElementChild, foreign_key: :parent_id
@@ -24,5 +25,11 @@ defmodule HealthBoard.Contexts.Dashboards.Element do
     has_many :filters, Dashboards.ElementFilter
     has_many :indicators, Dashboards.ElementIndicator
     has_many :sources, Dashboards.ElementSource
+
+    field :group_index, :integer, virtual: true, default: 0
+    field :organizations, :any, virtual: true, default: []
+    field :other_dashboards, :any, virtual: true, default: []
+    field :params, :map, virtual: true, default: %{}
+    field :version, :string, virtual: true, default: ""
   end
 end

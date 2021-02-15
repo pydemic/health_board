@@ -5,6 +5,9 @@ defmodule HealthBoard.Contexts.Dashboards.ElementFilter do
   @type schema :: %__MODULE__{}
 
   schema "elements_filters" do
+    field :name, :string
+    field :description, :string
+
     field :default, :string
 
     field :disabled, :boolean

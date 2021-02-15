@@ -33,15 +33,19 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Year
   end
 
   defp list_consolidations(data, params, group) do
-    case {Consolidations.fetch_years(data, params), Consolidations.fetch_locations_ids(data, params)} do
-      {:error, :error} -> :error
-      {{:ok, yk}, :error} -> {:ok, do_list([consolidation_group_id: group] ++ yk)}
-      {:error, {:ok, lk}} -> {:ok, do_list([consolidation_group_id: group] ++ lk)}
-      {{:ok, yk}, {:ok, lk}} -> {:ok, do_list([consolidation_group_id: group] ++ yk ++ lk)}
+    []
+    |> maybe_append(Consolidations.fetch_years(data, params))
+    |> maybe_append(Consolidations.fetch_locations_ids(data, params))
+    |> case do
+      [] -> :error
+      manager_params -> {:ok, do_list([{:consolidation_group_id, group} | manager_params])}
     end
   end
 
   defp do_list(manager_params) do
     ElementsData.database_data(YearlyLocationsConsolidations, :list_by, [manager_params])
   end
+
+  defp maybe_append(list, {:ok, item}) when is_list(item), do: item ++ list
+  defp maybe_append(list, _result), do: list
 end

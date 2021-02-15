@@ -61,7 +61,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
   end
 
   defp request_data(pid, %{children: children, filters: filters} = element, data \\ %{}) do
-    filters = Enum.into(filters, %{}, &{&1[:name], &1[:value]})
+    filters = Enum.into(filters, %{}, &{&1[:sid], &1[:value]})
     data = Enum.reduce(element.data, data, &do_request_data(&1, &2, filters))
 
     if is_list(children) do

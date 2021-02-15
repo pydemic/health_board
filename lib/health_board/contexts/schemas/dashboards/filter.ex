@@ -5,7 +5,9 @@ defmodule HealthBoard.Contexts.Dashboards.Filter do
   @type schema :: %__MODULE__{}
 
   schema "filters" do
-    field :title, :string, null: false
+    field :sid, :string, null: false
+
+    field :name, :string, null: false
     field :description, :string
 
     field :default, :string

@@ -1,5 +1,5 @@
 defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
-  import Ecto.Query, only: [from: 2, order_by: 2, where: 2, dynamic: 1, dynamic: 2]
+  import Ecto.Query, only: [from: 2, where: 2, dynamic: 1, dynamic: 2]
 
   alias HealthBoard.Contexts.Consolidations.DayLocationConsolidation
   alias HealthBoard.Contexts.Geo
@@ -33,7 +33,7 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> order_by(^Keyword.get(params, :order_by, asc: :location_id))
+    |> Repo.maybe_order_by(params)
     |> Repo.all()
     |> maybe_preload(params[:preload])
   end

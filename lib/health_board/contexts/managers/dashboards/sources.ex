@@ -6,10 +6,18 @@ defmodule HealthBoard.Contexts.Dashboards.Sources do
 
   @schema Source
 
-  @spec fetch(integer) :: {:ok, schema} | {:error, :not_found}
+  @spec fetch(integer) :: {:ok, schema} | :error
   def fetch(id) do
     case Repo.get(@schema, id) do
-      nil -> {:error, :not_found}
+      nil -> :error
+      struct -> {:ok, struct}
+    end
+  end
+
+  @spec fetch_by_sid(String.t()) :: {:ok, schema} | :error
+  def fetch_by_sid(sid) do
+    case Repo.get_by(@schema, sid: sid) do
+      nil -> :error
       struct -> {:ok, struct}
     end
   end

@@ -5,7 +5,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Time do
   def date(params) do
     date = date_value(params["date"], params["default"])
 
-    %{name: "date", value: date, verbose_value: Humanize.date(date), options: date_options(date, params)}
+    %{value: date, verbose_value: Humanize.date(date), options: date_options(date, params)}
   end
 
   defp date_value(date, default) do
@@ -30,9 +30,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Time do
   end
 
   defp date_options(current_date, params) do
-    %{}
-    |> maybe_put(:from_date, handle_from_date(current_date, params))
-    |> maybe_put(:to_date, handle_to_date(current_date, params))
+    %{from_date: handle_from_date(current_date, params), to_date: handle_to_date(current_date, params)}
   end
 
   @spec date_period(map) :: map
@@ -53,7 +51,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Time do
     case params do
       %{"from_date" => from_date} -> parse_date(from_date)
       %{"from_date_alias" => date_alias} -> parse_date_alias(current_date, date_alias)
-      _ -> nil
+      _ -> Date.new(2000, 1, 1)
     end
   end
 
@@ -61,12 +59,9 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Time do
     case params do
       %{"to_date" => from_date} -> parse_date(from_date)
       %{"to_date_alias" => date_alias} -> parse_date_alias(current_date, date_alias)
-      _ -> nil
+      _ -> Date.utc_today()
     end
   end
-
-  defp maybe_put(map, _key, nil), do: map
-  defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
   defp parse_date(date) do
     case Date.from_iso8601(date) do

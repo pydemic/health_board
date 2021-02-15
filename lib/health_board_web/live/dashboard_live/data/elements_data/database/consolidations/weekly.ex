@@ -14,24 +14,20 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Week
   end
 
   defp list_consolidations(data, params, group) do
-    {
-      Consolidations.fetch_years(data, params),
-      Consolidations.fetch_weeks(data, params),
-      Consolidations.fetch_locations_ids(data, params)
-    }
+    []
+    |> maybe_append(Consolidations.fetch_years(data, params))
+    |> maybe_append(Consolidations.fetch_weeks(data, params))
+    |> maybe_append(Consolidations.fetch_locations_ids(data, params))
     |> case do
-      {:error, :error, :error} -> :error
-      {:error, :error, {:ok, lk}} -> {:ok, do_list([consolidation_group_id: group] ++ lk)}
-      {:error, {:ok, wk}, :error} -> {:ok, do_list([consolidation_group_id: group] ++ wk)}
-      {:error, {:ok, wk}, {:ok, lk}} -> {:ok, do_list([consolidation_group_id: group] ++ wk ++ lk)}
-      {{:ok, yk}, :error, :error} -> {:ok, do_list([consolidation_group_id: group] ++ yk)}
-      {{:ok, yk}, :error, {:ok, lk}} -> {:ok, do_list([consolidation_group_id: group] ++ yk ++ lk)}
-      {{:ok, yk}, {:ok, wk}, :error} -> {:ok, do_list([consolidation_group_id: group] ++ yk ++ wk)}
-      {{:ok, yk}, {:ok, wk}, {:ok, lk}} -> {:ok, do_list([consolidation_group_id: group] ++ yk ++ wk ++ lk)}
+      [] -> :error
+      manager_params -> {:ok, do_list([{:consolidation_group_id, group} | manager_params])}
     end
   end
 
   defp do_list(manager_params) do
     ElementsData.database_data(WeeklyLocationsConsolidations, :list_by, [manager_params])
   end
+
+  defp maybe_append(list, {:ok, item}) when is_list(item), do: item ++ list
+  defp maybe_append(list, _result), do: list
 end

@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Dashboards.Sources do
 
   @context "dashboards"
   @table_name "sources"
-  @columns ~w[name description link update_rate extraction_date last_update_date]a
+  @columns ~w[sid name description link update_rate extraction_date last_update_date]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

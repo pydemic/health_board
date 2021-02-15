@@ -19,6 +19,8 @@ defmodule HealthBoard.Repo.Migrations.CreateDashboards do
 
   defp create_elements do
     create table(:elements) do
+      add :sid, :string, null: false
+
       add :type, :integer, null: false
 
       add :name, :string, null: false
@@ -28,7 +30,7 @@ defmodule HealthBoard.Repo.Migrations.CreateDashboards do
       add :component_function, :string, null: false
       add :component_params, :text
 
-      add :link_element_id, references(:elements, on_delete: :nilify_all)
+      add :link_element_sid, :string
     end
   end
 
@@ -53,7 +55,9 @@ defmodule HealthBoard.Repo.Migrations.CreateDashboards do
 
   defp create_filters do
     create table(:filters) do
-      add :title, :string, null: false
+      add :sid, :string, null: false
+
+      add :name, :string, null: false
       add :description, :text
 
       add :default, :text
@@ -68,6 +72,9 @@ defmodule HealthBoard.Repo.Migrations.CreateDashboards do
 
   defp create_elements_filters do
     create table(:elements_filters) do
+      add :name, :string
+      add :description, :text
+
       add :default, :text
 
       add :disabled, :boolean
@@ -83,6 +90,9 @@ defmodule HealthBoard.Repo.Migrations.CreateDashboards do
 
   defp create_indicators do
     create table(:indicators) do
+      add :sid, :string, null: false
+
+      add :name, :string, null: false
       add :description, :text, null: false
 
       add :formula, :text, null: false
@@ -101,6 +111,8 @@ defmodule HealthBoard.Repo.Migrations.CreateDashboards do
 
   defp create_sources do
     create table(:sources) do
+      add :sid, :string, null: false
+
       add :name, :string, null: false
       add :description, :text
 

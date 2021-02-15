@@ -22,39 +22,48 @@ defmodule HealthBoard.Contexts.Dashboards.Elements do
     3 => :cards
   }
 
+  @dashboards_type Map.fetch!(@types, :dashboards)
+
   # Accessor
 
-  @spec fetch_dashboard(integer) :: {:ok, schema} | {:error, :not_found}
+  @spec fetch_dashboard(integer) :: {:ok, schema} | :error
   def fetch_dashboard(id) do
     case get_dashboard(id) do
-      nil -> {:error, :not_found}
+      nil -> :error
       dashboard -> {:ok, preload_dashboard(dashboard)}
-    end
-  end
-
-  @spec list_other_dashboards(integer) :: {:ok, schema} | {:error, :not_found}
-  def list_other_dashboards(id) do
-    case get_dashboards(id) do
-      nil -> {:error, :not_found}
-      dashboards -> {:ok, dashboards}
     end
   end
 
   defp get_dashboard(id) do
     @schema
-    |> where(id: ^id, type: ^type(:dashboards))
+    |> where(id: ^id, type: ^@dashboards_type)
     |> Repo.one()
   rescue
     _error -> nil
   end
 
-  defp get_dashboards(id) do
-    from(d in @schema, where: d.id != ^id)
-    |> where(type: ^type(:dashboards))
-    |> Repo.all()
+  @spec fetch_dashboard_by_sid(String.t()) :: {:ok, schema} | :error
+  def fetch_dashboard_by_sid(sid) do
+    case get_dashboard_by_sid(sid) do
+      nil -> :error
+      dashboard -> {:ok, preload_dashboard(dashboard)}
+    end
+  end
+
+  defp get_dashboard_by_sid(sid) do
+    @schema
+    |> where(sid: ^sid, type: ^@dashboards_type)
+    |> Repo.one()
   rescue
     _error -> nil
   end
+
+  @spec list_other_dashboards(schema) :: list(schema)
+  def list_other_dashboards(%{id: id}) do
+    Repo.all(from(row in @schema, where: row.id != ^id and row.type == ^@dashboards_type))
+  end
+
+  # Preloads
 
   defp preload_dashboard(schema_or_schemas) do
     preloads = [

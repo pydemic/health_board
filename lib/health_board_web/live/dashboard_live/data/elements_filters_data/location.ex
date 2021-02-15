@@ -6,7 +6,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Location do
   @spec location(map) :: map
   def location(params) do
     location = location_value(params["location"], params["default"])
-    %{name: "location", value: location, verbose_value: Humanize.location(location), options: location_options()}
+
+    %{value: location, verbose_value: Humanize.location(location), options: location_options()}
   end
 
   defp location_value(location_id, default) do
@@ -23,11 +24,26 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Location do
 
   defp location_options do
     %{
-      locations: ElementsData.database_data(Locations, :list_by, [[]])
+      locations:
+        Locations
+        |> ElementsData.database_data(:list_by, [[preload: :parent_state, order_by: [asc: :name]]])
+        |> Enum.map(&format_option/1)
     }
   end
 
+  defp format_option(location) do
+    verbose_name = Humanize.location(location)
+
+    query_name =
+      verbose_name
+      |> String.downcase()
+      |> :unicode.characters_to_nfd_binary()
+      |> String.replace(~r/[^a-z0-9\s]/u, "")
+
+    {verbose_name, {query_name, location.id}}
+  end
+
   defp get_location(id) do
-    ElementsData.database_data(Locations, :get_by, [[id: id]])
+    ElementsData.database_data(Locations, :get_by, [[id: id, preload: :parents]])
   end
 end

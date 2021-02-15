@@ -18,6 +18,7 @@ defmodule HealthBoard.Updaters.Helpers do
 
     case state do
       %{status: :new} -> struct(module.new(state), status: List.first(state.statuses))
+      %{status: :idle} -> struct(state, status: List.first(state.statuses))
       %{error?: true} -> struct(state, error?: false)
       state -> state
     end
@@ -58,9 +59,9 @@ defmodule HealthBoard.Updaters.Helpers do
   defp next_status(status, [_other_status | statuses]), do: next_status(status, statuses)
 
   defp handle_attempt(%{__struct__: module, attempts: attempts} = state) do
-    if attempts < 5 do
-      attempts = attempts + 1
+    attempts = attempts + 1
 
+    if attempts < 5 do
       milliseconds = state.reattempt_after_milliseconds + state.reattempt_initial_milliseconds * attempts
 
       state

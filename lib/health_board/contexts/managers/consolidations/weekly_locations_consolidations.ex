@@ -1,5 +1,5 @@
 defmodule HealthBoard.Contexts.Consolidations.WeeklyLocationsConsolidations do
-  import Ecto.Query, only: [order_by: 2, where: 2, dynamic: 1, dynamic: 2]
+  import Ecto.Query, only: [where: 2, dynamic: 1, dynamic: 2]
 
   alias HealthBoard.Contexts.Consolidations.WeekLocationConsolidation
   alias HealthBoard.Repo
@@ -31,7 +31,7 @@ defmodule HealthBoard.Contexts.Consolidations.WeeklyLocationsConsolidations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> order_by(^Keyword.get(params, :order_by, asc: :location_id))
+    |> Repo.maybe_order_by(params)
     |> Repo.all()
   end
 

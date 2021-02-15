@@ -1,5 +1,5 @@
 defmodule HealthBoard.Contexts.Geo.Locations do
-  import Ecto.Query, only: [from: 2, order_by: 2, where: 2, dynamic: 1, dynamic: 2]
+  import Ecto.Query, only: [from: 2, where: 2, dynamic: 1, dynamic: 2]
 
   alias HealthBoard.Contexts.Geo
   alias HealthBoard.Contexts.Geo.Location
@@ -35,6 +35,7 @@ defmodule HealthBoard.Contexts.Geo.Locations do
     @schema
     |> where(^filter_where(params))
     |> Repo.one!()
+    |> maybe_preload(params[:preload])
   rescue
     error ->
       case Keyword.pop(params, :default) do
@@ -48,8 +49,9 @@ defmodule HealthBoard.Contexts.Geo.Locations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> order_by(^Keyword.get(params, :order_by, asc: :name))
+    |> Repo.maybe_order_by(params)
     |> Repo.all()
+    |> maybe_preload(params[:preload])
   end
 
   @spec list_children(integer, atom | integer) :: list(schema)
@@ -70,9 +72,10 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
   @spec parent_siblings(schema, atom | integer) :: list(schema)
   def parent_siblings(schema, group) do
-    case preload_parent(schema, group - 1) do
-      %{parents: [%{parent: parent}]} -> children(parent, group)
-      _schema -> []
+    parent_of_parent_group = group - 1
+
+    with [] <- do_siblings(schema, parent_of_parent_group) do
+      do_siblings(preload_parent(schema, parent_of_parent_group), parent_of_parent_group)
     end
   end
 
@@ -98,15 +101,28 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
   @spec siblings(schema) :: list(schema)
   def siblings(%{group: group} = schema) do
-    case preload_parent(schema, group - 1) do
-      %{parents: [%{parent: parent}]} -> children(parent, group)
-      _schema -> []
+    parent_group = group - 1
+
+    with [] <- do_siblings(schema, parent_group) do
+      do_siblings(preload_parent(schema, parent_group), parent_group)
+    end
+  end
+
+  defp do_siblings(%{group: group, parents: parents}, parent_group) do
+    if is_list(parents) do
+      case Enum.find(parents, &(&1.parent_group == parent_group)) do
+        %{parent: parent} -> children(parent, group)
+        _result -> []
+      end
+    else
+      []
     end
   end
 
   # Miscellaneous
 
-  @spec group(atom | integer) :: integer
+  @spec group(atom | integer | String.t()) :: integer
+  def group(string) when is_binary(string), do: group(String.to_atom(string))
   def group(atom) when is_atom(atom), do: Map.fetch!(@groups, atom)
   def group(integer) when is_integer(integer), do: integer
 
@@ -126,6 +142,21 @@ defmodule HealthBoard.Contexts.Geo.Locations do
   def state_id(id, :cities), do: div(id, 100_000)
 
   # Preloads
+
+  defp maybe_preload(schema_or_schemas, preload) do
+    case preload do
+      :parents ->
+        Repo.preload(schema_or_schemas, parents: :parent)
+
+      :parent_state ->
+        Repo.preload(schema_or_schemas,
+          parents: {from(l in Geo.LocationChild, where: l.parent_group == ^group(:states)), [:parent]}
+        )
+
+      _preload ->
+        schema_or_schemas
+    end
+  end
 
   @spec preload_children(schema | list(schema), atom | integer) :: schema | list(schema)
   def preload_children(schema_or_schemas, child_group) do

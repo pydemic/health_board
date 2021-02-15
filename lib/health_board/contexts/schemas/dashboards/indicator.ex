@@ -5,6 +5,9 @@ defmodule HealthBoard.Contexts.Dashboards.Indicator do
   @type schema :: %__MODULE__{}
 
   schema "indicators" do
+    field :sid, :string, null: false
+
+    field :name, :string, null: false
     field :description, :string, null: false
 
     field :formula, :string, null: false

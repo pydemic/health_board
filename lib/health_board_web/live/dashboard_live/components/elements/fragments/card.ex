@@ -6,17 +6,17 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.Card do
   prop element, :map, required: true
   prop params, :map, default: %{}
 
-  prop wrapper_class, :css_class, default: "flex flex-col place-content-evenly rounded-lg shadow-md"
+  prop wrapper_class, :css_class, default: "flex flex-col place-content-evenly border rounded-lg shadow-md self-center"
+  prop extra_wrapper_class, :css_class, default: ""
   prop header_class, :css_class, default: "px-6 py-4 border-b border-gray-200 font-bold text-center"
   prop body_class, :css_class, default: "p-6 border-b border-gray-200 text-center"
-  prop footer_class, :css_class, default: "px-6 py-2 flex justify-evenly content-center"
 
   slot default, props: [:data]
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <DataWrapper id={{ @element.id }} :let={{ data: data }} wrapper_class={{ @wrapper_class }}>
+    <DataWrapper id={{ @element.id }} :let={{ data: data }} wrapper_class={{ @wrapper_class, @extra_wrapper_class }}>
       <div class={{ @header_class }}>
         {{ @element.name }}
       </div>
@@ -29,9 +29,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.Card do
         <Fragments.Loading />
       </div>
 
-      <div class={{ @footer_class }}>
-        <ElementsFragments.Options element={{ @element }} params={{ @params }} />
-      </div>
+      <ElementsFragments.Options id={{ "options_#{@element.id}" }} element={{ @element }} params={{ @params }} />
     </DataWrapper>
     """
   end

@@ -1,6 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Section do
   use Surface.Component
-  alias HealthBoardWeb.DashboardLive.Components.{DataWrapper, DynamicElement, ElementsFragments}
+  alias __MODULE__.FiltersTags
+  alias HealthBoardWeb.DashboardLive.Components.{DataWrapper, DynamicElement}
   alias Phoenix.LiveView
 
   prop section, :map, required: true
@@ -15,13 +16,25 @@ defmodule HealthBoardWeb.DashboardLive.Components.Section do
           {{ @section.name }}
         </h1>
 
-        <ElementsFragments.FiltersTags element={{ @section }} />
+        <FiltersTags id={{ @section.id }} name={{ @section.name }} filters={{ @section.filters }} params={{ @params }} />
       </div>
 
-      <div class="pb-5 px-4 sm:px-6 lg:px-8 grid md:grid-cols-3 place-items-stretch gap-4">
+      <div class={{ section_class(@params) }}>
         <DynamicElement :for={{ %{child: card} <- @section.children }} element={{ card }} />
       </div>
     </DataWrapper>
     """
   end
+
+  defp section_class(params) do
+    case Map.get(params, "responsive_cols") do
+      "3" -> three_cols_section()
+      "2" -> two_cols_section()
+      _result -> single_col_section()
+    end <> " grid pb-5 px-4 sm:px-6 lg:px-8 place-items-stretch gap-4"
+  end
+
+  defp single_col_section, do: "grid-cols-1"
+  defp two_cols_section, do: "lg:grid-cols-2 2xl:grid-cols-3"
+  defp three_cols_section, do: "md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
 end

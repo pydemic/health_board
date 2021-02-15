@@ -6,6 +6,8 @@ defmodule HealthBoard.Contexts.Dashboards.Source do
   @type schema :: %__MODULE__{}
 
   schema "sources" do
+    field :sid, :string, null: false
+
     field :name, :string, null: false
     field :description, :string
 
