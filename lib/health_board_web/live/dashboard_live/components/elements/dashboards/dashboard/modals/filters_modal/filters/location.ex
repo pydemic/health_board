@@ -21,7 +21,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
 
           <div class="relative inline-flex">
             <span class="ml-2 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-              <SearchIcon svg_class="w-3 h-3 text-gray-700" />
+              <SearchIcon svg_class="w-5 h-5 text-gray-500" />
             </span>
 
             <input :on-debounce="500" type="text" name="location" placeholder="Ex: Brasil" value={{ @location_name }} autocomplete="off" class="mt-1 border border-gray-300 rounded-full text-gray-600 pl-3 pr-6 bg-white hover:border-gray-400 focus:outline-none appearance-none" />

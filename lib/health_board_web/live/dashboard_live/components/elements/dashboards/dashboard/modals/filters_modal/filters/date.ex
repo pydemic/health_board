@@ -27,7 +27,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
     ~H"""
     <div class="bg-gray-50 px-5 pb-5 rounded-lg">
       <Form :if={{ @filter.disabled != true }} for={{ :date }} change="change">
-        <div class="grid md:grid-cols-3 md:gap-2">
+        <div class="grid md:grid-cols-3 gap-2 place-items-stretch">
           <Select name="day" label="Dia" selected={{ date.day }} options={{ days }} formatter={{ &format_day/1 }} />
           <Select name="month" label="Mês" selected={{ date.month }} options={{ months }} formatter={{ &format_day/1 }} />
           <Select name="year" label="Ano" selected={{ date.year }} options={{ years }} />

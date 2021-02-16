@@ -2,6 +2,11 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.DeathRate do
   alias HealthBoardWeb.DashboardLive.ElementsData.Components
   alias HealthBoardWeb.Helpers.Humanize
 
+  @spec choropleth_maps(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
+  def choropleth_maps(_data, _params) do
+    :ok
+  end
+
   @spec scalar(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
   def scalar(data, params) do
     {:ok, {:emit, %{value: do_scalar(data, params)}}}
