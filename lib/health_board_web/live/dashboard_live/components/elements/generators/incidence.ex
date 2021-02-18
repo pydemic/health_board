@@ -1,9 +1,31 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
   use Surface.Component
-  alias HealthBoardWeb.DashboardLive.Components.{ScalarCard, TableCard}
+  alias HealthBoardWeb.DashboardLive.Components.{EpicurveChartCard, LineChartCard, ScalarCard, TableCard}
   alias Phoenix.LiveView
 
   prop element, :map, required: true
+
+  @spec daily_epicurve(map, map) :: LiveView.Rendered.t()
+  def daily_epicurve(assigns, params) do
+    ~H"""
+    <EpicurveChartCard card={{ @element }} params={{ daily_epicurve_params(params) }} />
+    """
+  end
+
+  defp daily_epicurve_params(params) do
+    params
+  end
+
+  @spec monthly_chart(map, map) :: LiveView.Rendered.t()
+  def monthly_chart(assigns, params) do
+    ~H"""
+    <LineChartCard card={{ @element }} params={{ monthly_chart_params(params) }} />
+    """
+  end
+
+  defp monthly_chart_params(params) do
+    params
+  end
 
   @spec scalar(map, map) :: LiveView.Rendered.t()
   def scalar(assigns, params) do
@@ -25,6 +47,17 @@ defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
 
   defp top_ten_locations_table_params(params) do
     Map.merge(params, %{slice: 0..9, with_index: true, headers: ~w[Local Incidência]})
+  end
+
+  @spec weekly_chart(map, map) :: LiveView.Rendered.t()
+  def weekly_chart(assigns, params) do
+    ~H"""
+    <LineChartCard card={{ @element }} params={{ weekly_chart_params(params) }} />
+    """
+  end
+
+  defp weekly_chart_params(params) do
+    params
   end
 
   @spec render(map) :: LiveView.Rendered.t()

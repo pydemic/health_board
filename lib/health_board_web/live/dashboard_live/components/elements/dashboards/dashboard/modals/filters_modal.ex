@@ -2,7 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal 
   use Surface.LiveComponent
   alias HealthBoardWeb.DashboardLive.Components.Dashboard.Modals
   alias HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.DynamicFilter
-  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.Filter
   alias HealthBoardWeb.Router
   alias Phoenix.LiveView
 
@@ -17,51 +17,52 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal 
     ~H"""
     <div class="fixed inset-0 z-20 bg-black bg-opacity-75">
       <div class="mt-10 h-5/6 w-11/12 flex items-center mx-auto">
-        <div class="flex flex-col bg-white p-5 mx-auto rounded-lg shadow-xl max-h-full w-full">
+        <div class="flex flex-col p-5 mx-auto max-h-full w-full rounded-lg bg-hb-a dark:bg-hb-a-dark">
           <div class="sm:flex sm:items-start max-h-full">
-            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-              <Icons.Filter />
+            <div class="flex items-center justify-center flex-shrink-0 sm:mx-0 mx-auto sm:h-10 h-12 sm:w-10 w-12 rounded-full bg-hb-aa dark:bg-hb-aa-dark text-hb-ba dark:text-hb-ba-dark">
+              <Filter />
             </div>
 
-            <div class="mt-3 text-center sm:mt-2 sm:ml-4 sm:text-left max-h-full">
+            <div class="sm:mt-2 mt-3 sm:ml-4 sm:text-left text-center max-h-full">
               <h3 class="text-lg leading-6 font-medium">{{ @name }}: Filtros</h3>
             </div>
           </div>
 
-          <div class="mt-3 px-5 flex-shrink overflow-y-auto w-full">
-            <div :for={{ filter <- @filters }} class="border border-gray-300 rounded-lg my-5">
+          <div class="px-5 mt-3 flex-shrink overflow-y-auto w-full">
+            <div :for={{ filter <- @filters }} class="my-5 border rounded-lg border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
               <div class="p-5">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ filter.name }}</h3>
-                <p class="mt-2 max-w-2xl text-xs text-gray-500">{{ filter.description }}</p>
+                <h3 class="text-lg leading-6 font-medium text-hb-aa">{{ filter.name }}</h3>
+                <p class="mt-2 max-w-2xl text-xs">{{ filter.description }}</p>
               </div>
 
-              <div class="border-t border-gray-300">
+              <div class="p-5 border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
                 <dl>
-                  <div class="bg-gray-50 p-5 sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
-                    <dt class="text-sm font-medium text-gray-500">Valor atual</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ filter.verbose_value }}</dd>
+                  <div class="sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
+                    <dt class="text-sm font-semibold">Valor atual</dt>
+                    <dd class="sm:col-span-2 sm:mt-0 mt-1 text-sm">{{ filter.verbose_value }}</dd>
                   </div>
 
-                  <DynamicFilter id={{ filter.sid }} changes={{ @changes }} filter={{ filter }} />
                 </dl>
+              </div>
+
+              <div class="p-5 border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
+                <DynamicFilter id={{ filter.sid }} changes={{ @changes }} filter={{ filter }} />
               </div>
             </div>
           </div>
 
-          <div class="bg-white">
-            <hr />
-
-            <div class="px-4 py-3 sm:px-0 sm:flex">
-              <span class="mt-5 flex w-full rounded-md shadow-sm sm:w-auto">
-                <button type="button" :on-click="save" class="inline-flex justify-center w-full rounded-md border border-green-400 px-4 py-2 bg-green-300 text-base leading-6 font-medium text-gray-700 shadow-sm focus:outline-none hover:text-black sm:text-sm sm:leading-5">
+          <div class="border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
+            <div class="sm:flex sm:px-0 px-4 py-3">
+              <span class="flex mt-5 sm:w-auto w-full rounded-md">
+                <button type="button" :on-click="save" class="px-4 py-2 inline-flex justify-center w-full text-sm rounded-md border border-green-500 dark:border-green-600 text-green-500 dark:text-green-600 border-text-green-500 dark:border-text-green-600 hover:text-hb-a dark:hover:text-hb-a-dark hover:bg-green-500 dark:hover:bg-green-600 focus:outline-none focus:text-hb-a dark:focus:text-hb-a-dark focus:bg-green-500 dark:focus:bg-green-600">
                   Salvar
                 </button>
               </span>
 
               <span class="sm:flex-grow"></span>
 
-              <span class="mt-5 flex w-full rounded-md shadow-sm sm:w-auto">
-                <button type="button" :on-click="hide" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-indigo-700 focus:text-indigo-700 sm:text-sm sm:leading-5">
+              <span class="flex mt-5 sm:w-auto w-full rounded-md">
+                <button type="button" :on-click="hide" class="px-4 py-2 inline-flex justify-center w-full text-sm text-opacity-50 rounded-md border border-opacity-50 text-hb-b dark:text-hb-b-dark border-hb-b dark:border-hb-b-dark hover:text-hb-ca dark:hover:text-hb-aa hover:border-hb-ca dark:hover:border-hb-aa focus:outline-none focus:text-hb-ca dark:focus:text-hb-aa focus:border-hb-ca dark:focus:border-hb-aa dark:hover:text-opacity-100 dark:hover:border-opacity-100 dark:focus:text-opacity-100 dark:focus:border-opacity-100">
                   Fechar
                 </button>
               </span>

@@ -26,10 +26,12 @@ defmodule HealthBoard.Contexts.Dashboards.Element do
     has_many :indicators, Dashboards.ElementIndicator
     has_many :sources, Dashboards.ElementSource
 
+    field :dark_mode, :boolean, virtual: true, default: false
     field :group_index, :integer, virtual: true, default: 0
     field :organizations, :any, virtual: true, default: []
     field :other_dashboards, :any, virtual: true, default: []
     field :params, :map, virtual: true, default: %{}
+    field :show_options, :boolean, virtual: true, default: true
     field :version, :string, virtual: true, default: ""
   end
 end

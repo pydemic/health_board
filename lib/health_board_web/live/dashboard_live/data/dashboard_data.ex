@@ -6,18 +6,22 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
   @cache_table :dashboards_cache
 
   @valid_params_keys [
+    "dark_mode",
     "date",
     "group_index",
     "id",
-    "location"
+    "location",
+    "show_options"
   ]
 
   @type t :: %__MODULE__{
+          default_dashboard_id: integer,
           organizations: list({String.t(), String.t()}),
           version: String.t()
         }
 
-  defstruct organizations: [{"https://www.paho.org/pt/brasil", "/images/logo_paho_white.svg"}],
+  defstruct default_dashboard_id: 89,
+            organizations: [{"https://www.paho.org/pt/brasil", "/images/logo_paho.svg"}],
             version: "0.0.1"
 
   @spec start_link(keyword) :: {:ok, pid} | :ignore | {:error, any}
@@ -39,6 +43,8 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
   @impl GenServer
   @spec handle_call(any, {pid, any}, t()) :: {:reply, any, t()}
   def handle_call({:fetch, {id, params}}, _from, state) do
+    id = if is_nil(id), do: state.default_dashboard_id, else: id
+
     case :ets.lookup(@cache_table, id) do
       [{_id, dashboard}] ->
         {:reply, {:ok, fetch_params(dashboard, params, state)}, state}
@@ -93,7 +99,9 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
       children: parse_children(children, filters, sources, params),
       filters: filters,
       params: params,
-      sources: sources
+      sources: sources,
+      dark_mode: params["dark_mode"] == "true",
+      show_options: params["show_options"] != "false"
     )
   end
 

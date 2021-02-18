@@ -51,7 +51,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Time do
     case params do
       %{"from_date" => from_date} -> parse_date(from_date)
       %{"from_date_alias" => date_alias} -> parse_date_alias(current_date, date_alias)
-      _ -> Date.new(2000, 1, 1)
+      _ -> Date.from_erl!({2000, 1, 1})
     end
   end
 

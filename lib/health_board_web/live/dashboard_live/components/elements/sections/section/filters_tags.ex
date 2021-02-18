@@ -13,19 +13,15 @@ defmodule HealthBoardWeb.DashboardLive.Components.Section.FiltersTags do
   def render(assigns) do
     ~H"""
     <div>
-      <div
-        :for={{ filter <- @filters }}
-        :on-click="show_filters"
-        class="text-xs inline-flex items-center leading-sm mr-2 px-2 py-1 bg-blue-100 rounded-full cursor-pointer hover:bg-indigo-200"
-      >
-        <span class="font-bold text-blue-700">
+      <button :for={{ filter <- @filters }} :on-click="show_filters" class="inline-flex items-center px-2 py-1 mr-2 text-xs rounded-full cursor-pointer bg-hb-aa dark:bg-hb-aa-dark bg-opacity-40 text-hb-aa-dark dark:text-hb-b-dark hover:bg-hb-c dark:hover:bg-hb-c-dark focus:outline-none focus:bg-hb-c dark:focus:bg-hb-c-dark">
+        <span class="font-bold">
           {{ filter.name }}:
         </span>
 
-        <span class="ml-2 text-blue-600">
+        <span class="ml-2">
           {{ value(@params, filter) }}
         </span>
-      </div>
+      </button>
     </div>
     """
   end

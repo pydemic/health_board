@@ -25,7 +25,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
     years = assigns.years || fetch_years(options)
 
     ~H"""
-    <div class="bg-gray-50 px-5 pb-5 rounded-lg">
+    <div>
       <Form :if={{ @filter.disabled != true }} for={{ :date }} change="change">
         <div class="grid md:grid-cols-3 gap-2 place-items-stretch">
           <Select name="day" label="Dia" selected={{ date.day }} options={{ days }} formatter={{ &format_day/1 }} />

@@ -1,4 +1,4 @@
-defmodule HealthBoardWeb.DashboardLive.Components.ChoroplethMapsCard do
+defmodule HealthBoardWeb.DashboardLive.Components.SituationReport.ICURateTableCard do
   use Surface.Component
   alias HealthBoardWeb.DashboardLive.Components.Card
   alias Phoenix.LiveView

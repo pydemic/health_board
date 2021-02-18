@@ -1,7 +1,7 @@
-defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.Options do
+defmodule HealthBoardWeb.DashboardLive.Components.Card.Options do
   use Surface.LiveComponent
   alias HealthBoardWeb.DashboardLive.Components.Dashboard.Modals
-  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.{Filter, Info, Source}
   alias Phoenix.LiveView
 
   prop element, :map, required: true
@@ -10,17 +10,17 @@ defmodule HealthBoardWeb.DashboardLive.Components.ElementsFragments.Options do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="px-6 py-2 flex justify-evenly content-center">
-      <button :if={{ Enum.any?(@element.indicators) }} :on-click="show_indicators" class="focus:outline-none focus:border-indigo-700 focus:text-indigo-700">
-        <Icons.Info />
+    <div class="px-5 py-2 flex justify-evenly content-center">
+      <button :if={{ Enum.any?(@element.indicators) }} :on-click="show_indicators" class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+        <Info />
       </button>
 
-      <button :if={{ Enum.any?(@element.filters) }} :on-click="show_filters" class="focus:outline-none focus:border-indigo-700 focus:text-indigo-700">
-        <Icons.Filter />
+      <button :if={{ Enum.any?(@element.filters) }} :on-click="show_filters" class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+        <Filter />
       </button>
 
-      <button :if={{ Enum.any?(@element.sources) }} :on-click="show_sources" class="focus:outline-none focus:border-indigo-700 focus:text-indigo-700">
-        <Icons.Source />
+      <button :if={{ Enum.any?(@element.sources) }} :on-click="show_sources" class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+        <Source />
       </button>
     </div>
     """

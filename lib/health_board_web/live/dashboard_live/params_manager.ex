@@ -4,6 +4,8 @@ defmodule HealthBoardWeb.DashboardLive.ParamsManager do
 
   @spec mount(LiveView.Socket.t(), map) :: LiveView.Socket.t()
   def mount(socket, params) do
+    socket = LiveView.assign(socket, dark_mode: params["dark_mode"] == "true")
+
     if socket.changed[:dashboard] == true or not Map.has_key?(socket.assigns, :dashboard) do
       fetch_dashboard(socket, params)
     else
@@ -14,7 +16,7 @@ defmodule HealthBoardWeb.DashboardLive.ParamsManager do
   @spec handle(LiveView.Socket.t(), map) :: LiveView.Socket.t()
   def handle(socket, params) do
     socket =
-      if socket.changed[:dashboard] != true and Map.has_key?(params, "refetch") do
+      if socket.changed[:dashboard] != true and params["refetch"] == "true" do
         fetch_dashboard(socket, params)
       else
         socket
@@ -28,11 +30,11 @@ defmodule HealthBoardWeb.DashboardLive.ParamsManager do
       end
     end
 
-    socket
+    LiveView.assign(socket, :dark_mode, params["dark_mode"] == "true")
   end
 
   defp fetch_dashboard(socket, params) do
-    case DashboardsData.fetch(Map.get(params, "id", 1), params) do
+    case DashboardsData.fetch(params["id"], params) do
       {:ok, dashboard} -> LiveView.assign(socket, dashboard: dashboard, page_title: dashboard.name)
       _not_found -> socket
     end

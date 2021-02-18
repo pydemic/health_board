@@ -1,6 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Components.TableCard do
   use Surface.Component
-  alias HealthBoardWeb.DashboardLive.Components.{ElementsFragments, Fragments}
+  alias HealthBoardWeb.DashboardLive.Components.Card
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.{MaybeLink, NA, Otherwise}
   alias Phoenix.LiveView
 
   prop card, :map, required: true
@@ -9,16 +10,16 @@ defmodule HealthBoardWeb.DashboardLive.Components.TableCard do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <ElementsFragments.Card
+    <Card
       :let={{ data: data }}
       element={{ @card }}
       params={{ @params }}
-      wrapper_class="flex flex-col place-content-evenly rounded-lg shadow-md overflow-x-auto"
+      extra_wrapper_class="overflow-x-auto"
     >
-      <Fragments.Otherwise condition={{ Enum.any?(data) and Enum.any?(data[:lines] || []) }}>
+      <Otherwise condition={{ Enum.any?(data) and Enum.any?(data[:lines] || []) }}>
         <table :if={{ Enum.any?(data) and Enum.any?(data[:lines] || []) }} class="table-auto border-collapse w-full">
           <thead>
-            <tr class="text-sm text-left text-gray-600">
+            <tr class="text-sm text-left text-hb-ca-dark dark:text-hb-b-dark">
               <th :if={{ @params[:with_index] == true }} ></th>
               <th :for={{ header <- Map.get(@params, :headers, []) }} >
                 {{ header }}
@@ -26,37 +27,23 @@ defmodule HealthBoardWeb.DashboardLive.Components.TableCard do
             </tr>
           </thead>
 
-          <tbody :if={{ @params[:with_index] == true }}>
-            <tr
-              :for.with_index={{ {line, index} <- fetch_lines(data, @params) }}
-              class="text-sm text-left hover:bg-gray-100"
-            >
-              <td>{{ index + 1 }}</td>
-              <td :for={{ cell <- Map.get(line, :cells, []) }}>
-                {{ cell }}
+          <tbody>
+            <tr :for.with_index={{ {line, index} <- fetch_lines(data, @params) }} class="text-sm text-left hover:bg-hb-c dark:hover:bg-hb-c-dark">
+              <td :if={{ @params[:with_index] == true }} class="text-right pr-2">
+                {{ index + 1 }}
               </td>
-            </tr>
-          </tbody>
 
-          <tbody :if={{ @params[:with_index] != true }}>
-            <tr
-              :for={{ line <- fetch_lines(data, @params) }}
-              class="text-sm text-left hover:bg-gray-100"
-            >
               <td :for={{ cell <- Map.get(line, :cells, []) }}>
-                {{ cell }}
+                <MaybeLink content={{ cell }} params={{ @card.params }} />
               </td>
             </tr>
           </tbody>
         </table>
-
         <template slot="otherwise">
-          <p class="text-2xl font-bold">
-            N/A
-          </p>
+          <NA />
         </template>
-      </Fragments.Otherwise>
-    </ElementsFragments.Card>
+      </Otherwise>
+    </Card>
     """
   end
 

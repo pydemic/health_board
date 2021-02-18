@@ -14,22 +14,22 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="bg-gray-50 px-5 pb-5 rounded-lg">
+    <div>
       <Form :if={{ @filter.disabled != true }} for={{ :location }} change="search">
         <div>
           <label for={{ :location_name }} class="block ml-3">Pesquisar</label>
 
           <div class="relative inline-flex">
-            <span class="ml-2 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-              <SearchIcon svg_class="w-5 h-5 text-gray-500" />
+            <span class="absolute inset-y-0 right-0 ml-2 flex items-center pr-2 pointer-events-none">
+              <SearchIcon svg_class="w-5 h-5 text-hb-aa" />
             </span>
 
-            <input :on-debounce="500" type="text" name="location" placeholder="Ex: Brasil" value={{ @location_name }} autocomplete="off" class="mt-1 border border-gray-300 rounded-full text-gray-600 pl-3 pr-6 bg-white hover:border-gray-400 focus:outline-none appearance-none" />
+            <input :on-debounce="500" type="text" name="location" placeholder="Ex: Brasil" value={{ @location_name }} autocomplete="off" class="pl-3 pr-6 border rounded-full border-opacity-20 hover:border-opacity-100 border-hb-aa bg-hb-a dark:bg-hb-a-dark focus:outline-none focus:border-opacity-100 appearance-none" />
           </div>
 
           <div>
-            <div :for={{ result <- @search_results }} :on-click="select" phx-value-result={{ result }} class="text-xs inline-flex items-center leading-sm mt-2 mr-2 px-2 py-1 bg-blue-100 rounded-full cursor-pointer hover:bg-indigo-200">
-              <span class="text-blue-600">{{ result }}</span>
+            <div :for={{ result <- @search_results }} :on-click="select" phx-value-result={{ result }} class="inline-flex items-center px-2 py-1 mr-2 text-xs rounded-full cursor-pointer bg-hb-aa dark:bg-hb-aa-dark bg-opacity-40 text-hb-aa-dark dark:text-hb-b-dark hover:bg-hb-c dark:hover:bg-hb-c-dark focus:outline-none focus:bg-hb-c dark:focus:bg-hb-c-dark">
+              {{ result }}
             </div>
           </div>
         </div>

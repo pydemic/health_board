@@ -51,7 +51,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
   end
 
   defp top_ten_table_line(%{location: location, rate: rate}) do
-    %{cells: [Humanize.location(location), Humanize.number(rate)]}
+    %{cells: [{Humanize.location(location), %{location: location.id}}, Humanize.number(rate)]}
   end
 
   defp incidence_rate(_cases, 0), do: 0

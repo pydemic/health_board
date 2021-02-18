@@ -4,6 +4,7 @@ defmodule HealthBoardWeb.DashboardLive do
   alias Phoenix.LiveView
 
   prop dashboard, :map
+  prop dark_mode, :boolean, default: false
 
   @impl LiveView
   @spec mount(map, map, LiveView.Socket.t()) :: {:ok, LiveView.Socket.t()}
@@ -32,12 +33,17 @@ defmodule HealthBoardWeb.DashboardLive do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <Otherwise condition={{  Map.has_key?(assigns, :dashboard) }}>
-      <DynamicElement element={{ @dashboard }} />
-      <template slot="otherwise">
-        <NoDashboard/>
-      </template>
-    </Otherwise>
+    <div class={{ dark: @dark_mode }}>
+      <div class="bg-hb-a dark:bg-hb-a-dark text-hb-b dark:text-hb-b-dark">
+        <Otherwise condition={{  Map.has_key?(assigns, :dashboard) }}>
+          <DynamicElement element={{ @dashboard }} />
+
+          <template slot="otherwise">
+            <NoDashboard/>
+          </template>
+        </Otherwise>
+      </div>
+    </div>
     """
   end
 end

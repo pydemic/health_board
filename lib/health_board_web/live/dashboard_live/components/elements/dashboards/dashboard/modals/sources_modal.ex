@@ -1,7 +1,7 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.SourcesModal do
   use Surface.LiveComponent
   alias HealthBoardWeb.DashboardLive.Components.Dashboard.Modals
-  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.{Link, Source}
   alias HealthBoardWeb.Helpers.Humanize
   alias Phoenix.LiveView
 
@@ -13,45 +13,50 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.SourcesModal 
     ~H"""
     <div class="fixed inset-0 z-20 bg-black bg-opacity-75">
       <div class="mt-10 h-5/6 w-11/12 flex items-center mx-auto">
-        <div class="flex flex-col bg-white p-5 mx-auto rounded-lg shadow-xl max-h-full">
+        <div class="flex flex-col p-5 mx-auto max-h-full rounded-lg bg-hb-a dark:bg-hb-a-dark">
           <div class="sm:flex sm:items-start max-h-full">
-            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-              <Icons.Source />
+            <div class="flex items-center justify-center flex-shrink-0 sm:mx-0 mx-auto sm:h-10 h-12 sm:w-10 w-12 rounded-full bg-hb-aa dark:bg-hb-aa-dark text-hb-ba dark:text-hb-ba-dark">
+              <Source />
             </div>
 
-            <div class="mt-3 text-center sm:mt-2 sm:ml-4 sm:text-left max-h-full">
+            <div class="sm:mt-2 mt-3 sm:ml-4 sm:text-left text-center max-h-full">
               <h3 class="text-lg leading-6 font-medium">{{ @name }}: Fontes</h3>
             </div>
           </div>
 
-          <div class="mt-3 px-5 flex-shrink overflow-y-auto">
-            <div :for={{ %{source: source} <- @sources }} class="border border-gray-300 rounded-lg my-5">
+          <div class="px-5 mt-3 flex-shrink overflow-y-auto">
+            <div :for={{ %{source: source} <- @sources }} class="my-5 border rounded-lg border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
               <div class="p-5">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ source.name }}</h3>
-                <p :if={{ source.description }} class="mt-2 max-w-2xl text-xs text-gray-500">{{ source.description }}</p>
+                <h3 class="text-lg leading-6 font-medium text-hb-aa">{{ source.name }}</h3>
+
+                <p :if={{ source.description }} class="mt-2 max-w-2xl text-xs">{{ source.description }}</p>
               </div>
 
-              <div class="border-t border-gray-300">
+              <div class="p-5 border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
                 <dl>
-                  <div :if={{ source.update_rate }} class="bg-gray-50 p-5 sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
-                    <dt class="text-sm font-medium text-gray-500">Frequência de atualização da base</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ source.update_rate }}</dd>
+                  <div :if={{ source.update_rate }} class="sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
+                    <dt class="text-sm font-semibold">Frequência de atualização da fonte</dt>
+
+                    <dd class="sm:col-span-2 sm:mt-0 mt-1 text-sm">{{ source.update_rate }}</dd>
                   </div>
 
-                  <div :if={{ source.last_update_date }} class="bg-gray-50 p-5 sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
-                    <dt class="text-sm font-medium text-gray-500">Data da última atualização da base</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ Humanize.date source.last_update_date }}</dd>
+                  <div :if={{ source.last_update_date }} class="sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
+                    <dt class="text-sm font-semibold">Data da última atualização da fonte</dt>
+
+                    <dd class="sm:col-span-2 sm:mt-0 mt-1 text-sm">{{ Humanize.date source.last_update_date }}</dd>
                   </div>
 
-                  <div :if={{ source.extraction_date }} class="bg-gray-50 p-5 sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
-                    <dt class="text-sm font-medium text-gray-500">Data da extração</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ Humanize.date source.extraction_date }}</dd>
+                  <div :if={{ source.extraction_date }} class="sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
+                    <dt class="text-sm font-semibold">Data da extração dos dados</dt>
+
+                    <dd class="sm:col-span-2 sm:mt-0 mt-1 text-sm">{{ Humanize.date source.extraction_date }}</dd>
                   </div>
 
-                  <div :if={{ source.link }} class="bg-gray-50 p-5 sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
-                    <dt class="text-sm font-medium text-gray-500">Link</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 text-center">
-                      <a href={{ source.link }} target="_blank" class="mr-2"><Icons.Link /></a>
+                  <div :if={{ source.link }} class="sm:grid sm:grid-cols-3 sm:gap-4 rounded-lg">
+                    <dt class="text-sm font-semibold">Link</dt>
+
+                    <dd class="sm:col-span-2 sm:mt-0 mt-1 text-sm text-center">
+                      <a href={{ source.link }} target="_blank" class="mr-2 hover:text-hb-ca dark:hover:text-hb-aa focus:outline-none focus:text-hb-ca dark:focus:text-hb-aa"><Link /></a>
                     </dd>
                   </div>
                 </dl>
@@ -59,12 +64,10 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.SourcesModal 
             </div>
           </div>
 
-          <div class="bg-white">
-            <hr />
-
-            <div class="px-4 py-3 sm:px-0 sm:flex sm:flex-row-reverse">
-              <span class="mt-5 flex w-full rounded-md shadow-sm sm:w-auto">
-                <button type="button" :on-click="hide" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-indigo-700 focus:text-indigo-700 sm:text-sm sm:leading-5">
+          <div class="border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
+            <div class="sm:flex sm:flex-row-reverse sm:px-0 px-4 py-3">
+              <span class="flex mt-5 sm:w-auto w-full rounded-md">
+                <button type="button" :on-click="hide" class="px-4 py-2 inline-flex justify-center w-full text-sm text-opacity-50 rounded-md border border-opacity-50 text-hb-b dark:text-hb-b-dark border-hb-b dark:border-hb-b-dark hover:text-hb-ca dark:hover:text-hb-aa hover:border-hb-ca dark:hover:border-hb-aa focus:outline-none focus:text-hb-ca dark:focus:text-hb-aa focus:border-hb-ca dark:focus:border-hb-aa dark:hover:text-opacity-100 dark:hover:border-opacity-100 dark:focus:text-opacity-100 dark:focus:border-opacity-100">
                   Fechar
                 </button>
               </span>

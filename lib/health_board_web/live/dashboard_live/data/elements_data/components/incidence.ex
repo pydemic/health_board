@@ -2,6 +2,16 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.Incidence do
   alias HealthBoardWeb.DashboardLive.ElementsData.Components
   alias HealthBoardWeb.Helpers.Humanize
 
+  @spec daily_epicurve(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
+  def daily_epicurve(_data, _params) do
+    :ok
+  end
+
+  @spec monthly_chart(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
+  def monthly_chart(_data, _params) do
+    :ok
+  end
+
   @spec scalar(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
   def scalar(data, params) do
     {:ok, {:emit, %{value: do_scalar(data, params)}}}
@@ -34,6 +44,11 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.Incidence do
   end
 
   defp top_ten_table_line(%{location: location, total: cases}) do
-    %{cells: [Humanize.location(location), Humanize.number(cases)]}
+    %{cells: [{Humanize.location(location), %{location: location.id}}, Humanize.number(cases)]}
+  end
+
+  @spec weekly_chart(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
+  def weekly_chart(_data, _params) do
+    :ok
   end
 end

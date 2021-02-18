@@ -10,14 +10,12 @@ defmodule HealthBoardWeb.DashboardLive.Components.Section do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <DataWrapper id={{ @section.id }} :let={{ data: _data }} wrapper_class="border-2 border-gray-100 rounded-lg mb-6">
-      <div class="mx-auto py-5 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-xl font-bold leading-tight text-gray-900 mb-2">
-          {{ @section.name }}
-        </h1>
+    <DataWrapper id={{ @section.id }} :let={{ data: _data }} wrapper_class="p-5 border border-hb-aa dark:border-hb-aa-dark border-opacity-20 rounded-lg">
+      <h1 class="mb-1 text-xl font-bold">
+        {{ @section.name }}
+      </h1>
 
-        <FiltersTags id={{ @section.id }} name={{ @section.name }} filters={{ @section.filters }} params={{ @params }} />
-      </div>
+      <FiltersTags id={{ @section.id }} name={{ @section.name }} filters={{ @section.filters }} params={{ @params }} />
 
       <div class={{ section_class(@params) }}>
         <DynamicElement :for={{ %{child: card} <- @section.children }} element={{ card }} />
@@ -31,7 +29,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Section do
       "3" -> three_cols_section()
       "2" -> two_cols_section()
       _result -> single_col_section()
-    end <> " grid pb-5 px-4 sm:px-6 lg:px-8 place-items-stretch gap-4"
+    end <> " grid place-items-stretch gap-4 mt-5"
   end
 
   defp single_col_section, do: "grid-cols-1"
