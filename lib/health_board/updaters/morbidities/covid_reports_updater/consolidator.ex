@@ -231,9 +231,8 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
   def init do
     :ets.new(@ets_cities, [:set, :public, :named_table])
 
-    [group: :cities]
+    [group: :cities, preload: :parents]
     |> Locations.list_by()
-    |> Locations.preload_parent(:health_regions)
     |> Enum.each(&:ets.insert_new(@ets_cities, cities_ids(&1)))
 
     :ets.new(@ets_states, [:set, :public, :named_table])
@@ -256,12 +255,12 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     :ok
   end
 
-  defp cities_ids(%{id: city_id, parents: [%{parent_id: health_region_id}]}) do
+  defp cities_ids(%{id: city_id} = location) do
     {
       Integer.to_string(div(city_id, 10)),
       [
         city_id,
-        health_region_id
+        Locations.parent(location, :health_regions)
       ]
     }
   end

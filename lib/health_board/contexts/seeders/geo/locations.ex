@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Geo.Locations do
 
   @context "geo"
   @table_name "locations"
-  @columns ~w[group id name abbr]a
+  @columns ~w[group id name abbr verbose_name lat lng]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

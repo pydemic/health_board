@@ -26,21 +26,19 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Location do
     %{
       locations:
         Locations
-        |> ElementsData.database_data(:list_by, [[preload: :parent_state, order_by: [asc: :name]]])
+        |> ElementsData.database_data(:list_by, [[order_by: [asc: :name]]])
         |> Enum.map(&format_option/1)
     }
   end
 
-  defp format_option(location) do
-    verbose_name = Humanize.location(location)
-
+  defp format_option(%{id: id, verbose_name: verbose_name}) do
     query_name =
       verbose_name
       |> String.downcase()
       |> :unicode.characters_to_nfd_binary()
       |> String.replace(~r/[^a-z0-9\s]/u, "")
 
-    {verbose_name, {query_name, location.id}}
+    {verbose_name, {query_name, id}}
   end
 
   defp get_location(id) do

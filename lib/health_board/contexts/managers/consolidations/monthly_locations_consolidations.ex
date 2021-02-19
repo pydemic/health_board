@@ -31,7 +31,7 @@ defmodule HealthBoard.Contexts.Consolidations.MonthlyLocationsConsolidations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> Repo.maybe_order_by(params)
+    |> Repo.order_by(params)
     |> Repo.all()
   end
 

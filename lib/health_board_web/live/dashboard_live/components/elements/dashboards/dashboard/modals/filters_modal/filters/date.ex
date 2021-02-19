@@ -15,22 +15,13 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
-    filter = assigns.filter
-    options = filter.options
-
-    date = assigns.date || Map.get_lazy(filter, :value, fn -> Date.utc_today() end)
-
-    days = assigns.days || fetch_days(date, options)
-    months = assigns.months || fetch_months(date, options)
-    years = assigns.years || fetch_years(options)
-
     ~H"""
     <div>
       <Form :if={{ @filter.disabled != true }} for={{ :date }} change="change">
         <div class="grid md:grid-cols-3 gap-2 place-items-stretch">
-          <Select name="day" label="Dia" selected={{ date.day }} options={{ days }} formatter={{ &format_day/1 }} />
-          <Select name="month" label="Mês" selected={{ date.month }} options={{ months }} formatter={{ &format_day/1 }} />
-          <Select name="year" label="Ano" selected={{ date.year }} options={{ years }} />
+          <Select name="day" label="Dia" selected={{ fetch_day(@date) }} options={{ @days || fetch_days(fetch_date(@date), @filter.options) }} formatter={{ &format_day/1 }} />
+          <Select name="month" label="Mês" selected={{ fetch_month(@date) }} options={{ @months || fetch_months(fetch_date(@date), @filter.options) }} formatter={{ &format_day/1 }} />
+          <Select name="year" label="Ano" selected={{ fetch_year(@date) }} options={{ @years || fetch_years(@filter.options) }} />
         </div>
       </Form>
     </div>
@@ -38,21 +29,48 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
   end
 
   @spec handle_event(String.t(), map, LiveView.t()) :: {:noreply, LiveView.Socket.t()}
-  def handle_event("change", %{"day" => day, "month" => month, "year" => year}, %{assigns: assigns} = socket) do
-    case Date.new(String.to_integer(year), String.to_integer(month), String.to_integer(day)) do
-      {:ok, date} ->
-        if Date.compare(assigns.filter.value, date) != :eq do
-          FiltersModal.update_changes(Map.put(assigns.changes, "date", Date.to_iso8601(date)))
-        else
-          FiltersModal.update_changes(Map.delete(assigns.changes, "date"))
-        end
+  def handle_event("change", %{"year" => year, "month" => month, "day" => day}, socket) do
+    {:noreply, change(socket, String.to_integer(year), String.to_integer(month), String.to_integer(day))}
+  end
 
-        {:noreply, LiveView.assign(socket, :date, date)}
-
-      _error ->
-        {:noreply, socket}
+  defp change(socket, year, month, day) do
+    case Date.new(year, month, day) do
+      {:ok, date} -> assign_changes(socket, date)
+      _error -> change_with_day_adjustment(socket, year, month)
     end
   end
+
+  defp assign_changes(socket, date) do
+    %{assigns: %{changes: changes, filter: %{value: value, options: options}}} = socket
+
+    if Date.compare(value, date) != :eq do
+      FiltersModal.update_changes(Map.put(changes, "date", Date.to_iso8601(date)))
+    else
+      FiltersModal.update_changes(Map.delete(changes, "date"))
+    end
+
+    LiveView.assign(
+      socket,
+      date: date,
+      days: fetch_days(date, options),
+      months: fetch_months(date, options),
+      years: fetch_years(options)
+    )
+  end
+
+  defp change_with_day_adjustment(socket, year, month) do
+    case Date.new(year, month, 1) do
+      {:ok, date} -> assign_changes(socket, Date.from_erl!({year, month, Date.days_in_month(date)}))
+      _error -> socket
+    end
+  end
+
+  defp fetch_date(%Date{} = date), do: date
+  defp fetch_date(_date), do: Date.utc_today()
+
+  defp fetch_day(date), do: fetch_date(date).day
+  defp fetch_month(date), do: fetch_date(date).month
+  defp fetch_year(date), do: fetch_date(date).year
 
   defp fetch_days(%{year: year, month: month} = date, %{from_date: from, to_date: to}) do
     days = Date.days_in_month(date)

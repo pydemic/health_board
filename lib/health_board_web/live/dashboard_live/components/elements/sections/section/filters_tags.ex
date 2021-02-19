@@ -13,7 +13,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Section.FiltersTags do
   def render(assigns) do
     ~H"""
     <div>
-      <button :for={{ filter <- @filters }} :on-click="show_filters" class="inline-flex items-center px-2 py-1 mr-2 text-xs rounded-full cursor-pointer bg-hb-aa dark:bg-hb-aa-dark bg-opacity-40 text-hb-aa-dark dark:text-hb-b-dark hover:bg-hb-c dark:hover:bg-hb-c-dark focus:outline-none focus:bg-hb-c dark:focus:bg-hb-c-dark">
+      <button :for={{ filter <- @filters }} :on-click="show_filters" title={{ "Ver filtros de #{@name}" }} class="inline-flex items-center px-2 py-1 mr-2 text-xs rounded-full cursor-pointer bg-hb-aa dark:bg-hb-aa-dark bg-opacity-40 text-hb-aa-dark dark:text-hb-b-dark hover:bg-hb-c dark:hover:bg-hb-c-dark focus:outline-none focus:bg-hb-c dark:focus:bg-hb-c-dark">
         <span class="font-bold">
           {{ filter.name }}:
         </span>

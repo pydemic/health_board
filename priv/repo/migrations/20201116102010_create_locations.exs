@@ -6,7 +6,11 @@ defmodule HealthBoard.Repo.Migrations.CreateLocations do
       add :group, :integer, null: false
 
       add :name, :string, null: false
+      add :verbose_name, :string, null: false
       add :abbr, :string
+
+      add :lat, :float, default: 0.0
+      add :lng, :float, default: 0.0
     end
 
     create table(:locations_children) do

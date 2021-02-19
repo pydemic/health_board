@@ -10,7 +10,12 @@ defmodule HealthBoard.Contexts.Geo.Location do
     field :group, :integer
 
     field :name, :string
+    field :verbose_name, :string
+
     field :abbr, :string
+
+    field :lat, :float
+    field :lng, :float
 
     has_many :parents, Geo.LocationChild, foreign_key: :child_id
     has_many :children, Geo.LocationChild, foreign_key: :parent_id

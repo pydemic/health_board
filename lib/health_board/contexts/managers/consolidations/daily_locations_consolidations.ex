@@ -1,8 +1,7 @@
 defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
-  import Ecto.Query, only: [from: 2, where: 2, dynamic: 1, dynamic: 2]
+  import Ecto.Query, only: [where: 2, dynamic: 1, dynamic: 2]
 
   alias HealthBoard.Contexts.Consolidations.DayLocationConsolidation
-  alias HealthBoard.Contexts.Geo
   alias HealthBoard.Repo
 
   @type schema :: DayLocationConsolidation.schema()
@@ -33,7 +32,7 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
   def list_by(params \\ []) do
     @schema
     |> where(^filter_where(params))
-    |> Repo.maybe_order_by(params)
+    |> Repo.order_by(params)
     |> Repo.all()
     |> maybe_preload(params[:preload])
   end
@@ -51,18 +50,8 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
 
   defp maybe_preload(schema_or_schemas, preload) do
     case preload do
-      :location ->
-        Repo.preload(schema_or_schemas, :location)
-
-      :location_and_state ->
-        Repo.preload(schema_or_schemas,
-          location: [
-            parents: {from(l in Geo.LocationChild, where: l.parent_group == ^Geo.Locations.group(:states)), [:parent]}
-          ]
-        )
-
-      _preload ->
-        schema_or_schemas
+      :location -> Repo.preload(schema_or_schemas, :location)
+      _preload -> schema_or_schemas
     end
   end
 

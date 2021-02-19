@@ -25,7 +25,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
         </div>
 
         <button :on-click="toggle_options" class="py-5 hover:text-hb-c-dark dark:hover:text-hb-c focus:outline-none focus:text-hb-c-dark dark:focus:text-hb-c">
-          <Otherwise condition={{ @show_options }}>
+          <Otherwise condition={{ @show_options }} true_title="Ocultar opções adicionais" false_title="Mostrar opções adicionais">
             <EyeOff />
 
             <template slot="otherwise">
@@ -35,7 +35,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
         </button>
 
         <button :on-click="toggle_dark_mode" class="py-5 ml-2 hover:text-hb-c-dark dark:hover:text-hb-c focus:outline-none focus:text-hb-c-dark dark:focus:text-hb-c">
-          <Otherwise condition={{ @dark_mode }}>
+          <Otherwise condition={{ @dark_mode }} true_title="Desativar modo noturno" false_title="Ativar modo noturno">
             <Sun />
 
             <template slot="otherwise">
