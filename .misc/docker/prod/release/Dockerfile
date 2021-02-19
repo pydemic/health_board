@@ -1,14 +1,14 @@
 FROM elixir:1.10.4-alpine
 
 ENV MIX_ENV=prod \
-    HEALTH_BOARD__SECRET_KEY_BASE=changeme
+    HB__ENDPOINT__SECRET_KEY_BASE=changeme
 
 WORKDIR /app
 
 RUN mix local.hex --force && \
     mix local.rebar --force
 
-RUN apk add --update git build-base nodejs yarn python
+RUN apk add --update git build-base nodejs yarn
 
 COPY assets/package.json assets/yarn.lock assets/
 COPY config config

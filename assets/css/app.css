@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '../node_modules/leaflet/dist/leaflet.css';
+@import '../node_modules/nprogress/nprogress.css';
+
+iframe[hidden] {
+  @apply hidden
+}
+
+[x-cloak] {
+  @apply hidden
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  @apply cursor-pointer
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  @apply cursor-pointer bg-transparent
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  @apply cursor-pointer rounded-tr-lg rounded-tl-lg bg-hb-ca bg-opacity-60
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  @apply cursor-pointer
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  @apply cursor-pointer bg-transparent
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  @apply cursor-pointer rounded-bl-lg rounded-tl-lg bg-hb-ca bg-opacity-60
+}

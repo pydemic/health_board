@@ -5,13 +5,13 @@ services:
     image: pydemic/health_board:prod
     restart: unless-stopped
     environment:
-      HEALTH_BOARD__HTTPS: 'true'
-      HEALTH_BOARD__CACERTFILE_PATH: /app/chain.pem
-      HEALTH_BOARD__CERTFILE_PATH: /app/cert.pem
-      HEALTH_BOARD__KEYFILE_PATH: /app/privkey.pem
-      HEALTH_BOARD__HOSTNAME: YOUR_HOSTNAME
-      HEALTH_BOARD__ORIGIN_HOSTNAMES: '//YOUR_HOSTNAME'
-      HEALTH_BOARD__SECRET_KEY_BASE: GENERATE_ONE_WITH_MIX_PHX_GEN_SECRET
+      HB__ENDPOINT__HTTPS: 'true'
+      HB__ENDPOINT__HTTPS__CACERTFILE_PATH: /app/chain.pem
+      HB__ENDPOINT__HTTPS__CERTFILE_PATH: /app/cert.pem
+      HB__ENDPOINT__HTTPS__KEYFILE_PATH: /app/privkey.pem
+      HB__ENDPOINT__HOSTNAME: YOUR_HOSTNAME
+      HB__ENDPOINT__ORIGIN_HOSTNAMES: '//YOUR_HOSTNAME'
+      HB__ENDPOINT__SECRET_KEY_BASE: GENERATE_ONE_WITH_MIX_PHX_GEN_SECRET
     volumes:
       - /etc/letsencrypt/live/YOUR_HOSTNAME/chain.pem:/app/chain.pem
       - /etc/letsencrypt/live/YOUR_HOSTNAME/cert.pem:/app/cert.pem

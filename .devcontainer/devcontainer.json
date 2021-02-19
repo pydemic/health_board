@@ -13,40 +13,13 @@
     "mrorz.language-gettext",
     "msaraiva.surface",
     "stkb.rewrap",
-    "sysoev.language-stylus",
     "yzhang.markdown-all-in-one"
   ],
   "settings": {
-    "beautify.language": {
-      "js": {
-        "type": [
-          "javascript",
-          "json",
-          "jsonc"
-        ],
-        "filename": [
-          ".jshintrc",
-          ".jsbeautifyrc"
-        ]
-      },
-      "css": [
-        "css",
-        "less",
-        "scss"
-      ],
-      "html": [
-        "htm",
-        "html",
-        "html-eex"
-      ]
+    "css.validate": false,
+    "editor.quickSuggestions": {
+      "strings": true
     },
-    "elixirLS.dialyzerEnabled": true,
-    "emmet.includeLanguages": {
-      "html-eex": "html"
-    },
-    "files.associations": {
-      "*.eex": "html-eex",
-      "*.leex": "html-eex"
-    }
+    "elixirLS.dialyzerEnabled": true
   }
 }

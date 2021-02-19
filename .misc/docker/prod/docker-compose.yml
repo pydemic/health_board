@@ -5,10 +5,10 @@ services:
     image: pydemic/health_board:prod
     restart: unless-stopped
     environment:
-      HEALTH_BOARD__HTTPS: 'false'
-      HEALTH_BOARD__HOSTNAME: localhost
-      HEALTH_BOARD__ORIGIN_HOSTNAMES: '//localhost'
-      HEALTH_BOARD__SECRET_KEY_BASE: 'Cd6TFymxTTCv5s3N96AbHsZr7g2TvpRVsM+uG9La9OfNQNaF4yaMhSTmiOBPxmmr'
+      HB__ENDPOINT__HTTPS: 'false'
+      HB__ENDPOINT__HOSTNAME: localhost
+      HB__ENDPOINT__ORIGIN_HOSTNAMES: '//localhost'
+      HB__ENDPOINT__SECRET_KEY_BASE: 'Cd6TFymxTTCv5s3N96AbHsZr7g2TvpRVsM+uG9La9OfNQNaF4yaMhSTmiOBPxmmr'
     ports:
       - 80:80
     depends_on:
@@ -17,11 +17,6 @@ services:
   postgres:
     image: postgres:13.0
     restart: unless-stopped
-    command: >
-      postgres
-      -c shared_preload_libraries=pg_stat_statements
-      -c pg_stat_statements.track=all
-      -c pg_stat_statements.max=10000
     environment:
       POSTGRES_DB: health_board
       POSTGRES_USER: health_board

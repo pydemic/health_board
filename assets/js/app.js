@@ -1,4 +1,4 @@
-import "../css/app.scss"
+import "../css/app.css"
 
 import "alpinejs"
 import ChartJS from 'chart.js'
