@@ -260,7 +260,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
       Integer.to_string(div(city_id, 10)),
       [
         city_id,
-        Locations.parent(location, :health_regions)
+        Locations.parent(location, :health_regions).id
       ]
     }
   end

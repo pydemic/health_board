@@ -6,9 +6,10 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
 
   @args_keys [
     :reattempt_initial_milliseconds,
-    :updates_path,
-    :source_id,
+    :path,
     :update_at_hour,
+    :source_id,
+    :source_sid,
     :consolidator_opts,
     :header_api_opts
   ]
@@ -24,6 +25,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
           last_stacktrace: Exception.stacktrace(),
           path: String.t(),
           update_at_hour: integer,
+          source_sid: String.t(),
           source_id: integer,
           header: map | nil,
           last_header: map | nil,
