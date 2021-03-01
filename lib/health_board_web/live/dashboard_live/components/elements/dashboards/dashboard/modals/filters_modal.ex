@@ -95,7 +95,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal 
   end
 
   defp updated_route(%{assigns: %{params: params, changes: changes}} = socket) do
-    Router.Helpers.dashboard_path(socket, :index, Map.put(Map.merge(params, changes), "refetch", true))
+    Router.Helpers.dashboard_path(socket, :index, Map.merge(params, changes))
   end
 
   @spec update_changes(pid, map) :: any

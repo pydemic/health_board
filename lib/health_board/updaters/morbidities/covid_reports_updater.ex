@@ -142,7 +142,7 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater do
         :error -> {nil, state}
       end
     else
-      case Dashboards.Sources.fetch_by_sid(id) do
+      case Dashboards.Sources.fetch(id) do
         {:ok, source} -> {source, state}
         :error -> {nil, struct(state, source_id: nil)}
       end

@@ -81,6 +81,6 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Footer do
   end
 
   defp to_route(socket, params, id) do
-    Router.Helpers.dashboard_path(socket, :index, Map.put(params, "id", id))
+    Router.Helpers.dashboard_path(socket, :index, Map.put(params, "id", id) |> Map.delete("group_index"))
   end
 end

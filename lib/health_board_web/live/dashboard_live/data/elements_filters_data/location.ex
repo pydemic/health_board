@@ -26,7 +26,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Location do
     %{
       locations:
         Locations
-        |> ElementsData.database_data(:list_by, [[order_by: [asc: :name]]])
+        |> ElementsData.apply_and_cache(:list_by, [[order_by: [asc: :name]]])
         |> Enum.map(&format_option/1)
     }
   end
@@ -42,6 +42,6 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Location do
   end
 
   defp get_location(id) do
-    ElementsData.database_data(Locations, :get_by, [[id: id, preload: :parents]])
+    ElementsData.apply_and_cache(Locations, :get_by, [[id: id, preload: :parents]])
   end
 end

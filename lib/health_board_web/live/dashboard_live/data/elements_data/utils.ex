@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.ElementsData.Utils do
-  @spec delete(map, atom, map, map) :: map
-  def delete(data, _field, params, _filters) do
+  @spec delete(map, atom, map, map, keyword) :: map
+  def delete(data, _field, params, _filters, _opts \\ []) do
     case Map.fetch(params, "what") do
       {:ok, what} ->
         keys =

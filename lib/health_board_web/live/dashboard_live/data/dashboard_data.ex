@@ -11,6 +11,9 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
     "group_index",
     "id",
     "location",
+    "period_from",
+    "period_to",
+    "period_type",
     "show_options"
   ]
 
@@ -29,35 +32,55 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
     GenServer.start(__MODULE__, args, name: __MODULE__)
   end
 
-  @spec fetch(integer, map) :: {:ok, map} | {:error, atom}
-  def fetch(id, params), do: GenServer.call(__MODULE__, {:fetch, {id, params}}, 10_000)
+  @spec fetch(integer, map, keyword) :: {:ok, map} | {:error, atom}
+  def fetch(id, params, opts \\ []), do: GenServer.call(__MODULE__, {:fetch, {id, params, opts}}, 20_000)
+
+  @spec purge :: :ok
+  def purge, do: GenServer.cast(__MODULE__, :purge)
 
   @impl GenServer
   @spec init(keyword) :: {:ok, t()}
   def init(args) do
     :ets.new(@cache_table, [:set, :public, :named_table])
-
     {:ok, struct(__MODULE__, args)}
   end
 
   @impl GenServer
   @spec handle_call(any, {pid, any}, t()) :: {:reply, any, t()}
-  def handle_call({:fetch, {id, params}}, _from, state) do
+  def handle_call({:fetch, {id, params, opts}}, _from, state) do
     id = if is_nil(id), do: state.default_dashboard_id, else: id
+    {:reply, fetch_dashboard(id, params, opts, state), state}
+  end
 
+  @impl GenServer
+  @spec handle_cast(any, t()) :: {:noreply, t()}
+  def handle_cast(:purge, state) do
+    :ets.delete_all_objects(@cache_table)
+    {:noreply, state}
+  end
+
+  defp fetch_dashboard(id, params, opts, state) do
+    case Keyword.fetch(opts, :from_database) do
+      {:ok, true} -> fetch_from_database(id, params, state)
+      _result -> fetch_from_ets(id, params, state)
+    end
+  end
+
+  defp fetch_from_ets(id, params, state) do
     case :ets.lookup(@cache_table, id) do
-      [{_id, dashboard}] ->
-        {:reply, {:ok, fetch_params(dashboard, params, state)}, state}
+      [{_id, dashboard}] -> {:ok, fetch_params(dashboard, params, state)}
+      _result -> fetch_from_database(id, params, state)
+    end
+  end
 
-      _result ->
-        case Elements.fetch_dashboard(id) do
-          {:ok, dashboard} ->
-            :ets.insert(@cache_table, {id, dashboard})
-            {:reply, {:ok, fetch_params(dashboard, params, state)}, state}
+  defp fetch_from_database(id, params, state) do
+    case Elements.fetch_dashboard(id) do
+      {:ok, dashboard} ->
+        :ets.insert(@cache_table, {id, dashboard})
+        {:ok, fetch_params(dashboard, params, state)}
 
-          _error ->
-            {:reply, {:error, :not_found}, state}
-        end
+      _error ->
+        {:error, :not_found}
     end
   end
 

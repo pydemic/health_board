@@ -11,15 +11,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard do
   def render(assigns) do
     ~H"""
     <DataWrapper id={{ @dashboard.id }} :let={{ data: _data }} wrapper_class="flex flex-col min-h-screen">
-      <Header
-        id={{ :header }}
-        dark_mode={{ @dashboard.dark_mode }}
-        group_index={{ @dashboard.group_index }}
-        groups={{ @dashboard.children }}
-        name={{ @dashboard.name }}
-        params={{ @dashboard.params }}
-        show_options={{ @dashboard.show_options }}
-      />
+      <Header id={{ :header }} dashboard={{ @dashboard }}/>
 
       <Group group={{ Enum.at(@dashboard.children, @dashboard.group_index) }} />
 

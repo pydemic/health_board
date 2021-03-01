@@ -29,6 +29,14 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal.
     """
   end
 
+  defp render_filter(assigns, "period") do
+    ~H"""
+    <div>
+      <Filters.Period id={{ @id }} changes={{ @changes }} filter={{ @filter }} />
+    </div>
+    """
+  end
+
   defp render_filter(assigns, _sid) do
     ~H"""
     <div></div>

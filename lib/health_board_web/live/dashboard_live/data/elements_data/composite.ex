@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.ElementsData.Composite do
-  @spec filter(map, atom, map, map) :: map
-  def filter(data, field, params, _filters) do
+  @spec filter(map, atom, map, map, keyword) :: map
+  def filter(data, field, params, _filters, _opts \\ []) do
     with %{"from" => from, "where" => where} <- params,
          {:ok, list} when is_list(list) <- Map.fetch(data, String.to_atom(from)),
          {:ok, filtered_list} <- filter_list(data, list, where),
@@ -47,8 +47,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Composite do
     end
   end
 
-  @spec from(map, atom, map, map) :: map
-  def from(data, field, params, _filters) do
+  @spec from(map, atom, map, map, keyword) :: map
+  def from(data, field, params, _filters, _opts \\ []) do
     with %{"what" => what, "get" => get} <- params,
          {:ok, map} <- Map.fetch(data, String.to_atom(what)),
          {:ok, value} <- Map.fetch(map, String.to_atom(get)) do
