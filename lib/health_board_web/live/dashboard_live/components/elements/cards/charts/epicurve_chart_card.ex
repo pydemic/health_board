@@ -10,7 +10,8 @@ defmodule HealthBoardWeb.DashboardLive.Components.EpicurveChartCard do
   def render(assigns) do
     ~H"""
     <Card :let={{ data: data }} element={{ @card }} params={{ @params }}>
-      <p :if={{ is_nil(Map.get(data, :value)) }} class="text-2xl font-bold">
+      <canvas :show={{ Enum.any?(data) }} id={{ "canvas_#{@card.id}" }} phx-hook="Chart" height={{ 400 }}></canvas>
+      <p :if={{ Enum.empty?(data) }} class="text-2xl font-bold">
         N/A
       </p>
     </Card>

@@ -16,7 +16,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Dail
   end
 
   defp do_get(params, group, date, location_id, opts) do
-    manager_params = maybe_preload(params, consolidation_group_id: group, date: date, location_id: location_id)
+    manager_params =
+      Consolidations.maybe_preload(params, consolidation_group_id: group, date: date, location_id: location_id)
 
     case ElementsData.apply_and_cache(DailyLocationsConsolidations, :get_by, [manager_params], opts) do
       nil -> :error
@@ -36,8 +37,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Dail
 
   defp list_consolidations(data, params, group, opts) do
     []
-    |> maybe_append(Consolidations.fetch_dates(data, params, opts))
-    |> maybe_append(Consolidations.fetch_locations_ids(data, params, opts))
+    |> Consolidations.maybe_append(Consolidations.fetch_dates(data, params, opts))
+    |> Consolidations.maybe_append(Consolidations.fetch_locations_ids(data, params, opts))
     |> case do
       [] -> :error
       manager_params -> {:ok, do_list(params, [{:consolidation_group_id, group} | manager_params], opts)}
@@ -45,19 +46,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Dail
   end
 
   defp do_list(params, manager_params, opts) do
-    manager_params = maybe_preload(params, manager_params)
-    opts = Keyword.put(opts, :default, [])
-    ElementsData.apply_and_cache(DailyLocationsConsolidations, :list_by, [manager_params], opts)
-  end
+    manager_params = Consolidations.maybe_preload(params, manager_params)
 
-  defp maybe_preload(params, manager_params) do
-    case Map.fetch(params, "preload") do
-      {:ok, "location"} -> [{:preload, :location} | manager_params]
-      {:ok, "location_and_state"} -> [{:preload, :location_and_state} | manager_params]
-      _result -> manager_params
-    end
+    DailyLocationsConsolidations
+    |> ElementsData.apply_and_cache(:list_by, [manager_params], Keyword.put(opts, :default, []))
+    |> Consolidations.maybe_sum_by(params)
   end
-
-  defp maybe_append(list, {:ok, item}) when is_list(item), do: item ++ list
-  defp maybe_append(list, _result), do: list
 end

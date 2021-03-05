@@ -18,11 +18,11 @@ defmodule HealthBoardWeb.DashboardLive.Components.DataWrapper do
   end
 
   @spec fetch(pid | nil, String.t() | atom, map) :: any
-  def fetch(pid \\ nil, id, data) do
-    if is_nil(pid) do
-      send_update(__MODULE__, id: id, data: data)
-    else
-      send_update(pid, __MODULE__, id: id, data: data)
-    end
+  def fetch(pid \\ self(), id, data), do: send_update(pid, __MODULE__, id: id, data: data)
+
+  @spec fetch_and_hook(pid | nil, String.t() | atom, map, String.t(), map) :: any
+  def fetch_and_hook(pid \\ self(), id, data, hook, hook_data) do
+    fetch(pid, id, data)
+    Process.send_after(pid, {:hook, hook, Map.put(hook_data, :id, id)}, 1_000)
   end
 end

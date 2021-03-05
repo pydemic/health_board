@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Consolidations.LocationConsolidation do
 
   @type schema :: %__MODULE__{}
 
+  @derive {Jason.Encoder, only: [:total, :location]}
   schema "locations_consolidations" do
     field :from_date, :date
     field :to_date, :date

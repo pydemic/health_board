@@ -5,6 +5,7 @@ defmodule HealthBoard.Contexts.Geo.Location do
 
   @type schema :: %__MODULE__{}
 
+  @derive {Jason.Encoder, only: [:group, :verbose_name]}
   @primary_key {:id, :integer, autogenerate: false}
   schema "locations" do
     field :group, :integer

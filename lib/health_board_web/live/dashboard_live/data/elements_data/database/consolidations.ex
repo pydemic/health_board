@@ -1,8 +1,23 @@
 defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
-  alias HealthBoard.Contexts.Consolidations.ConsolidationsGroups
+  alias HealthBoard.Contexts.Consolidations.{
+    ConsolidationsGroups,
+    DayLocationConsolidation,
+    LocationConsolidation,
+    MonthLocationConsolidation,
+    WeekLocationConsolidation,
+    YearLocationsConsolidations
+  }
+
   alias HealthBoardWeb.DashboardLive.ElementsData
 
-  @spec fetch_date(map, map, String.t(), keyword) :: {:ok, integer} | :error
+  @type consolidation ::
+          DayLocationConsolidation
+          | LocationConsolidation
+          | MonthLocationConsolidation
+          | WeekLocationConsolidation
+          | YearLocationsConsolidations
+
+  @spec fetch_date(map, map, String.t(), keyword) :: {:ok, Date.t()} | :error
   def fetch_date(data, params, key \\ "date", _opts \\ []) do
     case Map.fetch(params, key) do
       {:ok, date} -> do_fetch_date(data, date)
@@ -19,28 +34,27 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     end
   end
 
-  @spec fetch_date_range(map, map, keyword) :: {:ok, integer | {integer | nil, integer | nil}} | :error
+  @spec fetch_date_range(map, map, keyword) :: {:ok, Date.t() | list(Date.t())} | :error
   def fetch_date_range(data, params, opts \\ []) do
     case {fetch_date(data, params, "from_date", opts), fetch_date(data, params, "to_date", opts)} do
       {:error, :error} -> fetch_date(data, params, "date", opts)
-      {{:ok, from}, :error} -> {:ok, {from, nil}}
-      {:error, {:ok, to}} -> {:ok, {nil, to}}
-      {{:ok, from}, {:ok, to}} -> {:ok, {from, to}}
+      {{:ok, from}, :error} -> {:ok, from}
+      {:error, {:ok, to}} -> {:ok, to}
+      {{:ok, from}, {:ok, to}} -> {:ok, [from, to]}
     end
   end
 
-  @spec fetch_dates(map, map, keyword) :: {:ok, list({atom, list(integer) | integer})} | :error
+  @spec fetch_dates(map, map, keyword) :: {:ok, list({atom, list(Date.t()) | Date.t()})} | :error
   def fetch_dates(data, params, opts \\ []) do
     case Map.fetch(params, "dates") do
       {:ok, dates} -> do_fetch_dates(data, dates)
       :error -> with :error <- Map.fetch(data, :dates), do: fetch_date_range(data, params, opts)
     end
     |> case do
+      {:ok, [from, to]} -> {:ok, [{:from_date, from}, {:to_date, to}]}
+      {:ok, [date]} -> {:ok, [{:date, date}]}
       {:ok, dates} when is_list(dates) -> {:ok, [{:dates, dates}]}
       {:ok, %Date{} = date} -> {:ok, [{:date, date}]}
-      {:ok, {from, nil}} -> {:ok, [{:from_date, from}]}
-      {:ok, {nil, to}} -> {:ok, [{:to_date, to}]}
-      {:ok, {from, to}} -> {:ok, [{:from_date, from}, {:to_date, to}]}
       _result -> :error
     end
   end
@@ -106,13 +120,13 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     _error -> Map.fetch(data, String.to_atom(month))
   end
 
-  @spec fetch_month_range(map, map, keyword) :: {:ok, integer | {integer | nil, integer | nil}} | :error
+  @spec fetch_month_range(map, map, keyword) :: {:ok, integer | list(integer)} | :error
   def fetch_month_range(data, params, opts \\ []) do
     case {fetch_month(data, params, "from_month", opts), fetch_month(data, params, "to_month", opts)} do
       {:error, :error} -> fetch_month(data, params, "month", opts)
-      {{:ok, from}, :error} -> {:ok, {from, nil}}
-      {:error, {:ok, to}} -> {:ok, {nil, to}}
-      {{:ok, from}, {:ok, to}} -> {:ok, {from, to}}
+      {{:ok, from}, :error} -> {:ok, from}
+      {:error, {:ok, to}} -> {:ok, to}
+      {{:ok, from}, {:ok, to}} -> {:ok, [from, to]}
     end
   end
 
@@ -123,11 +137,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
       :error -> with :error <- Map.fetch(data, :months), do: fetch_month_range(data, params, opts)
     end
     |> case do
+      {:ok, [from, to]} -> {:ok, [{:from_month, from}, {:to_month, to}]}
+      {:ok, [month]} -> {:ok, [{:month, month}]}
       {:ok, months} when is_list(months) -> {:ok, [{:months, months}]}
       {:ok, month} when is_integer(month) -> {:ok, [{:month, month}]}
-      {:ok, {from, nil}} -> {:ok, [{:from_month, from}]}
-      {:ok, {nil, to}} -> {:ok, [{:to_month, to}]}
-      {:ok, {from, to}} -> {:ok, [{:from_month, from}, {:to_month, to}]}
       _result -> :error
     end
   end
@@ -136,6 +149,11 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     {:ok, String.split(months, ",") |> Enum.map(&String.to_integer/1)}
   rescue
     _error -> Map.fetch(data, String.to_atom(months))
+  end
+
+  @spec fetch_period(map, map, String.t(), keyword) :: {:ok, map} | :error
+  def fetch_period(data, _params, key \\ "period", _opts \\ []) do
+    Map.fetch(data, String.to_atom(key))
   end
 
   @spec fetch_year(map, map, String.t(), keyword) :: {:ok, integer} | :error
@@ -154,28 +172,27 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     _error -> Map.fetch(data, String.to_atom(year))
   end
 
-  @spec fetch_year_range(map, map, keyword) :: {:ok, integer | {integer | nil, integer | nil}} | :error
+  @spec fetch_year_range(map, map, keyword) :: {:ok, integer | list(integer)} | :error
   def fetch_year_range(data, params, opts \\ []) do
     case {fetch_year(data, params, "from_year", opts), fetch_year(data, params, "to_year", opts)} do
       {:error, :error} -> fetch_year(data, params, "year", opts)
-      {{:ok, from}, :error} -> {:ok, {from, nil}}
-      {:error, {:ok, to}} -> {:ok, {nil, to}}
-      {{:ok, from}, {:ok, to}} -> {:ok, {from, to}}
+      {{:ok, from}, :error} -> {:ok, from}
+      {:error, {:ok, to}} -> {:ok, to}
+      {{:ok, from}, {:ok, to}} -> {:ok, [from, to]}
     end
   end
 
-  @spec fetch_years(map, map, keyword) :: {:ok, {:years, list(integer)} | {:year, integer}} | :error
+  @spec fetch_years(map, map, keyword) :: {:ok, list({atom, list(integer) | integer})} | :error
   def fetch_years(data, params, opts \\ []) do
     case Map.fetch(params, "years") do
       {:ok, years} -> do_fetch_years(data, years)
       :error -> with :error <- Map.fetch(data, :years), do: fetch_year_range(data, params, opts)
     end
     |> case do
+      {:ok, [from, to]} -> {:ok, [{:from_year, from}, {:to_year, to}]}
+      {:ok, [year]} -> {:ok, [{:year, year}]}
       {:ok, years} when is_list(years) -> {:ok, [{:years, years}]}
       {:ok, year} when is_integer(year) -> {:ok, [{:year, year}]}
-      {:ok, {from, nil}} -> {:ok, [{:from_year, from}]}
-      {:ok, {nil, to}} -> {:ok, [{:to_year, to}]}
-      {:ok, {from, to}} -> {:ok, [{:from_year, from}, {:to_year, to}]}
       _result -> :error
     end
   end
@@ -202,13 +219,13 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     _error -> Map.fetch(data, String.to_atom(week))
   end
 
-  @spec fetch_week_range(map, map, keyword) :: {:ok, integer | {integer | nil, integer | nil}} | :error
+  @spec fetch_week_range(map, map, keyword) :: {:ok, integer | list(integer)} | :error
   def fetch_week_range(data, params, opts \\ []) do
     case {fetch_week(data, params, "from_week", opts), fetch_week(data, params, "to_week", opts)} do
       {:error, :error} -> fetch_week(data, params, "week", opts)
-      {{:ok, from}, :error} -> {:ok, {from, nil}}
-      {:error, {:ok, to}} -> {:ok, {nil, to}}
-      {{:ok, from}, {:ok, to}} -> {:ok, {from, to}}
+      {{:ok, from}, :error} -> {:ok, from}
+      {:error, {:ok, to}} -> {:ok, to}
+      {{:ok, from}, {:ok, to}} -> {:ok, [from, to]}
     end
   end
 
@@ -219,11 +236,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
       :error -> with :error <- Map.fetch(data, :weeks), do: fetch_week_range(data, params, opts)
     end
     |> case do
+      {:ok, [from, to]} -> {:ok, [{:from_week, from}, {:to_week, to}]}
+      {:ok, [week]} -> {:ok, [{:week, week}]}
       {:ok, weeks} when is_list(weeks) -> {:ok, [{:weeks, weeks}]}
       {:ok, week} when is_integer(week) -> {:ok, [{:week, week}]}
-      {:ok, {from, nil}} -> {:ok, [{:from_week, from}]}
-      {:ok, {nil, to}} -> {:ok, [{:to_week, to}]}
-      {:ok, {from, to}} -> {:ok, [{:from_week, from}, {:to_week, to}]}
       _result -> :error
     end
   end
@@ -232,5 +248,64 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     {:ok, String.split(weeks, ",") |> Enum.map(&String.to_integer/1)}
   rescue
     _error -> Map.fetch(data, String.to_atom(weeks))
+  end
+
+  @spec maybe_append(list, any) :: list
+  def maybe_append(list, {:ok, item}) when is_list(item), do: item ++ list
+  def maybe_append(list, _result), do: list
+
+  @spec maybe_preload(map, keyword) :: keyword
+  def maybe_preload(params, manager_params) do
+    case Map.fetch(params, "preload") do
+      {:ok, "location"} -> [{:preload, :location} | manager_params]
+      _result -> manager_params
+    end
+  end
+
+  @spec maybe_sum_by(list(consolidation), map) :: list(consolidation)
+  def maybe_sum_by(data, params) do
+    case Map.fetch(params, "sum_by") do
+      {:ok, "location"} -> sum_by_location(data)
+      {:ok, "time"} -> sum_by_time(data)
+      _result -> data
+    end
+  end
+
+  defp sum_by_location(data) do
+    data
+    |> Enum.group_by(& &1.location_id)
+    |> Enum.map(&sum_total(elem(&1, 1)))
+  end
+
+  defp sum_by_time(data) do
+    case Enum.at(data, 0, %{})[:__struct__] do
+      DayLocationConsolidation ->
+        data
+        |> Enum.group_by(& &1.date)
+        |> Enum.map(&sum_total(elem(&1, 1)))
+
+      WeekLocationConsolidation ->
+        data
+        |> Enum.group_by(&{&1.year, &1.week})
+        |> Enum.map(&sum_total(elem(&1, 1)))
+
+      MonthLocationConsolidation ->
+        data
+        |> Enum.group_by(&{&1.year, &1.month})
+        |> Enum.map(&sum_total(elem(&1, 1)))
+
+      YearLocationConsolidation ->
+        data
+        |> Enum.group_by(& &1.year)
+        |> Enum.map(&sum_total(elem(&1, 1)))
+
+      _result ->
+        data
+    end
+  end
+
+  @spec sum_total(list(consolidation)) :: consolidation
+  def sum_total(consolidations) do
+    Enum.reduce(consolidations, fn c1, c2 -> Map.put(c2, :total, c1.total + c2.total) end)
   end
 end

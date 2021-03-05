@@ -9,14 +9,14 @@ const build_data = (subType, data) => {
       return `${datasetLabel}: ${value}`
     }
   }
+
   return data
 }
 
 export const renderChart = (ChartJS, charts, { id, subType, data }) => {
-  console.log(id)
   if (charts[id]) {
     charts[id].destroy()
   }
 
-  charts[id] = new ChartJS(id, build_data(subType, data))
+  charts[id] = new ChartJS(`canvas_${id}`, build_data(subType, data))
 }

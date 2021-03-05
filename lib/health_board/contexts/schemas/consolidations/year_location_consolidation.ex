@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Consolidations.YearLocationConsolidation do
 
   @type schema :: %__MODULE__{}
 
+  @derive {Jason.Encoder, only: [:total, :location]}
   schema "yearly_locations_consolidations" do
     field :year, :integer, null: false
 

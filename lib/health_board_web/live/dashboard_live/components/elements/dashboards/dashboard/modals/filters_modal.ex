@@ -15,7 +15,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals.FiltersModal 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="fixed inset-0 z-20 bg-black bg-opacity-75">
+    <div class="fixed inset-0 z-1000 bg-black bg-opacity-75">
       <div class="mt-10 h-5/6 w-11/12 flex items-center mx-auto">
         <div class="flex flex-col p-5 mx-auto max-h-full w-full rounded-lg bg-hb-a dark:bg-hb-a-dark">
           <div class="sm:flex sm:items-start max-h-full">

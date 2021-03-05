@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Consolidations.WeekLocationConsolidation do
 
   @type schema :: %__MODULE__{}
 
+  @derive {Jason.Encoder, only: [:total, :location]}
   schema "weekly_locations_consolidations" do
     field :year, :integer, null: false
     field :week, :integer, null: false

@@ -31,6 +31,7 @@ defmodule HealthBoard.Contexts.Dashboards.Element do
     field :organizations, :any, virtual: true, default: []
     field :other_dashboards, :any, virtual: true, default: []
     field :params, :map, virtual: true, default: %{}
+    field :ranges, :any, virtual: true, default: []
     field :show_options, :boolean, virtual: true, default: true
     field :version, :string, virtual: true, default: ""
   end

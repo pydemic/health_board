@@ -2,6 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
   use GenServer, restart: :permanent
   require Logger
   alias HealthBoardWeb.DashboardLive.Components.DataWrapper
+  alias HealthBoardWeb.Helpers.Geo
   alias Phoenix.LiveView
 
   @cache_table :health_board_web_dashboard_live__data_cache
@@ -66,6 +67,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
   @spec init(any) :: {:ok, :empty}
   def init(_args) do
     :ets.new(@cache_table, [:set, :public, :named_table])
+    Geo.init()
     {:ok, :empty}
   end
 
@@ -98,8 +100,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
     error ->
       Logger.error("""
       Failed to request data: #{Exception.message(error)}
-      #{inspect(element, pretty: true)}
       #{Exception.format_stacktrace(__STACKTRACE__)}
+      #{inspect(element, pretty: true)}
       """)
 
       data
@@ -113,14 +115,15 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
     |> apply(String.to_atom(function), [data, URI.decode_query(params || "")])
     |> case do
       {:ok, {:emit, data}} -> DataWrapper.fetch(pid, element.id, data)
+      {:ok, {:emit_and_hook, {data, hook, h_data}}} -> DataWrapper.fetch_and_hook(pid, element.id, data, hook, h_data)
       _result -> :ok
     end
   rescue
     error ->
       Logger.error("""
       Failed to request data: #{Exception.message(error)}
-      #{inspect(element, pretty: true)}
       #{Exception.format_stacktrace(__STACKTRACE__)}
+      #{inspect(element, pretty: true)}
       """)
   end
 end

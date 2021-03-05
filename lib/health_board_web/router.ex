@@ -27,7 +27,6 @@ defmodule HealthBoardWeb.Router do
     pipe_through :api
 
     get "/alive", HealthBoardWeb.AliveController, :list
-    get "/geojson/:path", HealthBoardWeb.GeoJSONController, :show
   end
 
   pipeline :live_dashboard_browser do

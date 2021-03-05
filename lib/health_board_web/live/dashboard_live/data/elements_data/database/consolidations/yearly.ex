@@ -8,14 +8,17 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Year
     with {:ok, group} <- Consolidations.fetch_group(data, params, opts),
          {:ok, year} <- Consolidations.fetch_year(data, params, "year", opts),
          {:ok, location_id} <- Consolidations.fetch_location_id(data, params, opts),
-         {:ok, consolidation} <- do_get([consolidation_group_id: group, year: year, location_id: location_id], opts) do
+         {:ok, consolidation} <- do_get(params, group, year, location_id, opts) do
       Map.put(data, field, consolidation)
     else
       _ -> data
     end
   end
 
-  defp do_get(manager_params, opts) do
+  defp do_get(params, group, year, location_id, opts) do
+    manager_params =
+      Consolidations.maybe_preload(params, consolidation_group_id: group, year: year, location_id: location_id)
+
     case ElementsData.apply_and_cache(YearlyLocationsConsolidations, :get_by, [manager_params], opts) do
       nil -> :error
       consolidation -> {:ok, consolidation}
@@ -34,19 +37,19 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Year
 
   defp list_consolidations(data, params, group, opts) do
     []
-    |> maybe_append(Consolidations.fetch_years(data, params, opts))
-    |> maybe_append(Consolidations.fetch_locations_ids(data, params, opts))
+    |> Consolidations.maybe_append(Consolidations.fetch_years(data, params, opts))
+    |> Consolidations.maybe_append(Consolidations.fetch_locations_ids(data, params, opts))
     |> case do
       [] -> :error
-      manager_params -> {:ok, do_list([{:consolidation_group_id, group} | manager_params], opts)}
+      manager_params -> {:ok, do_list(params, [{:consolidation_group_id, group} | manager_params], opts)}
     end
   end
 
-  defp do_list(manager_params, opts) do
-    opts = Keyword.put(opts, :default, [])
-    ElementsData.apply_and_cache(YearlyLocationsConsolidations, :list_by, [manager_params], opts)
-  end
+  defp do_list(params, manager_params, opts) do
+    manager_params = Consolidations.maybe_preload(params, manager_params)
 
-  defp maybe_append(list, {:ok, item}) when is_list(item), do: item ++ list
-  defp maybe_append(list, _result), do: list
+    YearlyLocationsConsolidations
+    |> ElementsData.apply_and_cache(:list_by, [manager_params], Keyword.put(opts, :default, []))
+    |> Consolidations.maybe_sum_by(params)
+  end
 end

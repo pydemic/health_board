@@ -35,6 +35,7 @@ defmodule HealthBoard.MixProject do
       "i18n.merge.pt_BR": ["gettext.merge priv/gettext --locale pt_BR"],
       setup: ["update.deps", "ecto.setup"],
       start: ["phx.server"],
+      "seed.bkp.covid_reports": seed_consolidations(:covid_reports),
       test: ["ecto.create", "test"],
       "test.all": ["test.static", "test.coverage"],
       "test.ci": ["test.static", "coveralls.github"],
@@ -44,18 +45,25 @@ defmodule HealthBoard.MixProject do
     ]
   end
 
+  defp seed_consolidations(name) do
+    [
+      "run -e 'HealthBoard.Contexts.Seeders.Consolidations.up!(" <>
+        "what: :consolidations, base_path: ~s(/app/.misc/sandbox/updates/#{name}/backup))'"
+    ]
+  end
+
   defp deps do
     [
-      {:credo, "~> 1.5.4", only: :test, runtime: false},
-      {:ecto_psql_extras, "~> 0.4.3"},
-      {:ecto_sql, "~> 3.5.2"},
-      {:ex_cldr, "~> 2.18.2"},
+      {:credo, "~> 1.5.5", only: :test, runtime: false},
+      {:ecto_psql_extras, "~> 0.6.4"},
+      {:ecto_sql, "~> 3.5.4"},
       {:ex_cldr_calendars, "~> 1.12.0"},
-      {:ex_cldr_numbers, "~> 2.16.1"},
       {:ex_cldr_dates_times, "~> 2.6.4"},
+      {:ex_cldr_numbers, "~> 2.16.1"},
+      {:ex_cldr, "2.18.2"},
       {:ex_doc, "~> 0.23.0", only: :test, runtime: false},
-      {:excoveralls, "~> 0.13.4", only: :test},
-      {:floki, "~> 0.29.0", only: [:dev, :test]},
+      {:excoveralls, "~> 0.14.0", only: :test},
+      {:floki, "~> 0.30.0", only: [:dev, :test]},
       {:flow, "~> 1.1.0"},
       {:gettext, "~> 0.18.2"},
       {:hackney, "~> 1.17.0"},
@@ -65,12 +73,12 @@ defmodule HealthBoard.MixProject do
       {:phoenix_html, "~> 2.14.3"},
       {:phoenix_live_dashboard, "~> 0.4.0"},
       {:phoenix_live_reload, "~> 1.3.0", only: :dev},
-      {:phoenix_live_view, "~> 0.15.3"},
-      {:phoenix, "~> 1.5.6"},
+      {:phoenix_live_view, "~> 0.15.4"},
+      {:phoenix, "~> 1.5.8"},
       {:plug_cowboy, "~> 2.4.0"},
-      {:postgrex, "~> 0.15.7"},
+      {:postgrex, "~> 0.15.8"},
       {:statistics, "~> 0.6.2"},
-      {:surface, "~> 0.1.1"},
+      {:surface, "~> 0.3.0"},
       {:telemetry_metrics, "~> 0.6.0"},
       {:telemetry_poller, "~> 0.5.1"},
       {:tesla, "~> 1.4.0"}

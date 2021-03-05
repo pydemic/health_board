@@ -3,11 +3,11 @@ defmodule HealthBoard.Contexts.Seeders.Consolidations do
   def down!(opts \\ []) do
     what = Keyword.get(opts, :what, :all)
 
-    if what in [:all, :groups, :daily_locations], do: __MODULE__.DailyLocationsConsolidations.down!()
-    if what in [:all, :groups, :weekly_locations], do: __MODULE__.WeeklyLocationsConsolidations.down!()
-    if what in [:all, :groups, :monthly_locations], do: __MODULE__.MonthlyLocationsConsolidations.down!()
-    if what in [:all, :groups, :yearly_locations], do: __MODULE__.YearlyLocationsConsolidations.down!()
-    if what in [:all, :groups, :locations], do: __MODULE__.LocationsConsolidations.down!()
+    if what in [:all, :consolidations, :daily_locations], do: __MODULE__.DailyLocationsConsolidations.down!()
+    if what in [:all, :consolidations, :weekly_locations], do: __MODULE__.WeeklyLocationsConsolidations.down!()
+    if what in [:all, :consolidations, :monthly_locations], do: __MODULE__.MonthlyLocationsConsolidations.down!()
+    if what in [:all, :consolidations, :yearly_locations], do: __MODULE__.YearlyLocationsConsolidations.down!()
+    if what in [:all, :consolidations, :locations], do: __MODULE__.LocationsConsolidations.down!()
 
     if what in [:all, :groups], do: __MODULE__.ConsolidationsGroups.down!()
 
@@ -27,11 +27,11 @@ defmodule HealthBoard.Contexts.Seeders.Consolidations do
 
     if what in [:all, :groups], do: __MODULE__.ConsolidationsGroups.up!(base_path)
 
-    if what in [:all, :groups, :locations], do: __MODULE__.LocationsConsolidations.up!(base_path)
-    if what in [:all, :groups, :yearly_locations], do: __MODULE__.YearlyLocationsConsolidations.up!(base_path)
-    if what in [:all, :groups, :monthly_locations], do: __MODULE__.MonthlyLocationsConsolidations.up!(base_path)
-    if what in [:all, :groups, :weekly_locations], do: __MODULE__.WeeklyLocationsConsolidations.up!(base_path)
-    if what in [:all, :groups, :daily_locations], do: __MODULE__.DailyLocationsConsolidations.up!(base_path)
+    if what in [:all, :consolidations, :locations], do: __MODULE__.LocationsConsolidations.up!(base_path)
+    if what in [:all, :consolidations, :yearly_locations], do: __MODULE__.YearlyLocationsConsolidations.up!(base_path)
+    if what in [:all, :consolidations, :monthly_locations], do: __MODULE__.MonthlyLocationsConsolidations.up!(base_path)
+    if what in [:all, :consolidations, :weekly_locations], do: __MODULE__.WeeklyLocationsConsolidations.up!(base_path)
+    if what in [:all, :consolidations, :daily_locations], do: __MODULE__.DailyLocationsConsolidations.up!(base_path)
 
     :ok
   end

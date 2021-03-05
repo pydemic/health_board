@@ -23,7 +23,7 @@ defmodule HealthBoardWeb.DashboardLive.DashboardsData do
           version: String.t()
         }
 
-  defstruct default_dashboard_id: 89,
+  defstruct default_dashboard_id: 1,
             organizations: [{"https://www.paho.org/pt/brasil", "/images/logo_paho.svg"}],
             version: "0.0.1"
 

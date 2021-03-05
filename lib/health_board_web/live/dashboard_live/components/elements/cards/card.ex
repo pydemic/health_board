@@ -24,7 +24,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Card do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <DataWrapper id={{ @element.id }} :let={{ data: data }} wrapper_class={{ @wrapper_class, @extra_wrapper_class }}>
+    <DataWrapper id={{ @element.id }} :let={{ data: data }} wrapper_class={{ @wrapper_class, @extra_wrapper_class, params_css_class(@params) }}>
       <div class={{ @header_class }}>
         {{ @element.name }}
       </div>
@@ -43,4 +43,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Card do
     </DataWrapper>
     """
   end
+
+  defp params_css_class(%{"responsive_cols" => "2", "cols_span" => "2"}), do: "lg:col-span-2 2xl:col-span-3"
+  defp params_css_class(_params), do: nil
 end

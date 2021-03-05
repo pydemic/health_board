@@ -63,6 +63,7 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
       {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
       {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
       {:date, date}, dynamic -> dynamic([row], ^dynamic and row.date == ^date)
+      {:dates, dates}, dynamic -> dynamic([row], ^dynamic and row.date in ^dates)
       {:from_date, date}, dynamic -> dynamic([row], ^dynamic and row.date >= ^date)
       {:to_date, date}, dynamic -> dynamic([row], ^dynamic and row.date <= ^date)
       _param, dynamic -> dynamic

@@ -1,11 +1,13 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Card.Options do
   use Surface.LiveComponent
   alias HealthBoardWeb.DashboardLive.Components.Dashboard.Modals
-  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.{Filter, Info, Source}
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.{Filter, Info, Source, Tag}
   alias Phoenix.LiveView
 
   prop element, :map, required: true
   prop params, :map, default: %{}
+
+  slot default
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
@@ -22,6 +24,12 @@ defmodule HealthBoardWeb.DashboardLive.Components.Card.Options do
       <button :if={{ Enum.any?(@element.sources) }} :on-click="show_sources" title={{ "Ver fontes de #{@element.name}" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
         <Source />
       </button>
+
+      <button :if={{ Enum.any?(@element.ranges) }} :on-click="show_ranges" title={{ "Ver legenda de #{@element.name}" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+        <Tag />
+      </button>
+
+      <slot name="default" />
     </div>
     """
   end
@@ -35,6 +43,12 @@ defmodule HealthBoardWeb.DashboardLive.Components.Card.Options do
 
   def handle_event("show_indicators", _value, %{assigns: %{element: element}} = socket) do
     Modals.show_indicators(element.name, element.indicators)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("show_ranges", _value, %{assigns: %{element: element}} = socket) do
+    Modals.show_ranges(element.name, element.ranges)
 
     {:noreply, socket}
   end

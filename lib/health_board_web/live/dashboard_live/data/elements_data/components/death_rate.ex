@@ -1,10 +1,78 @@
 defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.DeathRate do
   alias HealthBoardWeb.DashboardLive.ElementsData.Components
-  alias HealthBoardWeb.Helpers.Humanize
+  alias HealthBoardWeb.Helpers.{Choropleth, Humanize}
 
   @spec choropleth_maps(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
-  def choropleth_maps(_data, _params) do
-    :ok
+  def choropleth_maps(data, params) do
+    {:ok, {:emit, do_choropleth_maps(data, params)}}
+  end
+
+  defp do_choropleth_maps(data, params) do
+    %{}
+    |> maybe_put_map_data(:regions_data, death_rates_from_location_groups(data, params, :regions))
+    |> maybe_put_map_data(:states_data, death_rates_from_location_groups(data, params, :states))
+    |> maybe_put_map_data(:health_regions_data, death_rates_from_location_groups(data, params, :health_regions))
+    |> maybe_put_map_data(:cities_data, death_rates_from_location_groups(data, params, :cities))
+    |> validate_map_data()
+  end
+
+  defp death_rates_from_location_groups(data, params, prefix) do
+    with {:ok, deaths_list} when is_list(deaths_list) <- Components.fetch_data(data, params, "#{prefix}_deaths"),
+         {:ok, pop_list} when is_list(pop_list) <- Components.fetch_data(data, params, "#{prefix}_population"),
+         {map_data, rates, locations_ids, _} <- Enum.reduce(deaths_list, {[], [], [], pop_list}, &reduce_map_data/2),
+         true <- Enum.any?(locations_ids) do
+      ranges = Choropleth.weighted_distribution(rates)
+
+      {:ok,
+       %{
+         ranges: ranges,
+         data: Enum.map(map_data, &wrap_map_item(&1, ranges)),
+         suffix: "/ 100 mil habitantes",
+         timestamp: :os.system_time()
+       }}
+    else
+      _result -> :error
+    end
+  end
+
+  defp reduce_map_data(%{location_id: location_id} = deaths_map, {map_data, rates, locations_ids, population_list}) do
+    with deaths when deaths > 0 <- deaths_map.total,
+         {population_map, population_list} <- pop_population_with_location_id(population_list, location_id),
+         population when population > 0 <- population_map.total do
+      rate = death_rate(deaths, population)
+
+      map_item = %{
+        id: location_id,
+        name: deaths_map.location.name,
+        value: rate
+      }
+
+      {[map_item | map_data], [rate | rates], [location_id | locations_ids], population_list}
+    else
+      _ -> {map_data, rates, locations_ids, population_list}
+    end
+  end
+
+  defp pop_population_with_location_id(population_list, location_id) do
+    Enum.reduce(population_list, {nil, []}, fn
+      %{location_id: ^location_id} = population, {nil, population_list} -> {population, population_list}
+      population, {result, population_list} -> {result, [population | population_list]}
+    end)
+  end
+
+  defp wrap_map_item(%{value: value} = item, ranges) do
+    Map.merge(item, %{value: Humanize.number(value), group: Choropleth.group(ranges, value)})
+  end
+
+  defp maybe_put_map_data(map, key, {:ok, map_data}), do: Map.put(map, key, map_data)
+  defp maybe_put_map_data(map, _key, _result), do: map
+
+  defp validate_map_data(map_data) do
+    if Enum.any?(map_data) do
+      Map.put(map_data, :length, length(Map.keys(map_data)))
+    else
+      Map.put(map_data, :error?, true)
+    end
   end
 
   @spec scalar(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}

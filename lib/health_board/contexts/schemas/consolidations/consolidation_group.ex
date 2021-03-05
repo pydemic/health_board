@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Consolidations.ConsolidationGroup do
 
   @type schema :: %__MODULE__{}
 
+  @derive {Jason.Encoder, only: [:name]}
   schema "consolidations_groups" do
     field :name, :string, null: false
 

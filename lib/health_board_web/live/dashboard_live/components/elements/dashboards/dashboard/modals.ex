@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals do
   use Surface.LiveComponent
-  alias __MODULE__.{FiltersModal, IndicatorsModal, SourcesModal}
+  alias __MODULE__.{FiltersModal, IndicatorsModal, RangesModal, SourcesModal}
   alias Phoenix.LiveView
 
   @id :modals
@@ -12,13 +12,15 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals do
   data filters, :list, default: []
   data indicators, :list, default: []
   data sources, :list, default: []
+  data ranges, :list, default: []
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div :show={{ Enum.any?(@indicators) or Enum.any?(@filters) or Enum.any?(@sources) }}>
+    <div :show={{ Enum.any?(@indicators) or Enum.any?(@filters) or Enum.any?(@ranges) or Enum.any?(@sources) }}>
       <FiltersModal :if={{ Enum.any?(@filters) }} id={{ :filters_modal }} name={{ @name }} filters={{ @filters }} params={{ @params }} />
       <IndicatorsModal :if={{ Enum.any?(@indicators) }} id={{ :indicators_modal }} name={{ @name }} indicators={{ @indicators }} />
+      <RangesModal :if={{ Enum.any?(@ranges) }} id={{ :ranges_modal }} name={{ @name }} ranges={{ @ranges }} />
       <SourcesModal :if={{ Enum.any?(@sources) }} id={{ :sources_modal }} name={{ @name }} sources={{ @sources }} />
     </div>
     """
@@ -35,6 +37,12 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Modals do
 
   @spec hide_indicators(pid) :: any
   def hide_indicators(pid \\ self()), do: hide(pid, :indicators)
+
+  @spec show_ranges(pid, String.t(), list(map)) :: any
+  def show_ranges(pid \\ self(), name, ranges), do: show(pid, name, :ranges, ranges)
+
+  @spec hide_ranges(pid) :: any
+  def hide_ranges(pid \\ self()), do: hide(pid, :ranges)
 
   @spec show_sources(pid, String.t(), list(map)) :: any
   def show_sources(pid \\ self(), name, sources), do: show(pid, name, :sources, sources)

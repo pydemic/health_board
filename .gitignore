@@ -39,3 +39,4 @@ npm-debug.log
 
 .misc/source_data/
 .misc/dashboards/
+.elixir_ls

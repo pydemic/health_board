@@ -18,6 +18,7 @@ defmodule HealthBoard.Contexts.Consolidations.LocationsConsolidations do
     @schema
     |> where(^filter_where(params))
     |> Repo.one!()
+    |> maybe_preload(params[:preload])
   rescue
     error ->
       case Keyword.pop(params, :default) do
@@ -33,6 +34,7 @@ defmodule HealthBoard.Contexts.Consolidations.LocationsConsolidations do
     |> where(^filter_where(params))
     |> Repo.order_by(params)
     |> Repo.all()
+    |> maybe_preload(params[:preload])
   end
 
   # Delete
@@ -42,6 +44,15 @@ defmodule HealthBoard.Contexts.Consolidations.LocationsConsolidations do
     @schema
     |> where(^filter_where(params))
     |> Repo.delete_all()
+  end
+
+  # Preload
+
+  defp maybe_preload(schema_or_schemas, preload) do
+    case preload do
+      :location -> Repo.preload(schema_or_schemas, :location)
+      _preload -> schema_or_schemas
+    end
   end
 
   # Filtering
