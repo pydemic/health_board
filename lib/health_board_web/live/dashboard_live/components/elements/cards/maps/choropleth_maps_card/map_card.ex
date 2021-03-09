@@ -39,22 +39,26 @@ defmodule HealthBoardWeb.DashboardLive.Components.ChoroplethMapsCard.MapCard do
 
   defp toggle(%{assigns: %{map_data: %{timestamp: timestamp} = map_data, id: id, show: show?} = assigns} = socket) do
     if timestamp != assigns.timestamp do
-      socket
-      |> LiveView.push_event("map_data", prepare_map_data(map_data, id))
-      |> LiveView.assign(timestamp: timestamp, show: true)
+      maybe_show(socket, map_data, id, timestamp)
     else
       if not show? do
-        socket
-        |> LiveView.push_event("map_data", prepare_map_data(map_data, id))
-        |> LiveView.assign(show: true)
+        maybe_show(socket, map_data, id)
       else
         LiveView.assign(socket, :show, false)
       end
     end
   end
 
-  defp prepare_map_data(%{data: data, suffix: suffix}, id) do
-    %{id: id, suffix: suffix, geojson: Geo.build_feature_collection(data)}
+  defp maybe_show(socket, %{data: data, suffix: suffix}, id, timestamp \\ nil) do
+    case Geo.build_feature_collection(data) do
+      {:ok, geojson_filename} ->
+        socket
+        |> LiveView.push_event("map_data", %{id: id, suffix: suffix, geojson: geojson_filename})
+        |> LiveView.assign(if is_nil(timestamp), do: [show: true], else: [timestamp: timestamp, show: true])
+
+      :error ->
+        socket
+    end
   end
 
   defp show?(true, timestamp, %{timestamp: timestamp}), do: true

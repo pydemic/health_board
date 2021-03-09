@@ -1,5 +1,6 @@
 defmodule HealthBoardWeb.Helpers.Geo do
   @ets_features :health_board_web_helpers_map_locations_features
+  @temporary_dir "/tmp/health_board/geo/feature_collections"
 
   # setup
 
@@ -39,9 +40,28 @@ defmodule HealthBoardWeb.Helpers.Geo do
 
   # features
 
-  @spec build_feature_collection(list(map)) :: map
+  @spec find_file_path(String.t()) :: {:ok, String.t()} | :error
+  def find_file_path(filename) do
+    path = Path.join(@temporary_dir, "#{filename}.geojson")
+
+    if File.exists?(path) do
+      {:ok, path}
+    else
+      :error
+    end
+  end
+
+  @spec build_feature_collection(list(map)) :: {:ok, String.t()} | :error
   def build_feature_collection(properties) do
-    %{type: "FeatureCollection", features: Enum.reduce(properties, [], &build_feature/2)}
+    with [_ | _] = features <- Enum.reduce(properties, [], &build_feature/2),
+         {:ok, feature_collection} <- Jason.encode(%{type: "FeatureCollection", features: features}),
+         :ok <- File.mkdir_p(@temporary_dir),
+         now <- DateTime.to_iso8601(DateTime.utc_now(), :basic),
+         :ok <- File.write(Path.join(@temporary_dir, "#{now}.geojson"), feature_collection) do
+      {:ok, now}
+    else
+      _result -> :error
+    end
   end
 
   defp build_feature(properties, features) do
