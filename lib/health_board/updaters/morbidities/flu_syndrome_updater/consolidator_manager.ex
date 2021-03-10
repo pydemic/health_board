@@ -1,11 +1,11 @@
-defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
-  alias HealthBoard.Updaters.CovidReportsUpdater.Consolidator
+defmodule HealthBoard.Updaters.FluSyndromeUpdater.ConsolidatorManager do
+  alias HealthBoard.Updaters.FluSyndromeUpdater.Consolidator
 
   @dir Path.join(File.cwd!(), ".misc/sandbox")
 
   defstruct init: true,
-            input_path: Path.join(@dir, "updates/covid_reports/input"),
-            output_path: Path.join(@dir, "output/covid_reports"),
+            input_path: Path.join(@dir, "updates/flu_syndrome/input"),
+            output_path: Path.join(@dir, "output/flu_syndrome"),
             read_ahead: 100_000,
             setup: false,
             shutdown: false,
@@ -31,13 +31,16 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
       Consolidator.setup()
     end
 
-    [file_name] = File.ls!(input_path)
+    today = Date.utc_today()
 
-    input_path
-    |> Path.join(file_name)
-    |> File.stream!(read_ahead: read_ahead)
-    |> NimbleCSV.Semicolon.parse_stream()
-    |> Stream.with_index(2)
+    for filename <- Enum.sort(File.ls!(input_path)) do
+      input_path
+      |> Path.join(filename)
+      |> File.stream!(read_ahead: read_ahead)
+      |> NimbleCSV.Semicolon.parse_stream()
+      |> Stream.with_index(2)
+      |> Stream.map(fn {line, line_index} -> {line, line_index, filename, today} end)
+    end
     |> Consolidator.consolidate(output_path, split_command)
 
     if shutdown == true do

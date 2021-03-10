@@ -1,8 +1,5 @@
 # HealthBoard
 
-![Test badge](https://github.com/pydemic/health_board/workflows/Test/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/pydemic/health_board/badge.svg)](https://coveralls.io/github/pydemic/health_board)
-
 ## Development using docker
 
 Build the development image:

@@ -1,11 +1,11 @@
-defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
-  alias HealthBoard.Updaters.CovidReportsUpdater.Consolidator
+defmodule HealthBoard.Updaters.SARSUpdater.ConsolidatorManager do
+  alias HealthBoard.Updaters.SARSUpdater.Consolidator
 
   @dir Path.join(File.cwd!(), ".misc/sandbox")
 
   defstruct init: true,
-            input_path: Path.join(@dir, "updates/covid_reports/input"),
-            output_path: Path.join(@dir, "output/covid_reports"),
+            input_path: Path.join(@dir, "updates/sars/input"),
+            output_path: Path.join(@dir, "output/sars"),
             read_ahead: 100_000,
             setup: false,
             shutdown: false,
@@ -33,11 +33,14 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.ConsolidatorManager do
 
     [file_name] = File.ls!(input_path)
 
+    today = Date.utc_today()
+
     input_path
     |> Path.join(file_name)
     |> File.stream!(read_ahead: read_ahead)
     |> NimbleCSV.Semicolon.parse_stream()
     |> Stream.with_index(2)
+    |> Stream.map(fn {line, line_index} -> {line, line_index, today} end)
     |> Consolidator.consolidate(output_path, split_command)
 
     if shutdown == true do

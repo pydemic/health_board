@@ -21,7 +21,6 @@ defmodule HealthBoard.Updaters.CovidReportsUpdater.Consolidator do
     Logger.info("Parsing")
 
     stream
-    |> Stream.with_index(1)
     |> Flow.from_enumerable()
     |> Flow.map(&parse/1)
     |> Flow.run()
