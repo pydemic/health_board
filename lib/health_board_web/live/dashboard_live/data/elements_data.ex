@@ -114,9 +114,17 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
     |> Module.concat(module)
     |> apply(String.to_atom(function), [data, URI.decode_query(params || "")])
     |> case do
-      {:ok, {:emit, data}} -> DataWrapper.fetch(pid, element.id, data)
-      {:ok, {:emit_and_hook, {data, hook, h_data}}} -> DataWrapper.fetch_and_hook(pid, element.id, data, hook, h_data)
-      _result -> :ok
+      {:ok, {:emit, data}} ->
+        DataWrapper.fetch(pid, element.id, data)
+
+      {:ok, {:emit_and_hook, {hook, hook_data}}} ->
+        DataWrapper.fetch_and_hook(pid, element.id, %{ready?: true}, hook, hook_data)
+
+      {:ok, {:emit_and_hook, {data, hook, hook_data}}} ->
+        DataWrapper.fetch_and_hook(pid, element.id, data, hook, hook_data)
+
+      _result ->
+        DataWrapper.fetch(pid, element.id, %{error?: true})
     end
   rescue
     error ->
@@ -125,5 +133,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
       #{Exception.format_stacktrace(__STACKTRACE__)}
       #{inspect(element, pretty: true)}
       """)
+
+      DataWrapper.fetch(pid, element.id, %{ready?: true})
   end
 end

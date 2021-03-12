@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Dashboards.ElementsChildren do
 
   @context "dashboards"
   @table_name "elements_children"
-  @columns ~w[parent_id child_id]a
+  @columns ~w[id parent_id child_id]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

@@ -19,7 +19,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.All 
 
     case ElementsData.apply_and_cache(LocationsConsolidations, :get_by, [manager_params], opts) do
       nil -> :error
-      consolidation -> {:ok, consolidation}
+      consolidation -> {:ok, Consolidations.maybe_parse_values(consolidation, params)}
     end
   end
 
@@ -45,7 +45,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.All 
   defp do_list(params, manager_params, opts) do
     manager_params = maybe_preload(params, manager_params)
     opts = Keyword.put(opts, :default, [])
-    ElementsData.apply_and_cache(LocationsConsolidations, :list_by, [manager_params], opts)
+
+    LocationsConsolidations
+    |> ElementsData.apply_and_cache(:list_by, [manager_params], opts)
+    |> Consolidations.maybe_parse_values_from_list(params)
   end
 
   defp maybe_preload(params, manager_params) do

@@ -1,15 +1,12 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
   use Surface.LiveComponent
-  alias HealthBoardWeb.DashboardLive.Components.Fragments.Otherwise
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.{Cooldown, Otherwise}
   alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.{Home, Eye, EyeOff, Moon, Refresh, Sun}
   alias HealthBoardWeb.DashboardLive.ParamsManager
   alias HealthBoardWeb.Router
   alias Phoenix.LiveView
 
   prop dashboard, :map, required: true
-
-  data last_refresh, :any, default: nil
-  data can_refresh, :boolean, default: true
 
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
@@ -27,18 +24,11 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
           <Home />
         </a>
 
-        <Otherwise condition={{ @can_refresh }}>
+        <Cooldown id={{ "refresh_dashboard_#{@id}" }} message="Aguarde antes de atualizar novamente as informações do painel" wrapper_class="py-5 ml-2">
           <button :on-click="refresh_dashboard" title="Atualizar informações do painel" class="py-5 ml-2 hover:text-hb-c-dark dark:hover:text-hb-c focus:outline-none focus:text-hb-c-dark dark:focus:text-hb-c">
             <Refresh />
           </button>
-
-          <template slot="otherwise">
-            <div class="py-5 ml-2" x-data="{ countdown: 15 }" x-init="window.setInterval(() => { if (countdown > 0) countdown -= 1 }, 1000)">
-              <span x-show="countdown > 0" x-text="countdown" title="Aguarde alguns instantes antes para atualizar novamente as informações do painel"></span>
-            </div>
-          </template>
-        </Otherwise>
-
+        </Cooldown>
 
         <button :on-click="toggle_options" class="py-5 ml-2 hover:text-hb-c-dark dark:hover:text-hb-c focus:outline-none focus:text-hb-c-dark dark:focus:text-hb-c">
           <Otherwise condition={{ @dashboard.show_options }} true_title="Ocultar opções adicionais" false_title="Mostrar opções adicionais">
@@ -85,18 +75,10 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
     {:noreply, LiveView.push_patch(socket, to: updated_route(socket, %{"group_index" => index}))}
   end
 
-  def handle_event("refresh_dashboard", _value, %{assigns: assigns} = socket) do
-    %{id: id, dashboard: %{params: params}, last_refresh: last_refresh} = assigns
-
-    now = DateTime.utc_now()
-    can_refresh? = can_refresh?(last_refresh, now)
-
-    if can_refresh? do
-      ParamsManager.emit_group_data(socket, params, apply: true)
-      LiveView.send_update_after(__MODULE__, [id: id, can_refresh: true, last_refresh: nil], 15_000)
-    end
-
-    {:noreply, LiveView.assign(socket, last_refresh: now, can_refresh: false)}
+  def handle_event("refresh_dashboard", _value, %{assigns: %{id: id, dashboard: %{params: params}}} = socket) do
+    ParamsManager.emit_group_data(socket, params, apply: true)
+    Cooldown.trigger("refresh_dashboard_#{id}")
+    {:noreply, socket}
   end
 
   def handle_event("toggle_dark_mode", _value, %{assigns: %{dashboard: %{dark_mode: dark_mode}}} = socket) do
@@ -114,7 +96,4 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
   defp updated_route(%{assigns: %{dashboard: %{params: params}}} = socket, new_params) do
     Router.Helpers.dashboard_path(socket, :index, Map.merge(params, new_params))
   end
-
-  defp can_refresh?(nil, _to), do: true
-  defp can_refresh?(from, to), do: abs(DateTime.diff(from, to)) > 15
 end

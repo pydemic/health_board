@@ -1,6 +1,7 @@
-defmodule HealthBoardWeb.DashboardLive.Components.EpicurveChartCard do
+defmodule HealthBoardWeb.DashboardLive.Components.ChartCard do
   use Surface.Component
   alias HealthBoardWeb.DashboardLive.Components.Card
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.NA
   alias Phoenix.LiveView
 
   prop card, :map, required: true
@@ -10,10 +11,8 @@ defmodule HealthBoardWeb.DashboardLive.Components.EpicurveChartCard do
   def render(assigns) do
     ~H"""
     <Card :let={{ data: data }} element={{ @card }} params={{ @params }}>
-      <canvas :show={{ Enum.any?(data) }} id={{ "canvas_#{@card.id}" }} phx-hook="Chart" height={{ 400 }}></canvas>
-      <p :if={{ Enum.empty?(data) }} class="text-2xl font-bold">
-        N/A
-      </p>
+      <canvas :show={{ data[:ready?] == true }} id={{ "canvas_#{@card.id}" }} phx-hook="Chart" height={{ 400 }}></canvas>
+      <NA :if={{ data[:ready?] != true }} />
     </Card>
     """
   end

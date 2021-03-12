@@ -70,7 +70,29 @@ defmodule HealthBoard.Contexts.Consolidations.WeeklyLocationsConsolidations do
       {:weeks, weeks}, dynamic -> dynamic([row], ^dynamic and row.week in ^weeks)
       {:from_week, week}, dynamic -> dynamic([row], ^dynamic and row.week >= ^week)
       {:to_week, week}, dynamic -> dynamic([row], ^dynamic and row.week <= ^week)
+      {:period, period}, dynamic -> filter_by_period(dynamic, period)
       _param, dynamic -> dynamic
     end)
+  end
+
+  defp filter_by_period(dynamic, %{from: %{year: y1, week: w1}, to: %{year: y2, week: w2}}) do
+    if y1 == y2 do
+      if w1 == w2 do
+        dynamic([row], ^dynamic and row.year == ^y1 and row.week == ^w1)
+      else
+        dynamic([row], ^dynamic and row.year == ^y1 and row.week >= ^w1 and row.week <= ^w2)
+      end
+    else
+      if w1 == w2 do
+        dynamic([row], ^dynamic and row.year >= ^y1 and row.year <= ^y2 and row.week == ^w1)
+      else
+        dynamic(
+          [row],
+          ^dynamic and
+            ((row.year == ^y1 and row.week >= ^w1) or (row.year == ^y2 and row.week <= ^w2) or
+               (row.year > ^y1 and row.year < ^y2))
+        )
+      end
+    end
   end
 end

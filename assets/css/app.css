@@ -9,6 +9,10 @@ iframe[hidden] {
   @apply hidden
 }
 
+[hidden] {
+  @apply hidden
+}
+
 [x-cloak] {
   @apply hidden
 }

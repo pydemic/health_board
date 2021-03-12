@@ -45,10 +45,27 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Mont
     []
     |> Consolidations.maybe_append(Consolidations.fetch_years(data, params, opts))
     |> Consolidations.maybe_append(Consolidations.fetch_months(data, params, opts))
+    |> maybe_create_period()
     |> Consolidations.maybe_append(Consolidations.fetch_locations_ids(data, params, opts))
     |> case do
       [] -> :error
       manager_params -> {:ok, do_list(params, [{:consolidation_group_id, group} | manager_params], opts)}
+    end
+  end
+
+  defp maybe_create_period(keyword) do
+    if length(keyword) == 4 do
+      [
+        {
+          :period,
+          %{
+            from: %{year: Keyword.get(keyword, :from_year), month: Keyword.get(keyword, :from_month)},
+            to: %{year: Keyword.get(keyword, :to_year), month: Keyword.get(keyword, :to_month)}
+          }
+        }
+      ]
+    else
+      keyword
     end
   end
 

@@ -54,7 +54,20 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Composite do
          {:ok, value} <- Map.fetch(map, String.to_atom(get)) do
       Map.put(data, field, value)
     else
-      _ -> data
+      _result -> data
+    end
+  end
+
+  @spec replace(map, atom, map, map, keyword) :: map
+  def replace(data, field, params, _filters, _opts \\ []) do
+    with %{"what" => what} <- params,
+         what <- String.to_atom(what),
+         {:ok, value} <- Map.fetch(data, what) do
+      data
+      |> Map.delete(what)
+      |> Map.put(field, value)
+    else
+      _result -> data
     end
   end
 end

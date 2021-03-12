@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Deaths do
   use Surface.Component
-  alias HealthBoardWeb.DashboardLive.Components.{EpicurveChartCard, LineChartCard, ScalarCard, TableCard}
+  alias HealthBoardWeb.DashboardLive.Components.{ChartCard, ScalarCard, TableCard}
   alias Phoenix.LiveView
 
   prop element, :map, required: true
@@ -8,7 +8,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Deaths do
   @spec daily_epicurve(map, map) :: LiveView.Rendered.t()
   def daily_epicurve(assigns, params) do
     ~H"""
-    <EpicurveChartCard card={{ @element }} params={{ daily_epicurve_params(params) }} />
+    <ChartCard card={{ @element }} params={{ daily_epicurve_params(params) }} />
     """
   end
 
@@ -19,11 +19,33 @@ defmodule HealthBoardWeb.DashboardLive.Components.Deaths do
   @spec monthly_chart(map, map) :: LiveView.Rendered.t()
   def monthly_chart(assigns, params) do
     ~H"""
-    <LineChartCard card={{ @element }} params={{ monthly_chart_params(params) }} />
+    <ChartCard card={{ @element }} params={{ monthly_chart_params(params) }} />
     """
   end
 
   defp monthly_chart_params(params) do
+    params
+  end
+
+  @spec per_age_gender(map, map) :: LiveView.Rendered.t()
+  def per_age_gender(assigns, params) do
+    ~H"""
+    <ChartCard card={{ @element }} params={{ per_age_gender_params(params) }} />
+    """
+  end
+
+  defp per_age_gender_params(params) do
+    params
+  end
+
+  @spec per_race(map, map) :: LiveView.Rendered.t()
+  def per_race(assigns, params) do
+    ~H"""
+    <ChartCard card={{ @element }} params={{ per_race_params(params) }} />
+    """
+  end
+
+  defp per_race_params(params) do
     params
   end
 
@@ -52,7 +74,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Deaths do
   @spec weekly_chart(map, map) :: LiveView.Rendered.t()
   def weekly_chart(assigns, params) do
     ~H"""
-    <LineChartCard card={{ @element }} params={{ weekly_chart_params(params) }} />
+    <ChartCard card={{ @element }} params={{ weekly_chart_params(params) }} />
     """
   end
 

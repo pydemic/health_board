@@ -17,18 +17,35 @@ defmodule HealthBoardWeb.DashboardLive.ElementsFiltersData.Time do
 
   @spec period(map) :: map
   def period(params) do
-    type = type_value(params["period_type"], params["default_period_type"])
+    type = type_value(params["period_type"], params["default_type"])
+
+    default_from =
+      case params do
+        %{"default_from" => from} -> from
+        %{"default_from_alias" => from_alias} -> "alias=#{from_alias}"
+        _default -> nil
+      end
+
+    default_to =
+      case params do
+        %{"default_to" => to} -> to
+        %{"default_to_alias" => to_alias} -> "alias=#{to_alias}"
+        _default -> nil
+      end
+
+    %{from_date: from, to_date: to} = options = options(params)
 
     period = %{
       type: type,
-      from: value(type, params["period_from"], params["default_period_from"]),
-      to: value(type, params["period_to"], params["default_period_to"])
+      from: value(type, params["period_from"], default_from),
+      to: value(type, params["period_to"], default_to),
+      boundary: %{from: from, to: to}
     }
 
     %{
       value: period,
       verbose_value: Humanize.period(period),
-      options: options(params)
+      options: options
     }
   end
 

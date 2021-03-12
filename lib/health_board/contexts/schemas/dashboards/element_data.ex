@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Dashboards.ElementData do
 
   @type schema :: %__MODULE__{}
 
+  @primary_key {:id, :integer, autogenerate: false}
   schema "elements_data" do
     field :field, :string, null: false
 

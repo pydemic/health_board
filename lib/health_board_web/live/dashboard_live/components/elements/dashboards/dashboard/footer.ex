@@ -36,7 +36,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Footer do
         </div>
 
         <div class="md:col-span-2">
-          <div class="py-1 px-2 mb-6 md:text-left text-center font-bold">Colaboração</div>
+          <div class="py-1 px-2 mb-6 md:text-left text-center font-bold">Iniciativa</div>
 
           <div class="grid md:grid-cols-2 grid-cols-1 place-items-stretch gap-4">
             <a :for={{ {link, logo} <- @organizations }} href={{ link }} target="_blank" class="m-auto max-w-lg">

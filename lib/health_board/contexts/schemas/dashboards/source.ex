@@ -5,6 +5,7 @@ defmodule HealthBoard.Contexts.Dashboards.Source do
 
   @type schema :: %__MODULE__{}
 
+  @primary_key {:id, :integer, autogenerate: false}
   schema "sources" do
     field :sid, :string, null: false
 

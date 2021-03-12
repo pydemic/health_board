@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Dashboards.ElementsData do
 
   @context "dashboards"
   @table_name "elements_data"
-  @columns ~w[element_id field data_module data_function data_params]a
+  @columns ~w[id element_id field data_module data_function data_params]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

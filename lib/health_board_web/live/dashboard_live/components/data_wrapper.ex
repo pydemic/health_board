@@ -17,10 +17,10 @@ defmodule HealthBoardWeb.DashboardLive.Components.DataWrapper do
     """
   end
 
-  @spec fetch(pid | nil, String.t() | atom, map) :: any
+  @spec fetch(pid, String.t() | atom, map) :: any
   def fetch(pid \\ self(), id, data), do: send_update(pid, __MODULE__, id: id, data: data)
 
-  @spec fetch_and_hook(pid | nil, String.t() | atom, map, String.t(), map) :: any
+  @spec fetch_and_hook(pid, String.t() | atom, map, String.t(), map) :: any
   def fetch_and_hook(pid \\ self(), id, data, hook, hook_data) do
     fetch(pid, id, data)
     Process.send_after(pid, {:hook, hook, Map.put(hook_data, :id, id)}, 1_000)

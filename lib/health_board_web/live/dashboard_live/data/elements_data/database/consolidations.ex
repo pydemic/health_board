@@ -254,6 +254,32 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
   def maybe_append(list, {:ok, item}) when is_list(item), do: item ++ list
   def maybe_append(list, _result), do: list
 
+  @spec maybe_parse_values(consolidation, map) :: consolidation
+  def maybe_parse_values(consolidation, params) do
+    if Map.has_key?(params, "values") do
+      parse_values(consolidation)
+    else
+      consolidation
+    end
+  end
+
+  defp parse_values(consolidation) do
+    Map.update!(consolidation, :values, fn values ->
+      values
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+    end)
+  end
+
+  @spec maybe_parse_values_from_list(list(consolidation), map) :: list(consolidation)
+  def maybe_parse_values_from_list(consolidations, params) do
+    if Map.has_key?(params, "values") do
+      Enum.map(consolidations, &parse_values/1)
+    else
+      consolidations
+    end
+  end
+
   @spec maybe_preload(map, keyword) :: keyword
   def maybe_preload(params, manager_params) do
     case Map.fetch(params, "preload") do
@@ -264,40 +290,47 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
 
   @spec maybe_sum_by(list(consolidation), map) :: list(consolidation)
   def maybe_sum_by(data, params) do
+    function =
+      if Map.has_key?(params, "values") do
+        &sum_total(elem(&1, 1))
+      else
+        &sum_values(elem(&1, 1))
+      end
+
     case Map.fetch(params, "sum_by") do
-      {:ok, "location"} -> sum_by_location(data)
-      {:ok, "time"} -> sum_by_time(data)
+      {:ok, "location"} -> sum_by_location(data, function)
+      {:ok, "time"} -> sum_by_time(data, function)
       _result -> data
     end
   end
 
-  defp sum_by_location(data) do
+  defp sum_by_location(data, function) do
     data
     |> Enum.group_by(& &1.location_id)
-    |> Enum.map(&sum_total(elem(&1, 1)))
+    |> Enum.map(function)
   end
 
-  defp sum_by_time(data) do
+  defp sum_by_time(data, function) do
     case Enum.at(data, 0, %{})[:__struct__] do
       DayLocationConsolidation ->
         data
         |> Enum.group_by(& &1.date)
-        |> Enum.map(&sum_total(elem(&1, 1)))
+        |> Enum.map(function)
 
       WeekLocationConsolidation ->
         data
         |> Enum.group_by(&{&1.year, &1.week})
-        |> Enum.map(&sum_total(elem(&1, 1)))
+        |> Enum.map(function)
 
       MonthLocationConsolidation ->
         data
         |> Enum.group_by(&{&1.year, &1.month})
-        |> Enum.map(&sum_total(elem(&1, 1)))
+        |> Enum.map(function)
 
       YearLocationConsolidation ->
         data
         |> Enum.group_by(& &1.year)
-        |> Enum.map(&sum_total(elem(&1, 1)))
+        |> Enum.map(function)
 
       _result ->
         data
@@ -307,5 +340,13 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
   @spec sum_total(list(consolidation)) :: consolidation
   def sum_total(consolidations) do
     Enum.reduce(consolidations, fn c1, c2 -> Map.put(c2, :total, c1.total + c2.total) end)
+  end
+
+  @spec sum_values(list(consolidation)) :: consolidation
+  def sum_values(consolidations) do
+    Enum.reduce(consolidations, fn c1, c2 ->
+      c2 = if is_binary(c2.values), do: parse_values(c2), else: c2
+      Map.put(c2, :values, Enum.map(Enum.zip(parse_values(c1).values, c2.values), fn {v1, v2} -> v1 + v2 end))
+    end)
   end
 end

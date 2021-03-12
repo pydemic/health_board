@@ -1,19 +1,19 @@
-defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
+defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.HospitalizationRate do
   alias HealthBoardWeb.DashboardLive.ElementsData.Components
 
   @suffix "/ 100 mil habitantes"
 
-  @incidence_scalar_param "incidence"
+  @hospitalizations_scalar_param "hospitalizations"
   @population_scalar_param "population"
 
-  @incidence_per_location_param "#{@incidence_scalar_param}_per_location"
+  @hospitalizations_per_location_param "#{@hospitalizations_scalar_param}_per_location"
   @population_per_location_param "#{@population_scalar_param}_per_location"
 
   @spec scalar(map, map) :: {:ok, tuple} | :error
   def scalar(data, params) do
-    with {:ok, %{total: t1}} <- Components.fetch_data(data, params, @incidence_scalar_param),
+    with {:ok, %{total: t1}} <- Components.fetch_data(data, params, @hospitalizations_scalar_param),
          {:ok, %{total: t2}} <- Components.fetch_data(data, params, @population_scalar_param) do
-      Components.scalar(incidence_rate(t1, t2))
+      Components.scalar(hospitalization_rate(t1, t2))
     else
       _result -> :error
     end
@@ -21,10 +21,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
 
   @spec top_ten_locations_table(map, map) :: {:ok, tuple} | :error
   def top_ten_locations_table(data, params) do
-    with {:ok, [_ | _] = l1} <- Components.fetch_data(data, params, @incidence_per_location_param),
+    with {:ok, [_ | _] = l1} <- Components.fetch_data(data, params, @hospitalizations_per_location_param),
          {:ok, [_ | _] = l2} <- Components.fetch_data(data, params, @population_per_location_param) do
       l1
-      |> Components.apply_in_total_per_location(l2, &incidence_rate/2)
+      |> Components.apply_in_total_per_location(l2, &hospitalization_rate/2)
       |> Components.top_ten_locations_table()
     else
       _result -> :error
@@ -34,9 +34,9 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
   @spec choropleth_maps(map, map) :: {:ok, tuple} | :error
   def choropleth_maps(data, params) do
     Components.choropleth_maps(@suffix, fn prefix ->
-      with {:ok, [_ | _] = l1} <- Components.fetch_data(data, params, "#{prefix}_#{@incidence_scalar_param}"),
+      with {:ok, [_ | _] = l1} <- Components.fetch_data(data, params, "#{prefix}_#{@hospitalizations_scalar_param}"),
            {:ok, [_ | _] = l2} <- Components.fetch_data(data, params, "#{prefix}_#{@population_scalar_param}"),
-           {map_data, rates, _} <- Enum.reduce(l1, {[], [], l2}, &reduce_map_data/2),
+           {map_data, rates, _l2} <- Enum.reduce(l1, {[], [], l2}, &reduce_map_data/2),
            true <- Enum.any?(map_data) do
         {:ok, {map_data, rates}}
       else
@@ -49,7 +49,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
     with t1 when t1 > 0 <- s1.total,
          {s2, l2} <- Components.pop_with_location_id(l2, location_id),
          t2 when t2 > 0 <- s2.total do
-      rate = incidence_rate(t1, t2)
+      rate = hospitalization_rate(t1, t2)
 
       map_item = %{
         id: location_id,
@@ -63,9 +63,9 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
     end
   end
 
-  defp incidence_rate(incidence, population) do
-    if is_number(incidence) and is_number(population) and population > 0 do
-      100_000 * incidence / population
+  defp hospitalization_rate(hospitalizations, population) do
+    if is_number(hospitalizations) and is_number(population) and population > 0 do
+      100_000 * hospitalizations / population
     else
       0.0
     end

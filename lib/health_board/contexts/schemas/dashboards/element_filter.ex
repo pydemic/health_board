@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Dashboards.ElementFilter do
 
   @type schema :: %__MODULE__{}
 
+  @primary_key {:id, :integer, autogenerate: false}
   schema "elements_filters" do
     field :name, :string
     field :description, :string

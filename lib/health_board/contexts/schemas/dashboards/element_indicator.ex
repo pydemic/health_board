@@ -4,6 +4,7 @@ defmodule HealthBoard.Contexts.Dashboards.ElementIndicator do
 
   @type schema :: %__MODULE__{}
 
+  @primary_key {:id, :integer, autogenerate: false}
   schema "elements_indicators" do
     belongs_to :element, Dashboards.Element
     belongs_to :indicator, Dashboards.Indicator

@@ -3,7 +3,7 @@ defmodule HealthBoard.Contexts.Seeders.Dashboards.Filters do
 
   @context "dashboards"
   @table_name "filters"
-  @columns ~w[sid name description default disabled options_module options_function options_params]a
+  @columns ~w[id sid name description default disabled options_module options_function options_params]a
 
   @spec down! :: :ok
   def down!, do: Seeder.down!(@table_name)

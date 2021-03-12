@@ -70,7 +70,29 @@ defmodule HealthBoard.Contexts.Consolidations.MonthlyLocationsConsolidations do
       {:months, months}, dynamic -> dynamic([row], ^dynamic and row.month in ^months)
       {:from_month, month}, dynamic -> dynamic([row], ^dynamic and row.month >= ^month)
       {:to_month, month}, dynamic -> dynamic([row], ^dynamic and row.month <= ^month)
+      {:period, period}, dynamic -> filter_by_period(dynamic, period)
       _param, dynamic -> dynamic
     end)
+  end
+
+  defp filter_by_period(dynamic, %{from: %{year: y1, month: m1}, to: %{year: y2, month: m2}}) do
+    if y1 == y2 do
+      if m1 == m2 do
+        dynamic([row], ^dynamic and row.year == ^y1 and row.month == ^m1)
+      else
+        dynamic([row], ^dynamic and row.year == ^y1 and row.month >= ^m1 and row.month <= ^m2)
+      end
+    else
+      if m1 == m2 do
+        dynamic([row], ^dynamic and row.year >= ^y1 and row.year <= ^y2 and row.month == ^m1)
+      else
+        dynamic(
+          [row],
+          ^dynamic and
+            ((row.year == ^y1 and row.month >= ^m1) or (row.year == ^y2 and row.month <= ^m2) or
+               (row.year > ^y1 and row.year < ^y2))
+        )
+      end
+    end
   end
 end

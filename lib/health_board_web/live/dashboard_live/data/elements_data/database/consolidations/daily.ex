@@ -21,7 +21,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Dail
 
     case ElementsData.apply_and_cache(DailyLocationsConsolidations, :get_by, [manager_params], opts) do
       nil -> :error
-      consolidation -> {:ok, consolidation}
+      consolidation -> {:ok, Consolidations.maybe_parse_values(consolidation, params)}
     end
   end
 

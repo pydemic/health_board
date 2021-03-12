@@ -1,54 +1,39 @@
 defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.FatalityRate do
   alias HealthBoardWeb.DashboardLive.ElementsData.Components
-  alias HealthBoardWeb.Helpers.Humanize
 
-  @spec scalar(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
+  @deaths_scalar_param "deaths"
+  @incidence_scalar_param "incidence"
+
+  @deaths_per_location_param "#{@deaths_scalar_param}_per_location"
+  @incidence_per_location_param "#{@incidence_scalar_param}_per_location"
+
+  @spec scalar(map, map) :: {:ok, tuple} | :error
   def scalar(data, params) do
-    {:ok, {:emit, %{value: do_scalar(data, params)}}}
-  end
-
-  defp do_scalar(data, params) do
-    with {:ok, %{total: deaths}} <- Components.fetch_data(data, params, "deaths"),
-         {:ok, %{total: cases}} <- Components.fetch_data(data, params, "incidence") do
-      Humanize.number(fatality_rate(deaths, cases))
+    with {:ok, %{total: t1}} <- Components.fetch_data(data, params, @deaths_scalar_param),
+         {:ok, %{total: t2}} <- Components.fetch_data(data, params, @incidence_scalar_param) do
+      Components.scalar(fatality_rate(t1, t2))
     else
-      _ -> nil
+      _result -> :error
     end
   end
 
-  @spec top_ten_locations_table(map, map) :: {:ok, {:emit, map}} | :ok | {:error, any}
+  @spec top_ten_locations_table(map, map) :: {:ok, tuple} | :error
   def top_ten_locations_table(data, params) do
-    {:ok, {:emit, do_top_ten_locations_table(data, params)}}
-  end
-
-  defp do_top_ten_locations_table(data, params) do
-    with {:ok, deaths_list} <- Components.fetch_data(data, params, "deaths_list"),
-         {:ok, incidence_list} <- Components.fetch_data(data, params, "incidence_list") do
-      %{lines: top_ten_table_lines(deaths_list, incidence_list)}
+    with {:ok, [_ | _] = l1} <- Components.fetch_data(data, params, @deaths_per_location_param),
+         {:ok, [_ | _] = l2} <- Components.fetch_data(data, params, @incidence_per_location_param) do
+      l1
+      |> Components.apply_in_total_per_location(l2, &fatality_rate/2)
+      |> Components.top_ten_locations_table()
     else
-      _ -> %{}
+      _result -> :error
     end
   end
 
-  defp top_ten_table_lines(deaths_list, incidence_list) do
-    deaths_list
-    |> Enum.map(&fatality_rate_from_incidence_list(&1, incidence_list))
-    |> Enum.sort(&(&1.rate >= &2.rate))
-    |> Enum.slice(0, 10)
-    |> Enum.map(&top_ten_table_line/1)
+  defp fatality_rate(deaths, incidence) do
+    if is_number(deaths) and is_number(incidence) and incidence > 0 do
+      100 * deaths / incidence
+    else
+      0.0
+    end
   end
-
-  defp fatality_rate_from_incidence_list(%{location_id: location_id, total: deaths} = death_map, incidence_list) do
-    %{
-      location: death_map.location,
-      rate: fatality_rate(deaths, Enum.find_value(incidence_list, 0, &if(&1.location_id == location_id, do: &1.total)))
-    }
-  end
-
-  defp top_ten_table_line(%{location: location, rate: rate}) do
-    %{cells: [{Humanize.location(location), %{location: location.id}}, Humanize.number(rate)]}
-  end
-
-  defp fatality_rate(_deaths, 0), do: 0
-  defp fatality_rate(deaths, cases), do: 100 * deaths / cases
 end

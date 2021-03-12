@@ -1,4 +1,4 @@
-defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
+defmodule HealthBoardWeb.DashboardLive.Components.Hospitalizations do
   use Surface.Component
   alias HealthBoardWeb.DashboardLive.Components.{ChartCard, ScalarCard, TableCard}
   alias Phoenix.LiveView
@@ -16,17 +16,6 @@ defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
     params
   end
 
-  @spec monthly_chart(map, map) :: LiveView.Rendered.t()
-  def monthly_chart(assigns, params) do
-    ~H"""
-    <ChartCard card={{ @element }} params={{ monthly_chart_params(params) }} />
-    """
-  end
-
-  defp monthly_chart_params(params) do
-    params
-  end
-
   @spec per_age_gender(map, map) :: LiveView.Rendered.t()
   def per_age_gender(assigns, params) do
     ~H"""
@@ -35,6 +24,17 @@ defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
   end
 
   defp per_age_gender_params(params) do
+    params
+  end
+
+  @spec per_comorbidity(map, map) :: LiveView.Rendered.t()
+  def per_comorbidity(assigns, params) do
+    ~H"""
+    <ChartCard card={{ @element }} params={{ per_comorbidity_params(params) }} />
+    """
+  end
+
+  defp per_comorbidity_params(params) do
     params
   end
 
@@ -49,6 +49,17 @@ defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
     params
   end
 
+  @spec per_symptom(map, map) :: LiveView.Rendered.t()
+  def per_symptom(assigns, params) do
+    ~H"""
+    <ChartCard card={{ @element }} params={{ per_symptom_params(params) }} />
+    """
+  end
+
+  defp per_symptom_params(params) do
+    params
+  end
+
   @spec scalar(map, map) :: LiveView.Rendered.t()
   def scalar(assigns, params) do
     ~H"""
@@ -57,7 +68,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
   end
 
   defp scalar_params(params) do
-    Map.merge(params, %{suffix: "casos"})
+    Map.merge(params, %{suffix: "internações"})
   end
 
   @spec top_ten_locations_table(map, map) :: LiveView.Rendered.t()
@@ -68,18 +79,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.Incidence do
   end
 
   defp top_ten_locations_table_params(params) do
-    Map.merge(params, %{slice: 0..9, with_index: true, headers: ~w[Local Incidência]})
-  end
-
-  @spec weekly_chart(map, map) :: LiveView.Rendered.t()
-  def weekly_chart(assigns, params) do
-    ~H"""
-    <ChartCard card={{ @element }} params={{ weekly_chart_params(params) }} />
-    """
-  end
-
-  defp weekly_chart_params(params) do
-    params
+    Map.merge(params, %{slice: 0..9, with_index: true, headers: ~w[Local Internações]})
   end
 
   @spec render(map) :: LiveView.Rendered.t()

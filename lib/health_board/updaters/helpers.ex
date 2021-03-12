@@ -43,7 +43,7 @@ defmodule HealthBoard.Updaters.Helpers do
         Logger.info("Successfully updated data")
 
         state
-        |> struct(status: :idle)
+        |> struct(status: :idle, attempts: 0)
         |> module.schedule()
 
       status ->
