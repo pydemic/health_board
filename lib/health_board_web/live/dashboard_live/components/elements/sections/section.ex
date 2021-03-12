@@ -26,13 +26,9 @@ defmodule HealthBoardWeb.DashboardLive.Components.Section do
 
   defp section_class(params) do
     case Map.get(params, "responsive_cols") do
-      "3" -> three_cols_section()
-      "2" -> two_cols_section()
-      _result -> single_col_section()
+      "3" -> "md:grid-cols-2 lg:grid-cols-3"
+      "2" -> "lg:grid-cols-2"
+      _result -> "grid-cols-1"
     end <> " grid place-items-stretch gap-4 mt-5"
   end
-
-  defp single_col_section, do: "grid-cols-1"
-  defp two_cols_section, do: "lg:grid-cols-2 2xl:grid-cols-3"
-  defp three_cols_section, do: "md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
 end
