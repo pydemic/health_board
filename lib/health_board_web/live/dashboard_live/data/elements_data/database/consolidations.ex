@@ -263,12 +263,19 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     end
   end
 
-  defp parse_values(consolidation) do
-    Map.update!(consolidation, :values, fn values ->
-      values
-      |> String.split(",")
-      |> Enum.map(&String.to_integer/1)
-    end)
+  defp parse_values(%{values: values} = consolidation) do
+    if is_binary(values) do
+      values =
+        values
+        |> String.split(",")
+        |> Enum.map(&String.to_integer/1)
+
+      Map.put(consolidation, :values, values)
+    else
+      consolidation
+    end
+  rescue
+    _error -> consolidation
   end
 
   @spec maybe_parse_values_from_list(list(consolidation), map) :: list(consolidation)
@@ -292,14 +299,15 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
   def maybe_sum_by(data, params) do
     function =
       if Map.has_key?(params, "values") do
-        &sum_total(elem(&1, 1))
-      else
         &sum_values(elem(&1, 1))
+      else
+        &sum_total(elem(&1, 1))
       end
 
     case Map.fetch(params, "sum_by") do
       {:ok, "location"} -> sum_by_location(data, function)
       {:ok, "time"} -> sum_by_time(data, function)
+      {:ok, nil} -> function.({nil, data})
       _result -> data
     end
   end
@@ -339,14 +347,22 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
 
   @spec sum_total(list(consolidation)) :: consolidation
   def sum_total(consolidations) do
-    Enum.reduce(consolidations, fn c1, c2 -> Map.put(c2, :total, c1.total + c2.total) end)
+    if Enum.any?(consolidations) do
+      Enum.reduce(consolidations, fn c1, c2 -> Map.put(c2, :total, c1.total + c2.total) end)
+    else
+      nil
+    end
   end
 
   @spec sum_values(list(consolidation)) :: consolidation
   def sum_values(consolidations) do
-    Enum.reduce(consolidations, fn c1, c2 ->
-      c2 = if is_binary(c2.values), do: parse_values(c2), else: c2
-      Map.put(c2, :values, Enum.map(Enum.zip(parse_values(c1).values, c2.values), fn {v1, v2} -> v1 + v2 end))
-    end)
+    if Enum.any?(consolidations) do
+      Enum.reduce(consolidations, fn c1, c2 ->
+        c2 = if is_binary(c2.values), do: parse_values(c2), else: c2
+        Map.put(c2, :values, Enum.map(Enum.zip(parse_values(c1).values, c2.values), fn {v1, v2} -> v1 + v2 end))
+      end)
+    else
+      nil
+    end
   end
 end

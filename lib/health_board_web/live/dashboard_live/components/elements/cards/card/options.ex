@@ -13,19 +13,19 @@ defmodule HealthBoardWeb.DashboardLive.Components.Card.Options do
   def render(assigns) do
     ~H"""
     <div class="px-5 py-2 flex justify-evenly content-center">
-      <button :if={{ Enum.any?(@element.indicators) }} :on-click="show_indicators" title={{ "Ver indicadores de #{@element.name}" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+      <button :if={{ Enum.any?(@element.indicators) }} :on-click="show_indicators" title={{ "Indicadores" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
         <Info />
       </button>
 
-      <button :if={{ Enum.any?(@element.filters) }} :on-click="show_filters" title={{ "Ver filtros de #{@element.name}" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+      <button :if={{ Enum.any?(@element.filters) }} :on-click="show_filters" title={{ "Filtros" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
         <Filter />
       </button>
 
-      <button :if={{ Enum.any?(@element.sources) }} :on-click="show_sources" title={{ "Ver fontes de #{@element.name}" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+      <button :if={{ Enum.any?(@element.sources) }} :on-click="show_sources" title={{ "Fontes" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
         <Source />
       </button>
 
-      <button :if={{ Enum.any?(@element.ranges) }} :on-click="show_ranges" title={{ "Ver legenda de #{@element.name}" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+      <button :if={{ Enum.any?(@element.ranges) }} :on-click="show_ranges" title={{ "Legenda" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
         <Tag />
       </button>
 

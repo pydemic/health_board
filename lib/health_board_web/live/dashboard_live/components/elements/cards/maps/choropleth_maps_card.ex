@@ -40,7 +40,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.ChoroplethMapsCard do
 
   defp grid_cols(length) do
     if not is_nil(length) and length > 1 do
-      "lg:grid-cols-2 2xl:grid-cols-3"
+      "lg:grid-cols-2"
     else
       nil
     end

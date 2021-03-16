@@ -2,7 +2,7 @@ export const createInfoControl = (L, suffix, searchParams) => {
   let info = L.control()
 
   info.onAdd = () => {
-    info._infoDiv = L.DomUtil.create("div", "bg-hb-a dark:bg-hb-a-dark text-hb-b dark:text-hb-b-dark flex flex-col place-content-evenly self-center border rounded-lg border-opacity-20 border-hb-ca dark:border-hb-ca-dark")
+    info._infoDiv = L.DomUtil.create("div", "")
     return info._infoDiv
   }
 
@@ -12,22 +12,21 @@ export const createInfoControl = (L, suffix, searchParams) => {
 
       searchParams.set("location", id)
 
-      L.DomUtil.removeClass(info._infoDiv, "hidden")
+      L.DomUtil.setClass(info._infoDiv, `mt-2 mr-2 bg-hb-a dark:bg-hb-a-dark text-hb-b dark:text-hb-b-dark flex flex-col place-content-evenly self-center border rounded-lg border-hb-choropleth-${group} dark:border-hb-choropleth-${group}-dark`)
       info._infoDiv.innerHTML = `
           <div class="px-5 py-2 font-bold text-center">
             <a href="${window.location.pathname}?${searchParams.toString()}" target="_blank" class="text-hb-b dark:text-hb-b-dark hover:underline focus:outline-none focus:underline">
               ${name}
             </a>
           </div>
-          <div class="flex-grow px-5 py-2 text-center border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">
-            <span class="bg-hb-choropleth-${group} dark:bg-hb-choropleth-${group}-dark inline-flex items-center px-2 py-1 text-xs rounded-full">
-              ${value}
-            </span>
+          <div class="flex-grow px-5 py-2 text-center border-t border-hb-choropleth-${group} dark:border-hb-choropleth-${group}-dark">
+            <span class="bg-hb-choropleth-${group} dark:bg-hb-choropleth-${group}-dark inline-flex items-center px-2 py-1 text-xs rounded-full"></span>
+            ${value}
           </div>
-        ` + (suffix ? `<div class="px-5 py-2 border-t border-opacity-20 border-hb-ca dark:border-hb-ca-dark">${suffix}</div>` : "")
+        ` + (suffix ? `<div class="px-5 py-2 border-t border-hb-choropleth-${group} dark:border-hb-choropleth-${group}-dark">${suffix}</div>` : "")
 
     } else {
-      L.DomUtil.addClass(info._infoDiv, "hidden")
+      L.DomUtil.setClass(info._infoDiv, "hidden")
       info._infoDiv.innerHTML = ""
     }
   }
@@ -93,15 +92,24 @@ export const fetchGeoJson = (L, map, info, geojson) => {
   return group
 }
 
-export const removePreviousMap = (maps, id) => {
+export const canRender = (maps, id, timestamp) => {
   try {
-    const map = maps[id]
-    if (map && 'remove' in map) {
-      map.off()
-      map.remove()
-      delete (maps[id])
+    const mapData = maps[id]
+
+    if (mapData) {
+      const { map, previousTimestamp } = mapData
+
+      if (previousTimestamp < timestamp) {
+        map.off()
+        map.remove()
+        delete (maps[id])
+      } else {
+        return false
+      }
     }
   } catch (error) {
     console.error(error)
   }
+
+  return true
 }

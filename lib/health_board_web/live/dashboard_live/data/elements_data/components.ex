@@ -198,7 +198,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
   @spec per_age_gender(list) :: {:ok, tuple} | :error
   def per_age_gender(list) do
     if is_list(list) and length(list) == 34 do
-      {positive_data, negative_data} = Enum.split(Enum.reverse(list), 17)
+      {negative_data, positive_data} = Enum.split(Enum.reverse(list), 17)
 
       {
         "chart_data",

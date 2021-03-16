@@ -12,11 +12,11 @@ module.exports = {
         "hb-c": { DEFAULT: colors.lightBlue[100], dark: colors.blueGray[700] }, // Common hover
         "hb-ca": { DEFAULT: colors.lightBlue[700], dark: colors.blueGray[700] }, // Alternative hover
         "hb-choropleth-0": { DEFAULT: colors.gray[600], dark: colors.gray[800] },
-        "hb-choropleth-1": { DEFAULT: colors.green[600], dark: colors.green[800] },
-        "hb-choropleth-2": { DEFAULT: colors.lime[600], dark: colors.lime[800] },
-        "hb-choropleth-3": { DEFAULT: colors.yellow[400], dark: colors.yellow[600] },
-        "hb-choropleth-4": { DEFAULT: colors.amber[500], dark: colors.amber[800] },
-        "hb-choropleth-5": { DEFAULT: colors.orange[500], dark: colors.orange[800] },
+        "hb-choropleth-1": { DEFAULT: "#e38191", dark: colors.green[800] },
+        "hb-choropleth-2": { DEFAULT: "#cc607d", dark: colors.lime[800] },
+        "hb-choropleth-3": { DEFAULT: "#ad466c", dark: colors.yellow[600] },
+        "hb-choropleth-4": { DEFAULT: "#8b3058", dark: colors.amber[800] },
+        "hb-choropleth-5": { DEFAULT: "#672044", dark: colors.orange[800] },
       },
       zIndex: {
         '1000': 1000,

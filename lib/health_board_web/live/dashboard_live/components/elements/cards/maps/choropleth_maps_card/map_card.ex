@@ -58,7 +58,12 @@ defmodule HealthBoardWeb.DashboardLive.Components.ChoroplethMapsCard.MapCard do
         Cooldown.trigger("cooldown_show_map_options_#{socket.assigns.id}")
 
         socket
-        |> LiveView.push_event("map_data", %{id: id, suffix: suffix, geojson: geojson_filename})
+        |> LiveView.push_event("map_data", %{
+          id: id,
+          suffix: suffix,
+          geojson: geojson_filename,
+          timestamp: :os.system_time()
+        })
         |> LiveView.assign(if is_nil(timestamp), do: [show: true], else: [timestamp: timestamp, show: true])
 
       :error ->

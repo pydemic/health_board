@@ -45,8 +45,9 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.IncidenceRate do
     end)
   end
 
-  defp reduce_map_data(%{location_id: location_id} = s1, {map_data, rates, l2}) do
-    with t1 when t1 > 0 <- s1.total,
+  defp reduce_map_data(s1, {map_data, rates, l2}) do
+    with %{location_id: location_id} <- s1,
+         t1 when t1 > 0 <- s1.total,
          {s2, l2} <- Components.pop_with_location_id(l2, location_id),
          t2 when t2 > 0 <- s2.total do
       rate = incidence_rate(t1, t2)

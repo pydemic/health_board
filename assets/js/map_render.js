@@ -8,20 +8,21 @@ const fetchSearchParams = () => {
   }
 }
 
-export const renderMap = (L, maps, { id, suffix, geojson }) => {
-  fetch(`/api/geojson/${geojson}`).then(result => result.json()).then(geojson => {
-    Utils.removePreviousMap(maps, id)
-
+export const renderMap = (L, maps, { id, suffix, geojson, timestamp }) => {
+  if (Utils.canRender(maps, id, timestamp)) {
     const map = L.map(id, { scrollWheelZoom: false })
+
+    maps[id] = { map: map, previousTimestamp: timestamp }
+
     const searchParams = fetchSearchParams()
     const info = Utils.createInfoControl(L, suffix, searchParams).addTo(map)
 
-    Utils.fetchGeoJson(L, map, info, geojson).addTo(map)
+    fetch(`/api/geojson/${geojson}`).then(result => result.json()).then(geojson => {
+      Utils.fetchGeoJson(L, map, info, geojson).addTo(map)
 
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>',
-    }).addTo(map)
-
-    maps[id] = map
-  }).catch(error => console.error(error))
+      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>',
+      }).addTo(map)
+    }).catch(error => console.error(error))
+  }
 }

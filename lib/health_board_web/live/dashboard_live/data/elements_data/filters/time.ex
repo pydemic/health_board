@@ -75,8 +75,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Filters.Time do
   defp to_date(nil, max), do: max
   defp to_date(to, max), do: if(Date.compare(to, max) == :gt, do: max, else: to)
 
-  @spec date_week(map, atom, map, map, keyword) :: map
-  def date_week(data, field, params, _filters, _opts \\ []) do
+  @spec date_yearweek(map, atom, map, map, keyword) :: map
+  def date_yearweek(data, field, params, _filters, _opts \\ []) do
     key =
       case Map.fetch(params, "date") do
         {:ok, key} -> String.to_atom(key)
@@ -84,7 +84,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Filters.Time do
       end
 
     case Map.fetch(data, key) do
-      {:ok, %Date{} = date} -> Map.put(data, field, TimeData.create_yearweek_with_date(date).week)
+      {:ok, %Date{} = date} -> Map.put(data, field, TimeData.create_yearweek_with_date(date))
       _result -> data
     end
   end

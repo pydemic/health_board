@@ -2,6 +2,7 @@ defmodule HealthBoardWeb.Helpers.Charts do
   @spec combo(list(map), String.t(), list(String.t() | number), keyword) :: map
   def combo(datasets, label, labels, _opts \\ []) do
     %{
+      timestamp: :os.system_time(),
       subType: "combo",
       data: %{
         type: "line",
@@ -36,6 +37,7 @@ defmodule HealthBoardWeb.Helpers.Charts do
     background_color = Keyword.get(opts, :background_color, "rgba(54, 162, 235, 0.2)")
 
     %{
+      timestamp: :os.system_time(),
       subType: "line",
       data: %{
         type: "line",
@@ -68,6 +70,7 @@ defmodule HealthBoardWeb.Helpers.Charts do
     negative_background_color = Keyword.get(opts, :negative_background_color, "rgba(54, 162, 235, 0.2)")
 
     %{
+      timestamp: :os.system_time(),
       subType: "pyramidBar",
       data: %{
         type: "horizontalBar",
@@ -126,6 +129,7 @@ defmodule HealthBoardWeb.Helpers.Charts do
     background_color = Keyword.get(opts, :background_color, "rgba(54, 162, 235, 0.2)")
 
     %{
+      timestamp: :os.system_time(),
       subType: "verticalBar",
       data: %{
         type: "bar",

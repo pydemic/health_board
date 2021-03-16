@@ -13,10 +13,25 @@ const build_data = (subType, data) => {
   return data
 }
 
-export const renderChart = (ChartJS, charts, { id, subType, data }) => {
-  if (charts[id]) {
-    charts[id].destroy()
+const canRender = (charts, id, timestamp) => {
+  const chartsData = charts[id]
+
+  if (chartsData) {
+    const { chart, previousTimestamp } = chartsData
+
+    if (previousTimestamp < timestamp) {
+      chart.destroy()
+    } else {
+      return false
+    }
   }
 
-  charts[id] = new ChartJS(`canvas_${id}`, build_data(subType, data))
+  return true
+}
+
+export const renderChart = (ChartJS, charts, { id, subType, data, timestamp }) => {
+  if (canRender(charts, id, timestamp)) {
+    const newChart = new ChartJS(`canvas_${id}`, build_data(subType, data))
+    charts[id] = { chart: newChart, previousTimestamp: timestamp }
+  }
 }

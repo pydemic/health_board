@@ -81,7 +81,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData do
 
   defp handle_emit(pid, %{children: children, filters: filters} = element, data \\ %{}, opts) do
     filters = Enum.into(filters, %{}, &{&1[:sid], &1[:value]})
-    data = Enum.reduce(element.data, data, &fetch_data(&1, &2, filters, opts))
+    data = Enum.reduce(Enum.sort(element.data, &(&1.id <= &2.id)), data, &fetch_data(&1, &2, filters, opts))
 
     emit_data(pid, element, data)
 

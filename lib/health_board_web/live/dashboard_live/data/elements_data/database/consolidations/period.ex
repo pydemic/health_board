@@ -5,19 +5,25 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Peri
   @spec get(map, atom, map, map, keyword) :: map
   def get(data, field, params, filters, opts \\ []) do
     case Consolidations.fetch_period(data, params, "period", opts) do
-      {:ok, %{type: :all}} -> All.get(data, field, params, filters, opts)
-      {:ok, %{type: :yearly, from: from, to: to}} -> get_yearly(from, to, data, field, params, filters, opts)
-      {:ok, %{type: :monthly, from: from, to: to}} -> get_monthly(from, to, data, field, params, filters, opts)
-      {:ok, %{type: :weekly, from: from, to: to}} -> get_weekly(from, to, data, field, params, filters, opts)
-      {:ok, %{type: :daily, from: from, to: to}} -> get_daily(from, to, data, field, params, filters, opts)
-      :error -> data
+      {:ok, %{type: :all}} ->
+        All.get(data, field, params, filters, opts)
+
+      {:ok, %{type: type, from: from, to: to}} ->
+        case type do
+          :yearly -> do_get(get_yearly(from, to, data, field, params, filters, opts), field, params)
+          :monthly -> do_get(get_monthly(from, to, data, field, params, filters, opts), field, params)
+          :weekly -> do_get(get_weekly(from, to, data, field, params, filters, opts), field, params)
+          :daily -> do_get(get_daily(from, to, data, field, params, filters, opts), field, params)
+          _type -> data
+        end
+
+      :error ->
+        data
     end
   end
 
   defp get_yearly(%{year: y1}, %{year: y2}, data, field, params, filters, opts) do
-    data
-    |> Yearly.list(field, add_time_param(params, y1, y2, "year", "years"), filters, opts)
-    |> do_get(field, params)
+    Yearly.list(data, field, add_time_param(params, y1, y2, "year", "years"), filters, opts)
   end
 
   defp get_monthly(%{year: y1, month: m1}, %{year: y2, month: m2}, data, field, params, filters, opts) do
@@ -26,9 +32,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Peri
       |> add_time_param(y1, y2, "year", "years")
       |> add_time_param(m1, m2, "month", "months")
 
-    data
-    |> Monthly.list(field, params, filters, opts)
-    |> do_get(field, params)
+    Monthly.list(data, field, params, filters, opts)
   end
 
   defp get_weekly(%{year: y1, week: w1}, %{year: y2, week: w2}, data, field, params, filters, opts) do
@@ -37,34 +41,20 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Peri
       |> add_time_param(y1, y2, "year", "years")
       |> add_time_param(w1, w2, "week", "weeks")
 
-    data
-    |> Weekly.list(field, params, filters, opts)
-    |> do_get(field, params)
+    Weekly.list(data, field, params, filters, opts)
   end
 
   defp get_daily(from, to, data, field, params, filters, opts) do
-    data
-    |> Daily.list(field, add_time_param(params, from, to, "date", "dates"), filters, opts)
-    |> do_get(field, params)
+    Daily.list(data, field, add_time_param(params, from, to, "date", "dates"), filters, opts)
   end
 
   defp do_get(data, field, params) do
     case Map.fetch(data, field) do
-      {:ok, [_ | _] = list} -> Map.put(data, field, sum(list, params))
-      {:ok, _field_data} -> Map.delete(data, field)
-      _result -> data
-    end
-  end
+      {:ok, list} when is_list(list) ->
+        Map.put(data, field, Consolidations.maybe_sum_by(list, Map.put(params, "sum_by", nil)))
 
-  defp sum(list, params) do
-    if Map.has_key?(params, "values") do
-      Enum.reduce(list, fn %{values: values}, list ->
-        list
-        |> Enum.zip(values)
-        |> Enum.map(fn {v1, v2} -> v1 + v2 end)
-      end)
-    else
-      Consolidations.sum_total(list)
+      _result ->
+        data
     end
   end
 
