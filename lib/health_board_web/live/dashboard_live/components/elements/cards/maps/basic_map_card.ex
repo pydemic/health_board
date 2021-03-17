@@ -1,4 +1,4 @@
-defmodule HealthBoardWeb.DashboardLive.Components.ChoroplethMapsCard.MapCard do
+defmodule HealthBoardWeb.DashboardLive.Components.BasicMapCard do
   use Surface.LiveComponent
   alias HealthBoardWeb.DashboardLive.Components.BasicCard
   alias HealthBoardWeb.DashboardLive.Components.Card.Options
@@ -22,14 +22,14 @@ defmodule HealthBoardWeb.DashboardLive.Components.ChoroplethMapsCard.MapCard do
       <div :show={{ show?(@show, @timestamp, @map_data) }} phx-hook="Map" id={{ @id }} class="h-96 max-h-screen"></div>
 
       <template slot="footer">
-      <Options id={{ "options_#{@id}" }} element={{ maybe_put_ranges(@element, @map_data) }} params={{ @params }}>
-        <Cooldown id={{ "cooldown_show_map_options_#{@id}" }} message="Aguarde a renderização deste mapa">
-          <button :on-click="toggle" title={{ if show?(@show, @timestamp, @map_data), do: "Ocultar mapa", else: "Visualizar mapa" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
-            <Eye :if={{ not show?(@show, @timestamp, @map_data) }} />
-            <EyeOff :if={{ show?(@show, @timestamp, @map_data) }} />
-          </button>
-        </Cooldown>
-      </Options>
+        <Options id={{ "options_#{@id}" }} element={{ maybe_put_ranges(@element, @map_data) }} params={{ @params }}>
+          <Cooldown id={{ "cooldown_show_map_options_#{@id}" }} message="Aguarde a renderização deste mapa">
+            <button :on-click="toggle" title={{ if show?(@show, @timestamp, @map_data), do: "Ocultar mapa", else: "Visualizar mapa" }} class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+              <Eye :if={{ not show?(@show, @timestamp, @map_data) }} />
+              <EyeOff :if={{ show?(@show, @timestamp, @map_data) }} />
+            </button>
+          </Cooldown>
+        </Options>
       </template>
     </BasicCard>
     """

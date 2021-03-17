@@ -3,6 +3,8 @@ import "../css/app.css"
 import "alpinejs"
 import ChartJS from 'chart.js'
 import L from 'leaflet'
+import 'leaflet.fullscreen'
+import screenful from 'screenfull'
 
 import "phoenix_html"
 import { Socket } from "phoenix"
@@ -14,6 +16,7 @@ import { renderChart } from "./chart_render"
 
 window.ChartJS = ChartJS
 window.L = L
+window.screenfull = screenful
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 

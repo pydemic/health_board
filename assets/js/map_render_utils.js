@@ -2,17 +2,21 @@ export const createInfoControl = (L, suffix, searchParams) => {
   let info = L.control()
 
   info.onAdd = () => {
-    info._infoDiv = L.DomUtil.create("div", "")
+    info._infoDiv = L.DomUtil.create("div")
+    info._clicked = false
+    info._clickedLayer = null
+    L.DomEvent.disableClickPropagation(info._infoDiv)
+    info.update()
     return info._infoDiv
   }
 
   info.update = (feature) => {
-    if (feature != null && feature !== undefined) {
+    if (!info._clicked && feature != null && feature !== undefined) {
       const { id, name, group, value } = feature.properties
 
       searchParams.set("location", id)
 
-      L.DomUtil.setClass(info._infoDiv, `mt-2 mr-2 bg-hb-a dark:bg-hb-a-dark text-hb-b dark:text-hb-b-dark flex flex-col place-content-evenly self-center border rounded-lg border-hb-choropleth-${group} dark:border-hb-choropleth-${group}-dark`)
+      L.DomUtil.setClass(info._infoDiv, `leaflet-control mt-2 mr-2 bg-hb-a dark:bg-hb-a-dark text-hb-b dark:text-hb-b-dark flex flex-col place-content-evenly self-center border rounded-lg border-hb-choropleth-${group} dark:border-hb-choropleth-${group}-dark`)
       info._infoDiv.innerHTML = `
           <div class="px-5 py-2 font-bold text-center">
             <a href="${window.location.pathname}?${searchParams.toString()}" target="_blank" class="text-hb-b dark:text-hb-b-dark hover:underline focus:outline-none focus:underline">
@@ -50,26 +54,55 @@ export const fetchGeoJson = (L, map, info, geojson) => {
   }
 
   const highlightFeature = (e) => {
-    let layer = e.target
+    if (!info._clicked) {
+      const layer = e.target
 
-    layer.setStyle({
-      weight: 2,
-      dashArray: ""
-    })
+      layer.setStyle({
+        weight: 2,
+        dashArray: ""
+      })
 
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-      layer.bringToFront()
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront()
+      }
+
+      info.update(layer.feature)
     }
-
-    info.update(layer.feature)
   }
 
   const resetHighlight = (e) => {
-    group.resetStyle(e.target)
+    if (!info._clicked) {
+      info.update()
+      group.resetStyle(e.target)
+    }
   }
 
   const zoomToFeature = (e) => {
-    map.fitBounds(e.target.getBounds());
+    const layer = e.target
+
+    if (info._clickedLayer == null || info._clickedLayer.feature.properties.id != layer.feature.properties.id) {
+      info._clicked = true
+
+      if (info._clickedLayer != null) {
+        group.resetStyle(info._clickedLayer)
+      }
+
+      layer.setStyle({
+        weight: 4,
+        dashArray: "",
+      })
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront()
+      }
+    } else {
+      group.resetStyle(info._clickedLayer)
+      info._clicked = false
+    }
+
+    info._clickedLayer = layer
+
+    map.fitBounds(layer.getBounds());
   }
 
   if (geojson.features.length <= 1000) {
@@ -81,12 +114,11 @@ export const fetchGeoJson = (L, map, info, geojson) => {
       })
     }
 
-    map.on("mouseout", () => info.update())
-
     group = L.geoJson(geojson, { style: geoJsonStyle, onEachFeature: onEachFeature })
   } else {
     group = L.geoJson(geojson, { style: geoJsonStyle })
   }
+
   map.fitBounds(group.getBounds())
 
   return group

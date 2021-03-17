@@ -31,11 +31,8 @@ defmodule HealthBoardWeb.Helpers.Charts do
     }
   end
 
-  @spec line(list(number), String.t(), list(String.t() | number), keyword) :: map
-  def line(data, label, labels, opts \\ []) do
-    border_color = Keyword.get(opts, :border_color, "#36a2eb")
-    background_color = Keyword.get(opts, :background_color, "rgba(54, 162, 235, 0.2)")
-
+  @spec line(list(map), list(String.t() | number), keyword) :: map
+  def line(datasets, labels, opts \\ []) do
     %{
       timestamp: :os.system_time(),
       subType: "line",
@@ -43,22 +40,41 @@ defmodule HealthBoardWeb.Helpers.Charts do
         type: "line",
         data: %{
           labels: labels,
-          datasets: [
-            %{
-              label: label,
-              data: data,
-              backgroundColor: background_color,
-              borderColor: border_color,
-              borderWidth: 1
-            }
-          ]
+          datasets: datasets
         },
-        options: %{
-          maintainAspectRatio: false,
-          legend: false
-        }
+        options:
+          %{
+            maintainAspectRatio: false
+          }
+          |> maybe_disable_legends(opts)
       }
     }
+  end
+
+  defp maybe_disable_legends(options, opts) do
+    if Keyword.get(opts, :show_legends?, false) do
+      options
+    else
+      Map.put(options, :legend, false)
+    end
+  end
+
+  @spec line_dataset(list(number), String.t(), keyword) :: map
+  def line_dataset(data, label, opts \\ []) do
+    dataset = %{data: data, label: label, borderWidth: 1}
+
+    {r, g, b} = pick_color(Keyword.get(opts, :index, 0))
+
+    color = "rgb(#{r}, #{g}, #{b})"
+    transparent_color = "rgba(#{r}, #{g}, #{b}, 0.2)"
+
+    case Keyword.get(opts, :colorize, :both) do
+      :both -> %{backgroundColor: transparent_color, borderColor: color}
+      :border -> %{backgroundColor: color, borderColor: color, fill: false}
+      :background -> %{backgroundColor: transparent_color}
+      _colorize -> %{}
+    end
+    |> Map.merge(dataset)
   end
 
   @spec pyramid_bar(list(number), list(number), String.t(), String.t(), list(String.t() | number), keyword) :: map
@@ -161,5 +177,56 @@ defmodule HealthBoardWeb.Helpers.Charts do
         }
       }
     }
+  end
+
+  @colors [
+    {119, 139, 235},
+    {243, 166, 131},
+    {247, 215, 148},
+    {231, 127, 103},
+    {207, 106, 135},
+    {241, 144, 102},
+    {245, 205, 121},
+    {84, 109, 229},
+    {225, 95, 65},
+    {196, 69, 105},
+    {120, 111, 166},
+    {248, 165, 194},
+    {99, 205, 218},
+    {234, 134, 133},
+    {89, 98, 117},
+    {87, 75, 144},
+    {247, 143, 179},
+    {61, 193, 211},
+    {230, 103, 103},
+    {48, 57, 82},
+    {34, 112, 147},
+    {71, 71, 135},
+    {116, 185, 255},
+    {162, 155, 254},
+    {223, 230, 233},
+    {0, 184, 148},
+    {0, 206, 201},
+    {9, 132, 227},
+    {108, 92, 231},
+    {178, 190, 195},
+    {255, 234, 167},
+    {250, 177, 160},
+    {255, 118, 117},
+    {253, 121, 168},
+    {99, 110, 114},
+    {253, 203, 110},
+    {225, 112, 85},
+    {52, 31, 151},
+    {131, 149, 167},
+    {34, 47, 62}
+  ]
+
+  @colors_size length(@colors)
+
+  @spec pick_color(integer) :: {integer, integer, integer}
+  def pick_color(index) do
+    index = if @colors_size < index, do: rem(index, @colors_size), else: index
+    Enum.at(@colors, index, List.first(@colors))
   end
 end

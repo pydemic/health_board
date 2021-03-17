@@ -31,7 +31,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.FatalityRate do
 
   defp fatality_rate(deaths, incidence) do
     if is_number(deaths) and is_number(incidence) and incidence > 0 do
-      100 * deaths / incidence
+      max(100 * deaths / incidence, 100.0)
     else
       0.0
     end

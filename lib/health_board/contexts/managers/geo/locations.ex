@@ -140,6 +140,15 @@ defmodule HealthBoard.Contexts.Geo.Locations do
 
   # Filtering
 
+  @spec filter_related_from_group(%Ecto.Query.DynamicExpr{}, atom) :: %Ecto.Query.DynamicExpr{}
+  def filter_related_from_group(dynamic, group) do
+    case group do
+      :states -> dynamic([row], ^dynamic and row.location_id > 9 and row.location_id < 60)
+      :cities -> dynamic([row], ^dynamic and row.location_id > 1_000_000 and row.location_id < 6_000_000)
+      _group -> dynamic
+    end
+  end
+
   defp filter_where(params) do
     Enum.reduce(params, dynamic(true), fn
       {:id, id}, dynamic -> dynamic([row], ^dynamic and row.id == ^id)

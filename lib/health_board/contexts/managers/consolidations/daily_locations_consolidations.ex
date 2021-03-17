@@ -2,6 +2,7 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
   import Ecto.Query, only: [where: 2, dynamic: 1, dynamic: 2]
 
   alias HealthBoard.Contexts.Consolidations.DayLocationConsolidation
+  alias HealthBoard.Contexts.Geo.Locations
   alias HealthBoard.Repo
 
   @type schema :: DayLocationConsolidation.schema()
@@ -62,6 +63,7 @@ defmodule HealthBoard.Contexts.Consolidations.DailyLocationsConsolidations do
       {:consolidation_group_id, id}, dynamic -> dynamic([row], ^dynamic and row.consolidation_group_id == ^id)
       {:location_id, id}, dynamic -> dynamic([row], ^dynamic and row.location_id == ^id)
       {:locations_ids, ids}, dynamic -> dynamic([row], ^dynamic and row.location_id in ^ids)
+      {:location_group, group}, dynamic -> Locations.filter_related_from_group(dynamic, group)
       {:date, date}, dynamic -> dynamic([row], ^dynamic and row.date == ^date)
       {:dates, dates}, dynamic -> dynamic([row], ^dynamic and row.date in ^dates)
       {:from_date, date}, dynamic -> dynamic([row], ^dynamic and row.date >= ^date)

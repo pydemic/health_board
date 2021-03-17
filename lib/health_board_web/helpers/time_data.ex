@@ -6,6 +6,7 @@ defmodule HealthBoardWeb.Helpers.TimeData do
 
   @date_aliases %{
     "fortnight_before" => :fortnight_before,
+    "twenty_two_days_before" => :twenty_two_days_before,
     "today" => :today,
     "tomorrow" => :tomorrow,
     "yesterday" => :yesterday
@@ -163,6 +164,7 @@ defmodule HealthBoardWeb.Helpers.TimeData do
   def date_alias(_date, :yesterday), do: Date.add(Date.utc_today(), -1)
   def date_alias(_date, :tomorrow), do: Date.add(Date.utc_today(), 1)
   def date_alias(%Date{} = date, :fortnight_before), do: Date.add(date, -14)
+  def date_alias(%Date{} = date, :twenty_two_days_before), do: Date.add(date, -22)
   def date_alias(_date, atom), do: date_alias(Date.utc_today(), atom)
 
   @spec date_alias_string_to_atom(String.t()) :: date_alias

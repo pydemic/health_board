@@ -75,6 +75,35 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations do
     end
   end
 
+  @spec fetch_location_group(map, map, keyword) :: {:ok, atom} | :error
+  def fetch_location_group(data, params, _opts \\ []) do
+    case Map.fetch(params, "location_group") do
+      {:ok, location_group} -> do_fetch_location_group(data, location_group)
+      :error -> Map.fetch(data, :location_group)
+    end
+  rescue
+    _error -> :error
+  end
+
+  defp do_fetch_location_group(data, location_group) do
+    {:ok, String.to_atom(location_group)}
+  rescue
+    _error -> Map.fetch(data, String.to_atom(location_group))
+  end
+
+  @spec fetch_locations_groups(map, map, keyword) :: {:ok, list({atom, atom})} | :error
+  def fetch_locations_groups(data, params, opts \\ []) do
+    case Map.fetch(params, "locations_groups") do
+      {:ok, locations_groups} -> Map.fetch(data, String.to_atom(locations_groups))
+      :error -> with :error <- Map.fetch(data, :locations_groups), do: fetch_location_group(data, params, opts)
+    end
+    |> case do
+      {:ok, locations_groups} when is_list(locations_groups) -> {:ok, [{:locations_groups, locations_groups}]}
+      {:ok, location_group} when is_atom(location_group) -> {:ok, [{:location_group, location_group}]}
+      _result -> :error
+    end
+  end
+
   @spec fetch_location_id(map, map, keyword) :: {:ok, integer} | :error
   def fetch_location_id(data, params, _opts \\ []) do
     case Map.fetch(params, "location_id") do

@@ -146,6 +146,7 @@ defmodule HealthBoard.Releases.Helper do
 
     []
     |> covid_reports_updater_settings(prefix)
+    |> icu_occupations_updater_settings(prefix)
     |> flu_syndrome_updater_settings(prefix)
     |> sars_updater_settings(prefix)
     |> case do
@@ -187,6 +188,33 @@ defmodule HealthBoard.Releases.Helper do
     |> maybe_append(:read_ahead, Env.string("URL", prefix: prefix))
     |> maybe_append(:split_command, Env.string("APPLICATION_ID", prefix: prefix))
     |> maybe_append_to_keyword(:header_api_opts, covid_reports_updater_settings)
+  end
+
+  defp icu_occupations_updater_settings(updaters_children, prefix) do
+    prefix = prefix ++ ["ICU_OCCUPATIONS"]
+
+    []
+    |> maybe_append(:reattempt_initial_milliseconds, Env.integer("REATTEMPT_INITIAL_MILLISECONDS", prefix: prefix))
+    |> maybe_append(:path, Env.string("PATH", prefix: prefix))
+    |> maybe_append(:update_at_hour, Env.integer("UPDATE_AT_HOUR", prefix: prefix))
+    |> maybe_append(:source_id, Env.integer("SOURCE_ID", prefix: prefix))
+    |> maybe_append(:source_sid, Env.string("SOURCE_SID", prefix: prefix))
+    |> icu_occupations_updater_spreadsheet_api_settings(prefix)
+    |> case do
+      [] -> updaters_children
+      settings -> [[module: ICUOccupationsUpdater, args: settings] | updaters_children]
+    end
+  end
+
+  defp icu_occupations_updater_spreadsheet_api_settings(icu_occupations_updater_settings, prefix) do
+    prefix = prefix ++ ["SPREADSHEET_API"]
+
+    []
+    |> maybe_append(:url, Env.string("URL", prefix: prefix))
+    |> maybe_append(:spreadsheet_id, Env.string("SPREADSHEET_ID", prefix: prefix))
+    |> maybe_append(:spreadsheet_page, Env.string("SPREADSHEET_PAGE", prefix: prefix))
+    |> maybe_append(:token_scope, Env.string("TOKEN_SCOPE", prefix: prefix))
+    |> maybe_append_to_keyword(:spreadsheet_api_opts, icu_occupations_updater_settings)
   end
 
   defp flu_syndrome_updater_settings(updaters_children, prefix) do
@@ -257,6 +285,12 @@ defmodule HealthBoard.Releases.Helper do
     |> maybe_append_to_keyword(:header_api_opts, sars_updater_settings)
   end
 
+  def goth_settings do
+    prefix = "GOTH"
+
+    [json: File.read!(Env.string("JSON", prefix: prefix, raise: true))]
+  end
+
   def repo_settings do
     prefix = "DATABASE"
 
@@ -291,6 +325,7 @@ end
 
 alias HealthBoard.Releases.Helper
 
+config :goth, Helper.goth_settings()
 config :health_board, HealthBoardWeb.Endpoint, Helper.endpoint_settings()
 config :health_board, HealthBoard.Repo, Helper.repo_settings()
 config :health_board, Helper.health_board_settings()

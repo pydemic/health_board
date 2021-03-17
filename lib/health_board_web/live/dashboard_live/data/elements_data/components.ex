@@ -27,7 +27,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
     |> maybe_put_map_data(:health_regions_data, locations_data(:health_regions, suffix, data_function))
     |> maybe_put_map_data(:cities_data, locations_data(:cities, suffix, data_function))
     |> validate_map_data()
-    |> emit()
+    |> case do
+      {:ok, data} -> emit(data)
+      :error -> :error
+    end
   end
 
   defp locations_data(prefix, suffix, data_function) do
@@ -53,9 +56,9 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
 
   defp validate_map_data(map_data) do
     if Enum.any?(map_data) do
-      Map.put(map_data, :length, length(Map.keys(map_data)))
+      {:ok, Map.put(map_data, :length, length(Map.keys(map_data)))}
     else
-      Map.put(map_data, :error?, true)
+      :error
     end
   end
 
@@ -99,7 +102,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
     end
   end
 
-  defp date_range(list) do
+  @spec date_range(list(map)) :: Date.Range.t()
+  def date_range(list) do
     {from, to} = Enum.reduce(list, nil, &date_min_and_max/2)
     Date.range(from, to)
   end
@@ -116,6 +120,9 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
           {:ok, {:emit_and_hook, {map, String.t(), map} | {String.t(), map}}}
   def emit_and_hook(data), do: {:ok, {:emit_and_hook, data}}
 
+  @spec emit_and_hook(map, String.t()) :: {:ok, {:emit_and_hook, {String.t(), map}}}
+  def emit_and_hook(data, hook), do: {:ok, {:emit_and_hook, {hook, data}}}
+
   @spec fetch_data(map, map, String.t(), keyword) :: {:ok, any} | :error
   def fetch_data(data, params, key, _opts \\ []), do: Map.fetch(data, String.to_atom(params[key] || key))
 
@@ -124,9 +131,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
     case list do
       [_, _ | _] ->
         yearmonths = fetch_yearmonths(list)
-        data = total_per_month(list, yearmonths)
-
-        emit_and_hook({"chart_data", Charts.line(data, label, Enum.map(yearmonths, fn {y, m} -> "#{y}-#{m}" end))})
+        datasets = [Charts.line_dataset(total_per_month(list, yearmonths), label)]
+        emit_and_hook({"chart_data", Charts.line(datasets, Enum.map(yearmonths, fn {y, m} -> "#{y}-#{m}" end))})
 
       _list ->
         :error
@@ -337,7 +343,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
   end
 
   defp top_ten_table_line(%{location: location, total: total}) do
-    %{cells: [{Humanize.location(location), %{location: location.id}}, Humanize.number(total)]}
+    %{cells: [%{value: Humanize.location(location), link: %{location: location.id}}, %{value: Humanize.number(total)}]}
   end
 
   @spec total_per_date(list(map), Enum.t()) :: list(map)
@@ -393,9 +399,8 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
     case list do
       [_, _ | _] ->
         yearweeks = fetch_yearweeks(list)
-        data = total_per_week(list, yearweeks)
-
-        emit_and_hook({"chart_data", Charts.line(data, label, Enum.map(yearweeks, fn {y, m} -> "#{y}-#{m}" end))})
+        datasets = [Charts.line_dataset(total_per_week(list, yearweeks), label)]
+        emit_and_hook({"chart_data", Charts.line(datasets, Enum.map(yearweeks, fn {y, m} -> "#{y}-#{m}" end))})
 
       _list ->
         :error

@@ -24,12 +24,12 @@ defmodule HealthBoardWeb.Helpers.Humanize do
     end
   end
 
-  @spec date(Date.t() | nil) :: String.t()
-  def date(date) do
+  @spec date(Date.t() | nil, keyword) :: String.t()
+  def date(date, opts \\ [format: :long]) do
     if is_nil(date) do
       "N/A"
     else
-      case Cldr.Date.to_string(date, format: :long) do
+      case Cldr.Date.to_string(date, opts) do
         {:ok, humanized_date} -> humanized_date
         {:error, _reason} -> "N/A"
       end

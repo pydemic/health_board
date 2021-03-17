@@ -10,7 +10,7 @@ const fetchSearchParams = () => {
 
 export const renderMap = (L, maps, { id, suffix, geojson, timestamp }) => {
   if (Utils.canRender(maps, id, timestamp)) {
-    const map = L.map(id, { scrollWheelZoom: false })
+    const map = L.map(id, { scrollWheelZoom: false, fullscreenControl: true })
 
     maps[id] = { map: map, previousTimestamp: timestamp }
 

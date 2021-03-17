@@ -39,6 +39,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Database.Consolidations.Dail
     []
     |> Consolidations.maybe_append(Consolidations.fetch_dates(data, params, opts))
     |> Consolidations.maybe_append(Consolidations.fetch_locations_ids(data, params, opts))
+    |> Consolidations.maybe_append(Consolidations.fetch_locations_groups(data, params, opts))
     |> case do
       [] -> :error
       manager_params -> {:ok, do_list(params, [{:consolidation_group_id, group} | manager_params], opts)}

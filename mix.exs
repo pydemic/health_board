@@ -70,6 +70,7 @@ defmodule HealthBoard.MixProject do
       {:floki, "~> 0.30.0", only: [:dev, :test]},
       {:flow, "~> 1.1.0"},
       {:gettext, "~> 0.18.2"},
+      {:goth, "~> 1.2.0"},
       {:hackney, "~> 1.17.0"},
       {:jason, "~> 1.2.2"},
       {:nimble_csv, "~> 1.1.0"},

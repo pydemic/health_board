@@ -1,5 +1,7 @@
 defmodule HealthBoardWeb.Helpers.Choropleth do
-  @spec group(list(float | integer), float | integer) :: integer()
+  @type ranges :: list(%{from: integer | nil, to: integer | nil, group: atom | integer})
+
+  @spec group(ranges, float | integer) :: integer()
   def group(ranges, value) do
     case Enum.find(ranges, &on_boundary?(value, &1)) do
       nil -> 0
@@ -19,7 +21,7 @@ defmodule HealthBoardWeb.Helpers.Choropleth do
     end
   end
 
-  @spec group_color(list(float | integer), float | integer) :: String.t()
+  @spec group_color(ranges, float | integer) :: String.t()
   def group_color(ranges, value) do
     case Enum.find(ranges, &on_boundary?(value, &1)) do
       nil -> "#cccccc"

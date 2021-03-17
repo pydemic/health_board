@@ -21,7 +21,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.TableCard do
           <thead>
             <tr class="text-sm text-left text-hb-ca-dark dark:text-hb-b-dark">
               <th :if={{ @params[:with_index] == true }} ></th>
-              <th :for={{ header <- Map.get(@params, :headers, []) }} >
+              <th :for={{ header <- @params[:headers] || data[:headers] || [] }} >
                 {{ header }}
               </th>
             </tr>
@@ -33,8 +33,8 @@ defmodule HealthBoardWeb.DashboardLive.Components.TableCard do
                 {{ index + 1 }}
               </td>
 
-              <td :for={{ cell <- Map.get(line, :cells, []) }}>
-                <MaybeLink content={{ cell }} params={{ @card.params }} />
+              <td :for={{ cell <- Map.get(line, :cells, []) }} class={{ "bg-hb-choropleth-#{cell[:group]}": cell[:group], "text-center": cell[:group] }}>
+                <MaybeLink value={{ cell[:value] }} link={{ cell[:link] }} params={{ @card.params }} />
               </td>
             </tr>
           </tbody>
