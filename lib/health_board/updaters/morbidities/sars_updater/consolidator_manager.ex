@@ -31,16 +31,16 @@ defmodule HealthBoard.Updaters.SARSUpdater.ConsolidatorManager do
       Consolidator.setup()
     end
 
-    [file_name] = File.ls!(input_path)
-
     today = Date.utc_today()
 
-    input_path
-    |> Path.join(file_name)
-    |> File.stream!(read_ahead: read_ahead)
-    |> NimbleCSV.Semicolon.parse_stream()
-    |> Stream.with_index(2)
-    |> Stream.map(fn {line, line_index} -> {line, line_index, today} end)
+    for filename <- Enum.sort(File.ls!(input_path)) do
+      input_path
+      |> Path.join(filename)
+      |> File.stream!(read_ahead: read_ahead)
+      |> NimbleCSV.Semicolon.parse_stream()
+      |> Stream.with_index(2)
+      |> Stream.map(fn {line, line_index} -> {line, line_index, today} end)
+    end
     |> Consolidator.consolidate(output_path, split_command)
 
     if shutdown == true do

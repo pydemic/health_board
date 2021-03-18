@@ -78,7 +78,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     Logger.info("Parsing")
 
     streams
-    |> Flow.from_enumerable()
+    |> Flow.from_enumerables()
     |> Flow.map(&parse/1)
     |> Flow.run()
 

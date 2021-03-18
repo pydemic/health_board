@@ -117,17 +117,28 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   end
 
   @spec download_data(t()) :: t()
-  def download_data(%{header: header, last_header: last_header} = state) do
+  def download_data(%{header: %{urls: urls} = header, last_header: last_header} = state) do
     Logger.info("Downloading data")
 
     {source, state} = fetch_source(state)
 
     if download_data?(header, last_header, source) do
-      download_csv(state)
+      input_path = input_path(state)
+
+      File.rm_rf!(input_path)
+      File.mkdir_p!(input_path)
+
+      Enum.each(urls, &download_csv(&1, input_path))
+
+      struct(state, last_header: header)
     else
       Logger.info("Database is updated")
       struct(state, status: :idle)
     end
+  rescue
+    error -> Helpers.handle_error(state, "Failed to download data", error, __STACKTRACE__)
+  catch
+    error -> Helpers.handle_error(state, "Failed to download data", error)
   end
 
   defp fetch_source(%{source_id: id, source_sid: sid} = state) do
@@ -155,17 +166,12 @@ defmodule HealthBoard.Updaters.SARSUpdater do
     end
   end
 
-  defp download_csv(%{header: %{url: url} = header} = state) do
-    input_path = input_path(state)
-
-    File.rm_rf!(input_path)
-    File.mkdir_p!(input_path)
-
+  defp download_csv(url, input_path) do
     csv_path = Path.join(input_path, Path.basename(url))
 
     case :httpc.request(:get, {String.to_charlist(url), []}, [], stream: String.to_charlist(csv_path)) do
-      {:ok, _result} -> struct(state, last_header: header)
-      {:error, error} -> Helpers.handle_error(state, "Failed to download csv data", error)
+      {:ok, _result} -> :ok
+      {:error, error} -> throw(error)
     end
   end
 

@@ -95,14 +95,15 @@ export const fetchGeoJson = (L, map, info, geojson) => {
       if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront()
       }
+
+      map.fitBounds(layer.getBounds());
     } else {
-      group.resetStyle(info._clickedLayer)
       info._clicked = false
+      group.resetStyle(info._clickedLayer)
+      map.fitBounds(group.getBounds())
     }
 
     info._clickedLayer = layer
-
-    map.fitBounds(layer.getBounds());
   }
 
   if (geojson.features.length <= 1000) {

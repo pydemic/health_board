@@ -31,7 +31,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.HospitalizationFa
 
   defp hospitalization_fatality_rate(deaths, hospitalizations) do
     if is_number(deaths) and is_number(hospitalizations) and hospitalizations > 0 do
-      100 * deaths / hospitalizations
+      min(100 * deaths / hospitalizations, 100.0)
     else
       0.0
     end

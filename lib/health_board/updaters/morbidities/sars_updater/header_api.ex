@@ -1,19 +1,26 @@
 defmodule HealthBoard.Updaters.SARSUpdater.HeaderAPI do
-  defstruct url: "https://opendatasus.saude.gov.br/api/3/action/package_show?id=bd-srag-2020"
+  defstruct url: "https://opendatasus.saude.gov.br/api/3/action/package_show?id=bd-srag"
 
   @spec get(keyword) :: {:ok, map} | {:error, atom}
   def get(opts \\ []) do
-    case Tesla.get(client(opts), "") do
+    with {:ok, d2020} <- do_get(2020, opts),
+         {:ok, d2021} <- do_get(2021, opts) do
+      {:ok, %{updated_at: d2021.updated_at, urls: [d2020.url, d2021.url]}}
+    end
+  end
+
+  defp do_get(year, opts) do
+    case Tesla.get(client(year, opts), "") do
       {:ok, %{body: data}} -> parse_data(data)
       _error -> {:error, :request_failed}
     end
   end
 
-  defp client(opts) do
+  defp client(year, opts) do
     api_data = struct(__MODULE__, opts)
 
     middleware = [
-      {Tesla.Middleware.BaseUrl, api_data.url},
+      {Tesla.Middleware.BaseUrl, "#{api_data.url}-#{year}"},
       Tesla.Middleware.JSON
     ]
 

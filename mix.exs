@@ -33,7 +33,7 @@ defmodule HealthBoard.MixProject do
       "i18n.extract": ["gettext.extract"],
       "i18n.merge.en_US": ["gettext.merge priv/gettext --locale en_US"],
       "i18n.merge.pt_BR": ["gettext.merge priv/gettext --locale pt_BR"],
-      "reseed.dashboards": ["run -e 'HealthBoard.Contexts.Seeders.Dashboards.reseed!'"],
+      "reseed.dashboards": ["run -e 'HealthBoard.Contexts.Seeders.Dashboards.reseed!(what: :elements)'"],
       "seed.bkp.covid_reports": seed_consolidations(:covid_reports),
       "seed.bkp.flu_syndrome": seed_consolidations(:flu_syndrome),
       "seed.bkp.sars": seed_consolidations(:sars),
