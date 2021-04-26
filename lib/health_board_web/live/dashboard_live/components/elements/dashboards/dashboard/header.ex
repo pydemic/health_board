@@ -12,6 +12,14 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
   def render(assigns) do
     ~H"""
     <header class="lg:px-10 sm:px-6 px-4 w-full divide-y divide-hb-ba dark:divide-hb-ba-dark bg-hb-aa dark:bg-hb-aa-dark text-hb-ba dark:text-hb-ba-dark">
+      <div class="flex justify-between items-center py-5 w-full overflow-x-auto whitespace-nowrap">
+        <div :for={{ %{id: id, name: name} <- @dashboard.other_dashboards }}>
+          <a href={{ to_route(@socket, @dashboard.params, id) }} class="px-2 rounded-full hover:bg-hb-ca dark:hover:bg-hb-ca-dark focus:outline-none focus:bg-hb-ca dark:focus:bg-hb-ca-dark">
+            {{ name }}
+          </a>
+        </div>
+      </div>
+
       <div class="flex justify-between items-center">
         <div class="py-5 text-2xl font-bold">
           <h2>{{ @dashboard.name }}</h2>
@@ -95,5 +103,9 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Header do
 
   defp updated_route(%{assigns: %{dashboard: %{params: params}}} = socket, new_params) do
     Router.Helpers.dashboard_path(socket, :index, Map.merge(params, new_params))
+  end
+
+  defp to_route(socket, params, id) do
+    Router.Helpers.dashboard_path(socket, :index, Map.put(params, "id", id) |> Map.delete("group_index"))
   end
 end

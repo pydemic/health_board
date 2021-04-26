@@ -5,7 +5,6 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Footer do
   alias Phoenix.LiveView
 
   prop name, :string, required: true
-  prop other_dashboards, :list, required: true
 
   prop params, :map, required: true
 
@@ -18,33 +17,18 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Footer do
   def render(assigns) do
     ~H"""
     <footer class="lg:px-10 sm:px-6 px-4 w-full divide-y divide-hb-ba dark:divide-hb-ba-dark bg-hb-aa dark:bg-hb-aa-dark text-hb-ba dark:text-hb-ba-dark">
-      <div class="py-5 grid md:grid-cols-3 grid-cols-1 place-items-stretch">
+      <div class="py-5 grid place-items-stretch">
         <div>
-          <div class="py-1 px-2 mb-6 md:text-left text-center font-bold">Painéis</div>
+          <div class="py-1 px-2 mb-6 text-center font-bold">Iniciativa</div>
 
-          <div class="text-sm">
-            <span class="py-1 px-2 rounded-full bg-hb-ba dark:bg-hb-ba-dark text-hb-aa dark:text-hb-aa-dark">
-              {{ @name }}
-            </span>
-
-            <div :for={{ dashboard <- @other_dashboards }} class="block my-3">
-              <a href={{ to_route(@socket, @params, dashboard.id) }} class="py-1 px-2 rounded-full hover:bg-hb-ca dark:hover:bg-hb-ca-dark focus:outline-none focus:bg-hb-ca dark:focus:bg-hb-ca-dark">
-                {{ dashboard.name }}
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="md:col-span-2">
-          <div class="py-1 px-2 mb-6 md:text-left text-center font-bold">Iniciativa</div>
-
-          <div class="grid md:grid-cols-2 grid-cols-1 place-items-stretch gap-4">
+          <div class="grid place-items-stretch gap-4">
             <a :for={{ {link, logo} <- @organizations }} href={{ link }} target="_blank" class="m-auto max-w-lg">
               <img src={{ HealthBoardWeb.Router.Helpers.static_path(@socket, logo_path(@dark_mode, logo))}} />
             </a>
           </div>
         </div>
       </div>
+
       <div class="py-5 flex justify-between items-center text-xs text-center">
         <a href="mailto:changeme@paho.com.br" class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
           <Icons.At svg_class="w-5 h-5" />
