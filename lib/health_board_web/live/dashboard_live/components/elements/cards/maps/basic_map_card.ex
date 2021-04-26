@@ -2,7 +2,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.BasicMapCard do
   use Surface.LiveComponent
   alias HealthBoardWeb.DashboardLive.Components.BasicCard
   alias HealthBoardWeb.DashboardLive.Components.Card.Options
-  alias HealthBoardWeb.DashboardLive.Components.Fragments.Cooldown
+  alias HealthBoardWeb.DashboardLive.Components.Fragments.{Cooldown, Otherwise}
   alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons.{Eye, EyeOff}
   alias HealthBoardWeb.Helpers.Geo
   alias Phoenix.LiveView
@@ -18,8 +18,22 @@ defmodule HealthBoardWeb.DashboardLive.Components.BasicMapCard do
   @spec render(map) :: LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <BasicCard name={{ @element.name }} show_footer={{ @element.show_options }} show_body={{ show?(@show, @timestamp, @map_data) }}>
-      <div :show={{ show?(@show, @timestamp, @map_data) }} phx-hook="Map" id={{ @id }} class="h-96 max-h-screen"></div>
+    <BasicCard name={{ @element.name }} show_footer={{ @element.show_options }}>
+      <Otherwise condition={{ show?(@show, @timestamp, @map_data) }}>
+        <div phx-hook="Map" id={{ @id }} class="h-96 max-h-screen"></div>
+
+        <template slot="otherwise">
+          <div class="opacity-30 mb-3">
+            <button :on-click="toggle" title="Visualizar mapa" class="hover:text-hb-ca dark:hover:text-hb-ca-dark focus:outline-none focus:text-hb-ca dark:focus:text-hb-ca-dark">
+              <Eye svg_class="inline w-20 h-20" stroke_width="1"/>
+            </button>
+
+            <p class="text-center">
+              Clique no ícone para visualizar o mapa
+            </p>
+          </div>
+        </template>
+      </Otherwise>
 
       <template slot="footer">
         <Options id={{ "options_#{@id}" }} element={{ maybe_put_ranges(@element, @map_data) }} params={{ @params }}>

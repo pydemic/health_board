@@ -1,7 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Footer do
   use Surface.Component
   alias HealthBoardWeb.DashboardLive.Components.Fragments.Icons
-  alias HealthBoardWeb.Router
   alias Phoenix.LiveView
 
   prop name, :string, required: true
@@ -62,9 +61,5 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard.Footer do
     else
       path
     end
-  end
-
-  defp to_route(socket, params, id) do
-    Router.Helpers.dashboard_path(socket, :index, Map.put(params, "id", id) |> Map.delete("group_index"))
   end
 end

@@ -19,7 +19,6 @@ defmodule HealthBoardWeb.DashboardLive.Components.Dashboard do
         dark_mode={{ @dashboard.dark_mode }}
         name={{ @dashboard.name }}
         organizations={{ @dashboard.organizations }}
-        other_dashboards={{ @dashboard.other_dashboards }}
         params={{ @dashboard.params }}
         version={{ @dashboard.version }}
       />

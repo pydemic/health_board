@@ -125,12 +125,12 @@ defmodule HealthBoard.Updaters.ICUOccupationsUpdater.SpreadsheetAPI do
 
   defp parse_by_index({cell, cell_index}, {state_record, city_record}) do
     case cell_index do
-      0 -> parse_date(cell, state_record, city_record)
-      2 -> parse_state_abbr(cell, state_record, city_record)
-      3 -> {parse_icu_occupation_rate(cell, state_record), city_record}
-      5 -> {state_record, parse_icu_occupation_rate(cell, city_record)}
-      6 -> parse_link(cell, state_record, city_record)
+      1 -> parse_date(cell, state_record, city_record)
+      3 -> parse_state_abbr(cell, state_record, city_record)
+      4 -> {parse_icu_occupation_rate(cell, state_record), city_record}
+      6 -> {state_record, parse_icu_occupation_rate(cell, city_record)}
       7 -> parse_link(cell, state_record, city_record)
+      8 -> parse_link(cell, state_record, city_record)
       _ -> {state_record, city_record}
     end
   end
