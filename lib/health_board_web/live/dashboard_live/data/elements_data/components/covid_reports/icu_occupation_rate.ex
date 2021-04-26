@@ -52,6 +52,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
         |> Enum.group_by(& &1.location_id)
         |> Enum.with_index()
         |> Enum.map(&location_dataset(&1, date_range))
+        |> Enum.map(&smooth_line/1)
         |> Charts.line(Enum.to_list(date_range), show_legends?: true)
         |> Components.emit_and_hook("chart_data")
       else
@@ -80,13 +81,44 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
     end
   end
 
+  defp smooth_line(%{data: data} = line) do
+    Map.put(line, :data, smooth_data(data))
+  end
+
+  defp smooth_data(data, previous \\ 0, new_data \\ []) do
+    case data do
+      [0 | tail] -> do_smooth_data(tail, previous, new_data)
+      [head | tail] -> smooth_data(tail, head, [head | new_data])
+      [] -> Enum.reverse(new_data)
+    end
+  end
+
+  defp do_smooth_data(tail, previous, new_data, amount \\ 1) do
+    case tail do
+      [0 | tail] ->
+        do_smooth_data(tail, previous, new_data, amount + 1)
+
+      [next | tail] ->
+        if previous != 0 do
+          value = div(next - previous, amount)
+          values = Enum.map(amount..1, fn multiplier -> previous + value * multiplier end)
+          smooth_data(tail, next, [next | values ++ new_data])
+        else
+          smooth_data(tail, next, [next | Enum.map(amount..0, fn _ -> nil end)])
+        end
+
+      [] ->
+        Enum.reverse(new_data)
+    end
+  end
+
   @spec heatmap_table(map, map) :: {:ok, tuple} | :error
   def heatmap_table(data, params) do
     with {:ok, list} <- Components.fetch_data(data, params, @param),
          {:ok, from_date} <- Components.fetch_data(data, params, "from_date"),
          {:ok, to_date} <- Components.fetch_data(data, params, "to_date") do
       if is_list(list) and Enum.any?(list) do
-        date_range = Date.range(from_date, to_date)
+        date_range = Date.range(to_date, from_date)
 
         lines =
           list
@@ -102,7 +134,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
   end
 
   defp location_line({_location_id, [%{location: location} | _tail] = list}, date_range) do
-    list = Enum.sort(list, &(Date.compare(&1.date, &2.date) != :gt))
+    list = Enum.sort(list, &(Date.compare(&1.date, &2.date) != :lt))
     {cells, _list} = Enum.reduce(date_range, {[], list}, &location_cell/2)
     %{cells: [%{value: Humanize.location(location)} | Enum.reverse(cells)]}
   end
@@ -119,10 +151,10 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
             {[%{value: total, link: link, group: Choropleth.group(@ranges, total)} | result], tail}
           end
 
-        :lt ->
+        :gt ->
           {[%{value: "N/A", group: 0} | result], list}
 
-        :gt ->
+        :lt ->
           location_cell(date, {result, tail})
       end
     else

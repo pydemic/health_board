@@ -1,6 +1,6 @@
 defmodule HealthBoardWeb.DashboardLive.Components.CovidReports.ICUOccupationRate do
   use Surface.Component
-  alias HealthBoardWeb.DashboardLive.Components.{ChartCard, ChoroplethMapCard, TableCard}
+  alias HealthBoardWeb.DashboardLive.Components.{ChartCard, ChoroplethMapCard, HeatmapTableCard}
   alias Phoenix.LiveView
 
   prop element, :map, required: true
@@ -26,7 +26,7 @@ defmodule HealthBoardWeb.DashboardLive.Components.CovidReports.ICUOccupationRate
   @spec heatmap_table(map, map) :: LiveView.Rendered.t()
   def heatmap_table(assigns, params) do
     ~H"""
-    <TableCard card={{ @element }} params={{ params }} />
+    <HeatmapTableCard card={{ @element }} params={{ params }} />
     """
   end
 
