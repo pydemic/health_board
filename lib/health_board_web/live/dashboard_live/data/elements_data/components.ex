@@ -299,6 +299,38 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components do
     end
   end
 
+  @spec smooth_line(map) :: map
+  def smooth_line(%{data: data} = line) do
+    Map.put(line, :data, smooth_data(data))
+  end
+
+  defp smooth_data(data, previous \\ 0, new_data \\ []) do
+    case data do
+      [0 | tail] -> do_smooth_data(tail, previous, new_data)
+      [head | tail] -> smooth_data(tail, head, [head | new_data])
+      [] -> Enum.reverse(new_data)
+    end
+  end
+
+  defp do_smooth_data(tail, previous, new_data, amount \\ 1) do
+    case tail do
+      [0 | tail] ->
+        do_smooth_data(tail, previous, new_data, amount + 1)
+
+      [next | tail] ->
+        if previous != 0 do
+          value = div(next - previous, amount)
+          values = Enum.map(amount..1, fn multiplier -> previous + value * multiplier end)
+          smooth_data(tail, next, [next | values ++ new_data])
+        else
+          smooth_data(tail, next, [next | Enum.map(amount..0, fn _ -> nil end)])
+        end
+
+      [] ->
+        Enum.reverse(new_data)
+    end
+  end
+
   @spec sum_total_per_date(list(map), list(map)) :: list(map)
   def sum_total_per_date(l1, l2) do
     {result, _l2} =

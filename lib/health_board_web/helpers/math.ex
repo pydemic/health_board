@@ -30,7 +30,7 @@ defmodule HealthBoardWeb.Helpers.Math do
 
   defp average(data) do
     if Enum.any?(data) do
-      Enum.sum(data) / length(data)
+      Float.ceil(Enum.sum(data) / length(data), 1)
     else
       0.0
     end

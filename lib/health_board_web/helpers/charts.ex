@@ -44,7 +44,15 @@ defmodule HealthBoardWeb.Helpers.Charts do
         },
         options:
           %{
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            hover: %{
+              mode: "index",
+              intersect: false
+            },
+            tooltips: %{
+              mode: "index",
+              intersect: false
+            }
           }
           |> maybe_disable_legends(opts)
       }
@@ -61,7 +69,13 @@ defmodule HealthBoardWeb.Helpers.Charts do
 
   @spec line_dataset(list(number), String.t(), keyword) :: map
   def line_dataset(data, label, opts \\ []) do
-    dataset = %{data: data, label: label, borderWidth: 1}
+    dataset = %{
+      data: data,
+      label: label,
+      borderWidth: Keyword.get(opts, :border_width, 1),
+      pointRadius: Keyword.get(opts, :point_radius, 3),
+      hidden: Keyword.get(opts, :hidden, false) == true
+    }
 
     {r, g, b} = pick_color(Keyword.get(opts, :index, 0))
 

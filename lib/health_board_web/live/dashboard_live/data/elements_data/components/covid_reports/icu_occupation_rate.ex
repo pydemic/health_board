@@ -52,7 +52,7 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
         |> Enum.group_by(& &1.location_id)
         |> Enum.with_index()
         |> Enum.map(&location_dataset(&1, date_range))
-        |> Enum.map(&smooth_line/1)
+        |> Enum.map(&Components.smooth_line/1)
         |> Charts.line(Enum.to_list(date_range), show_legends?: true)
         |> Components.emit_and_hook("chart_data")
       else
@@ -64,7 +64,14 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
   defp location_dataset({{_location_id, [%{location: location} | _tail] = list}, index}, date_range) do
     list = Enum.sort(list, &(Date.compare(&1.date, &2.date) != :gt))
     {data, _list} = Enum.reduce(date_range, {[], list}, &location_date_rate/2)
-    Charts.line_dataset(Enum.reverse(data), Humanize.location(location), colorize: :border, index: index)
+
+    data
+    |> Enum.reverse()
+    |> Charts.line_dataset(Humanize.location(location),
+      colorize: :border,
+      index: index,
+      hidden: index > 5
+    )
   end
 
   defp location_date_rate(date, {result, list}) do
@@ -78,37 +85,6 @@ defmodule HealthBoardWeb.DashboardLive.ElementsData.Components.CovidReports.ICUO
       end
     else
       {[0 | result], []}
-    end
-  end
-
-  defp smooth_line(%{data: data} = line) do
-    Map.put(line, :data, smooth_data(data))
-  end
-
-  defp smooth_data(data, previous \\ 0, new_data \\ []) do
-    case data do
-      [0 | tail] -> do_smooth_data(tail, previous, new_data)
-      [head | tail] -> smooth_data(tail, head, [head | new_data])
-      [] -> Enum.reverse(new_data)
-    end
-  end
-
-  defp do_smooth_data(tail, previous, new_data, amount \\ 1) do
-    case tail do
-      [0 | tail] ->
-        do_smooth_data(tail, previous, new_data, amount + 1)
-
-      [next | tail] ->
-        if previous != 0 do
-          value = div(next - previous, amount)
-          values = Enum.map(amount..1, fn multiplier -> previous + value * multiplier end)
-          smooth_data(tail, next, [next | values ++ new_data])
-        else
-          smooth_data(tail, next, [next | Enum.map(amount..0, fn _ -> nil end)])
-        end
-
-      [] ->
-        Enum.reverse(new_data)
     end
   end
 
