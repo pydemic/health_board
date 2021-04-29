@@ -36,6 +36,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
   @ignored_race @race_native + 1
 
   @discarded_index @ignored_race + 1
+
   @sample_index @discarded_index + 1
 
   @first_symptom_index @ignored_race + 1
@@ -208,16 +209,16 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
       _pcr_flubli,
       _flubli_out,
       _pos_pcrout,
-      _pcr_vsr,
-      _pcr_para1,
-      _pcr_para2,
-      _pcr_para3,
-      _pcr_para4,
-      _pcr_adeno,
-      _pcr_metap,
-      _pcr_boca,
-      _pcr_rino,
-      _pcr_outro,
+      pcr_vsr,
+      pcr_para1,
+      pcr_para2,
+      pcr_para3,
+      pcr_para4,
+      pcr_adeno,
+      pcr_metap,
+      pcr_boca,
+      pcr_rino,
+      pcr_other,
       _ds_pcr_out,
       final_classification,
       _classi_out,
@@ -246,7 +247,19 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     {
       :ok,
       {
-        {hospitalization, evolution, pcr_sars2_result, final_classification},
+        {hospitalization, evolution, {pcr_sars2_result, final_classification},
+         [
+           {1, pcr_vsr},
+           {2, pcr_para1},
+           {3, pcr_para2},
+           {4, pcr_para3},
+           {5, pcr_para4},
+           {6, pcr_adeno},
+           {7, pcr_metap},
+           {8, pcr_boca},
+           {9, pcr_rino},
+           {10, pcr_other}
+         ]},
         {
           {symptoms_date, notification_date, hospitalization_date, evolution_date},
           {residence_city_id, notification_city_id, hospitalization_city_id},
@@ -284,17 +297,45 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     }
   end
 
-  defp fetch_types({hospitalization, evolution, pcr_sars2_result, final_classification}) do
-    if confirmed?(pcr_sars2_result, final_classification) do
-      [:confirmed]
-      |> maybe_append(hospitalization, :hospitalization)
-      |> maybe_append(evolution, "2", :death)
-    else
-      [:discarded]
+  defp fetch_types({hospitalization, evolution, covid, sars}) do
+    case validate_type(covid, sars) do
+      {:ok, :covid} ->
+        [{:confirmed, :covid}]
+        |> maybe_append(hospitalization, :hospitalization)
+        |> maybe_append(evolution, "2", {:death, :covid})
+
+      {:ok, {:other, indexes}} ->
+        cases = Enum.map(indexes, fn index -> {@sample_index + index, 1} end)
+
+        if evolution == "2" do
+          [{:confirmed, cases}, {:death, Enum.map(indexes, fn index -> {@ignored_race + index, 1} end)}]
+        else
+          [{:confirmed, cases}]
+        end
+
+      _result ->
+        [:discarded]
     end
   end
 
-  defp confirmed?(pcr_sars2_result, final_classification), do: pcr_sars2_result == "1" or final_classification == "5"
+  defp validate_type(covid, sars) do
+    if confirmed_covid?(covid) do
+      {:ok, :covid}
+    else
+      sars
+      |> Enum.reduce([], fn
+        {index, "1"}, indexes -> [index | indexes]
+        _sars_result, indexes -> indexes
+      end)
+      |> case do
+        [] -> :error
+        indexes -> {:ok, {:other, indexes}}
+      end
+    end
+  end
+
+  defp confirmed_covid?({pcr_sars2_result, final_classification}),
+    do: pcr_sars2_result == "1" or final_classification == "5"
 
   defp maybe_append(list, input, expected_value \\ "1", element)
   defp maybe_append(list, input, input, element), do: [element | list]
@@ -435,8 +476,11 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
 
     for type <- types do
       case type do
-        :confirmed ->
+        {:confirmed, :covid} ->
           {:cases, symptoms_date, residence_locations_ids, [{@confirmed_index, 1} | sample ++ age_gender_race]}
+
+        {:confirmed, counters} ->
+          {:cases, symptoms_date, residence_locations_ids, counters}
 
         :discarded ->
           {:cases, notification_date, notification_locations_ids, [{@discarded_index, 1} | sample]}
@@ -445,8 +489,11 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
           {:hospitalizations, hospitalization_date, hospitalization_locations_ids,
            [{@confirmed_index, 1} | age_gender_race ++ symptoms_counters(symptoms)]}
 
-        :death ->
+        {:death, :covid} ->
           {:deaths, evolution_date, residence_locations_ids, [{@confirmed_index, 1} | age_gender_race]}
+
+        {:death, counters} ->
+          {:deaths, evolution_date, residence_locations_ids, counters}
       end
     end
   end
@@ -487,7 +534,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
     case context do
       :cases ->
         {{context, key}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
       :hospitalizations ->
         {{context, key}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -495,7 +542,7 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
 
       :deaths ->
         {{context, key}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-         0, 0, 0, 0, 0, 0, 0, 0, 0}
+         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     end
   end
 
@@ -609,7 +656,17 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
       native_cases,
       ignored_race_cases,
       discarded_cases,
-      sample_cases
+      sample_cases,
+      vsr_cases,
+      para1_cases,
+      para2_cases,
+      para3_cases,
+      para4_cases,
+      adeno_cases,
+      metap_cases,
+      boca_cases,
+      rino_cases,
+      other_cases
     } = record
 
     update_lines(
@@ -619,7 +676,20 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
       lines,
       groups_ids,
       [
-        {0, confirmed_cases},
+        {0,
+         {confirmed_cases,
+          [
+            vsr_cases,
+            para1_cases,
+            para2_cases,
+            para3_cases,
+            para4_cases,
+            adeno_cases,
+            metap_cases,
+            boca_cases,
+            rino_cases,
+            other_cases
+          ]}},
         {1, discarded_cases},
         {2,
          [
@@ -707,7 +777,17 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
       asian_deaths,
       brown_deaths,
       native_deaths,
-      ignored_race_deaths
+      ignored_race_deaths,
+      vsr_deaths,
+      para1_deaths,
+      para2_deaths,
+      para3_deaths,
+      para4_deaths,
+      adeno_deaths,
+      metap_deaths,
+      boca_deaths,
+      rino_deaths,
+      other_deaths
     } = record
 
     update_lines(
@@ -717,7 +797,20 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
       lines,
       groups_ids,
       [
-        {5, deaths},
+        {5,
+         {deaths,
+          [
+            vsr_deaths,
+            para1_deaths,
+            para2_deaths,
+            para3_deaths,
+            para4_deaths,
+            adeno_deaths,
+            metap_deaths,
+            boca_deaths,
+            rino_deaths,
+            other_deaths
+          ]}},
         {6,
          [
            female_0_4_deaths,
@@ -925,29 +1018,66 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
       Enum.reduce(updates, lines, fn {index, value}, lines ->
         [{_key, from, to}] = :ets.lookup(@ets_locations_dates_buckets, {context, index, record_key})
 
-        if is_integer(value) do
-          if value > 0 do
-            List.update_at(
-              lines,
-              index,
-              &[Enum.join([elem(groups_ids, index), key_string, value, nil, from, to], ",") | &1]
-            )
-          else
-            lines
-          end
-        else
-          if Enum.any?(value, &(&1 > 0)) do
-            List.update_at(
-              lines,
-              index,
-              &[
-                Enum.join([elem(groups_ids, index), key_string, nil, ~s'"#{Enum.join(value, ",")}"', from, to], ",")
-                | &1
-              ]
-            )
-          else
-            lines
-          end
+        case value do
+          {0, list} ->
+            if Enum.any?(list, &(&1 > 0)) do
+              List.update_at(
+                lines,
+                index,
+                &[
+                  Enum.join([elem(groups_ids, index), key_string, nil, ~s'"#{Enum.join(list, ",")}"', from, to], ",")
+                  | &1
+                ]
+              )
+            else
+              lines
+            end
+
+          {integer, list} ->
+            if Enum.any?(list, &(&1 > 0)) do
+              List.update_at(
+                lines,
+                index,
+                &[
+                  Enum.join(
+                    [elem(groups_ids, index), key_string, integer, ~s'"#{Enum.join(list, ",")}"', from, to],
+                    ","
+                  )
+                  | &1
+                ]
+              )
+            else
+              List.update_at(
+                lines,
+                index,
+                &[Enum.join([elem(groups_ids, index), key_string, integer, nil, from, to], ",") | &1]
+              )
+            end
+
+          list when is_list(list) ->
+            if Enum.any?(value, &(&1 > 0)) do
+              List.update_at(
+                lines,
+                index,
+                &[
+                  Enum.join([elem(groups_ids, index), key_string, nil, ~s'"#{Enum.join(value, ",")}"', from, to], ",")
+                  | &1
+                ]
+              )
+            else
+              lines
+            end
+
+          integer ->
+            if integer > 0 do
+              List.update_at(
+                lines,
+                index,
+                &[Enum.join([elem(groups_ids, index), key_string, integer, nil, from, to], ",") | &1]
+              )
+            else
+              lines
+            end
         end
       end)
     else
@@ -956,29 +1086,63 @@ defmodule HealthBoard.Updaters.SARSUpdater.Consolidator do
           location_bucket_date(context, index, record_key)
         end
 
-        if is_integer(value) do
-          if value > 0 do
-            List.update_at(
-              lines,
-              index,
-              &[Enum.join([elem(groups_ids, index), key_string, value, nil], ",") | &1]
-            )
-          else
-            lines
-          end
-        else
-          if Enum.any?(value, &(&1 > 0)) do
-            List.update_at(
-              lines,
-              index,
-              &[
-                Enum.join([elem(groups_ids, index), key_string, nil, ~s'"#{Enum.join(value, ",")}"'], ",")
-                | &1
-              ]
-            )
-          else
-            lines
-          end
+        case value do
+          {0, list} ->
+            if Enum.any?(list, &(&1 > 0)) do
+              List.update_at(
+                lines,
+                index,
+                &[
+                  Enum.join([elem(groups_ids, index), key_string, nil, ~s'"#{Enum.join(list, ",")}"'], ",")
+                  | &1
+                ]
+              )
+            else
+              lines
+            end
+
+          {integer, list} ->
+            if Enum.any?(list, &(&1 > 0)) do
+              List.update_at(
+                lines,
+                index,
+                &[
+                  Enum.join([elem(groups_ids, index), key_string, integer, ~s'"#{Enum.join(list, ",")}"'], ",")
+                  | &1
+                ]
+              )
+            else
+              List.update_at(
+                lines,
+                index,
+                &[Enum.join([elem(groups_ids, index), key_string, integer, nil], ",") | &1]
+              )
+            end
+
+          list when is_list(list) ->
+            if Enum.any?(list, &(&1 > 0)) do
+              List.update_at(
+                lines,
+                index,
+                &[
+                  Enum.join([elem(groups_ids, index), key_string, nil, ~s'"#{Enum.join(list, ",")}"'], ",")
+                  | &1
+                ]
+              )
+            else
+              lines
+            end
+
+          integer ->
+            if integer > 0 do
+              List.update_at(
+                lines,
+                index,
+                &[Enum.join([elem(groups_ids, index), key_string, integer, nil], ",") | &1]
+              )
+            else
+              lines
+            end
         end
       end)
     end
