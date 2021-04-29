@@ -40,7 +40,8 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
               :consolidate_data,
               :seed_data,
               :update_source,
-              :backup_data
+              :backup_data,
+              :extract_data
             ],
             error?: false,
             attempts: 0,
@@ -260,7 +261,17 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
     error -> Helpers.handle_error(state, "Failed to backup data", error, __STACKTRACE__)
   end
 
+  @spec extract_data(t()) :: t()
+  def extract_data(state) do
+    Logger.info("Extracting data for specific contexts")
+
+    FluSyndromeUpdater.Extractor.extract(input_path(state), extractions_path(state))
+
+    state
+  end
+
   defp backup_path(state), do: Path.join(state.path, "backup")
+  defp extractions_path(state), do: Path.join(state.path, "extractions")
   defp input_path(state), do: Path.join(state.path, "input")
   defp output_path(state), do: Path.join(state.path, "output")
 end

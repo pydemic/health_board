@@ -1,95 +1,207 @@
 defmodule HealthBoard.Updaters.FluSyndromeUpdater.Extractor do
-  use GenServer, restart: :permanent
-
   require Logger
 
-  @spec add({atom | String.t(), list(any)}) :: :ok
-  def add({name, line}), do: GenServer.cast(__MODULE__, {:add, name, line})
+  @filename "consolidado_esus"
+  @headers [
+    "municipioIBGE",
+    "dataInicioSintomas",
+    "dataNascimento",
+    "idade",
+    "sexo",
+    "profissionalSaude",
+    "resultadoTeste",
+    "evolucaoCaso",
+    "classificacaoFinal",
+    "dataEncerramento"
+  ]
 
-  @spec add(atom | String.t(), list(any)) :: :ok
-  def add(name, line), do: GenServer.cast(__MODULE__, {:add, name, line})
+  @spec extract(String.t(), String.t()) :: :ok
+  def extract(input_path, output_path) do
+    output_file_path = Path.join(output_path, "#{@filename}.csv")
 
-  @spec create(atom | String.t(), list(any)) :: :ok
-  def create(name, headers), do: GenServer.cast(__MODULE__, {:create, name, headers})
+    File.rm_rf!(output_file_path)
+    File.mkdir_p!(output_path)
 
-  @spec clear :: :ok
-  def clear, do: GenServer.cast(__MODULE__, :clear)
+    output_file = File.open!(output_file_path, [:write, :append, :utf8])
+    IO.binwrite(output_file, NimbleCSV.RFC4180.dump_to_iodata([@headers]))
 
-  @spec dump :: :ok
-  def dump, do: GenServer.cast(__MODULE__, :dump)
+    input_path
+    |> File.ls!()
+    |> Enum.each(&extract_file(Path.join(input_path, &1), output_file))
 
-  @spec set_output_path(String.t()) :: :ok
-  def set_output_path(output_path), do: GenServer.cast(__MODULE__, {:set_output_path, output_path})
+    File.close(output_file)
 
-  @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
-  def start_link(args) do
-    GenServer.start(__MODULE__, args, name: __MODULE__)
+    finish_extraction(output_file_path)
+
+    :ok
   end
 
-  @impl GenServer
-  @spec init(keyword) :: {:ok, {map, map}}
-  def init(args) do
-    path = Keyword.get(args, :path, Path.join(File.cwd!(), ".misc/sandbox/updates/flu_syndrome"))
-
-    {:ok,
-     {
-       %{
-         chunk_size: Keyword.get(args, :chunk_size, 200_000),
-         path: Path.join(path, "output/extractions")
-       },
-       %{}
-     }}
+  defp extract_file(input_file_path, output_file) do
+    input_file_path
+    |> File.stream!(read_ahead: 100_000, modes: [:read_ahead, {:encoding, :latin1}])
+    |> NimbleCSV.Semicolon.parse_stream()
+    |> Stream.map(&extract_line_data/1)
+    |> NimbleCSV.RFC4180.dump_to_iodata()
+    |> write(output_file)
   end
 
-  @impl GenServer
-  @spec handle_cast(any, {map, map}) :: {:noreply, {map, map}}
-  def handle_cast({:add, name, line}, {settings, extractions}) do
-    case Map.fetch(extractions, name) do
-      {:ok, {size, data}} ->
-        if size >= settings.chunk_size do
-          settings.path
-          |> Path.join("#{name}.csv")
-          |> File.write!(NimbleCSV.RFC4180.dump_to_iodata(data), [:append, :utf8])
+  defp extract_line_data(line) do
+    line_length = length(line)
 
-          {:noreply, {settings, Map.delete(extractions, name)}}
-        else
-          {:noreply, {settings, Map.put(extractions, name, {size + 1, [line | data]})}}
-        end
+    case line_length do
+      29 ->
+        [
+          _id,
+          _notification_datetime,
+          symptoms_datetime,
+          birth_date,
+          _symptoms,
+          is_health_professional,
+          _cbo,
+          _conditions,
+          _test_status,
+          _test_date,
+          _test_type,
+          test_result,
+          _origin_country,
+          gender,
+          _residence_state,
+          _residence_state_id,
+          _residence_city,
+          residence_city_id,
+          _origin,
+          _notification_state,
+          _notification_state_id,
+          _notification_city,
+          _notification_city_id,
+          _removed,
+          _validated,
+          age,
+          final_date,
+          case_evolution,
+          final_classification
+        ] = line
 
-      _result ->
-        {:noreply, {settings, Map.put(extractions, name, {1, [line]})}}
+        [
+          residence_city_id,
+          symptoms_datetime,
+          birth_date,
+          age,
+          gender,
+          is_health_professional,
+          test_result,
+          case_evolution,
+          final_classification,
+          final_date
+        ]
+
+      30 ->
+        [
+          _id,
+          _notification_datetime,
+          symptoms_datetime,
+          birth_date,
+          _symptoms,
+          is_health_professional,
+          _cbo,
+          _conditions,
+          _test_status,
+          _test_date,
+          _test_type,
+          test_result,
+          _origin_country,
+          gender,
+          _residence_state,
+          _residence_state_id,
+          _residence_city,
+          residence_city_id,
+          _origin,
+          _cnes,
+          _notification_state,
+          _notification_state_id,
+          _notification_city,
+          _notification_city_id,
+          _removed,
+          _validated,
+          age,
+          final_date,
+          case_evolution,
+          final_classification
+        ] = line
+
+        [
+          residence_city_id,
+          symptoms_datetime,
+          birth_date,
+          age,
+          gender,
+          is_health_professional,
+          test_result,
+          case_evolution,
+          final_classification,
+          final_date
+        ]
+
+      31 ->
+        [
+          _id,
+          _notification_datetime,
+          symptoms_datetime,
+          birth_date,
+          _symptoms,
+          is_health_professional,
+          _cbo,
+          _conditions,
+          _conditions_2,
+          _conditions_3,
+          _test_status,
+          _test_date,
+          _test_type,
+          test_result,
+          _origin_country,
+          gender,
+          _residence_state,
+          _residence_state_id,
+          _residence_city,
+          residence_city_id,
+          _origin,
+          _notification_state,
+          _notification_state_id,
+          _notification_city,
+          _notification_city_id,
+          _removed,
+          _validated,
+          age,
+          final_date,
+          case_evolution,
+          final_classification
+        ] = line
+
+        [
+          residence_city_id,
+          symptoms_datetime,
+          birth_date,
+          age,
+          gender,
+          is_health_professional,
+          test_result,
+          case_evolution,
+          final_classification,
+          final_date
+        ]
     end
   end
 
-  def handle_cast({:create, name, headers}, {%{path: path}, _extractions} = state) do
-    file_path = Path.join(path, "#{name}.csv")
-    File.rm_rf!(file_path)
-    File.write!(file_path, NimbleCSV.RFC4180.dump_to_iodata([headers]), [:utf8])
-    {:noreply, state}
+  defp write(content, file) do
+    IO.binwrite(file, content)
   end
 
-  def handle_cast(:clear, {%{path: path} = settings, _extractions}) do
-    File.rm_rf!(path)
-    File.mkdir_p!(path)
-    {:noreply, {settings, %{}}}
-  end
+  defp finish_extraction(file_path) do
+    dir_path = Path.dirname(file_path)
+    filename = Path.basename(file_path, ".csv")
 
-  def handle_cast(:dump, {%{path: path} = settings, extractions}) do
-    Enum.each(extractions, fn {name, {_size, data}} ->
-      path
-      |> Path.join("#{name}.csv")
-      |> File.write!(NimbleCSV.RFC4180.dump_to_iodata(data), [:append, :utf8])
-    end)
+    Logger.info("Zipping file")
 
-    Enum.each(File.ls!(path), fn filename ->
-      file_path = Path.join(path, Path.basename(filename, ".csv"))
-      {_result, 0} = System.cmd("zip", ~w(#{file_path} #{file_path}.csv))
-    end)
-
-    {:noreply, {settings, %{}}}
-  end
-
-  def handle_cast({:set_output_path, output_path}, {settings, extractions}) do
-    {:noreply, {Map.put(settings, :path, Path.join(output_path, "extractions")), extractions}}
+    {_result, 0} = System.cmd("zip", ~w(#{Path.join(dir_path, filename)} #{file_path}))
   end
 end

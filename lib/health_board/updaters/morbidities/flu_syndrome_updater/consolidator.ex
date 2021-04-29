@@ -2,7 +2,6 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
   require Logger
   alias HealthBoard.Contexts.Consolidations.ConsolidationsGroups
   alias HealthBoard.Contexts.Geo.Locations
-  alias HealthBoard.Updaters.FluSyndromeUpdater.Extractor
 
   @first_case_date Date.from_erl!({2020, 02, 26})
 
@@ -46,34 +45,14 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
   @health_professionals_cases_group_name "morbidities_flu_syndrome_residence_health_professionals_cases"
   @cases_per_age_gender_group_name "morbidities_flu_syndrome_residence_cases_per_age_gender"
 
-  @extraction_paho_1 :consolidado_esus
-  @extraction_paho_1_headers [
-    "municipioIBGE",
-    "dataInicioSintomas",
-    "dataNascimento",
-    "idade",
-    "sexo",
-    "profissionalSaude",
-    "resultadoTeste",
-    "evolucaoCaso",
-    "classificacaoFinal",
-    "dataEncerramento"
-  ]
-
   @spec consolidate(Enumerable.t(), String.t(), String.t()) :: :ok
   def consolidate(streams, output_path, split_command) do
     Logger.info("Parsing")
-
-    Extractor.set_output_path(output_path)
-    Extractor.clear()
-    Extractor.create(@extraction_paho_1, @extraction_paho_1_headers)
 
     streams
     |> Flow.from_enumerables()
     |> Flow.map(&parse/1)
     |> Flow.run()
-
-    Extractor.dump()
 
     Logger.info("Finished parsing. Writing")
 
@@ -85,9 +64,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
   end
 
   defp parse({line, line_index, filename, today}) do
-    with {:ok, {data, extractions}} <- extract_line_data(line),
-         :ok <- Enum.each(extractions, &Extractor.add/1),
-         {datetimes, city_id, class, result, is_health_professional, age, gender} <- data,
+    with {:ok, {datetimes, city_id, class, result, is_health_professional, age, gender}} <- extract_line_data(line),
          {:ok, date} <- fetch_date(datetimes, today),
          {:ok, locations_ids} <- fetch_locations_ids(city_id) do
       counters =
@@ -119,7 +96,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
           _id,
           notification_datetime,
           symptoms_datetime,
-          birth_date,
+          _birth_date,
           _symptoms,
           is_health_professional,
           _cbo,
@@ -142,30 +119,20 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
           _removed,
           _validated,
           age,
-          final_date,
-          case_evolution,
+          _final_date,
+          _case_evolution,
           final_classification
         ] = line
 
         {:ok,
          {
-           {[notification_datetime, symptoms_datetime], residence_city_id, final_classification, test_result,
-            is_health_professional, age, gender},
-           [
-             {@extraction_paho_1,
-              [
-                residence_city_id,
-                symptoms_datetime,
-                birth_date,
-                age,
-                gender,
-                is_health_professional,
-                test_result,
-                case_evolution,
-                final_classification,
-                final_date
-              ]}
-           ]
+           [notification_datetime, symptoms_datetime],
+           residence_city_id,
+           final_classification,
+           test_result,
+           is_health_professional,
+           age,
+           gender
          }}
 
       30 ->
@@ -173,7 +140,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
           _id,
           notification_datetime,
           symptoms_datetime,
-          birth_date,
+          _birth_date,
           _symptoms,
           is_health_professional,
           _cbo,
@@ -197,36 +164,21 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
           _removed,
           _validated,
           age,
-          final_date,
-          case_evolution,
+          _final_date,
+          _case_evolution,
           final_classification
         ] = line
 
         {:ok,
-         {{[notification_datetime, symptoms_datetime], residence_city_id, final_classification, test_result,
-           is_health_professional, age, gender},
-          [
-            {@extraction_paho_1,
-             [
-               residence_city_id,
-               symptoms_datetime,
-               birth_date,
-               age,
-               gender,
-               is_health_professional,
-               test_result,
-               case_evolution,
-               final_classification,
-               final_date
-             ]}
-          ]}}
+         {[notification_datetime, symptoms_datetime], residence_city_id, final_classification, test_result,
+          is_health_professional, age, gender}}
 
       31 ->
         [
           _id,
           notification_datetime,
           symptoms_datetime,
-          birth_date,
+          _birth_date,
           _symptoms,
           is_health_professional,
           _cbo,
@@ -251,29 +203,14 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Consolidator do
           _removed,
           _validated,
           age,
-          final_date,
-          case_evolution,
+          _final_date,
+          _case_evolution,
           final_classification
         ] = line
 
         {:ok,
-         {{[notification_datetime, symptoms_datetime], residence_city_id, final_classification, test_result,
-           is_health_professional, age, gender},
-          [
-            {@extraction_paho_1,
-             [
-               residence_city_id,
-               symptoms_datetime,
-               birth_date,
-               age,
-               gender,
-               is_health_professional,
-               test_result,
-               case_evolution,
-               final_classification,
-               final_date
-             ]}
-          ]}}
+         {[notification_datetime, symptoms_datetime], residence_city_id, final_classification, test_result,
+          is_health_professional, age, gender}}
 
       _line_length ->
         {:error, :invalid_line}
