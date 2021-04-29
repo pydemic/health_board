@@ -5,7 +5,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.ConsolidatorManager do
 
   defstruct init: true,
             input_path: Path.join(@dir, "updates/flu_syndrome/input"),
-            output_path: Path.join(@dir, "output/flu_syndrome"),
+            output_path: Path.join(@dir, "updates/flu_syndrome/output"),
             read_ahead: 100_000,
             setup: false,
             shutdown: false,
@@ -36,7 +36,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.ConsolidatorManager do
     for filename <- Enum.sort(File.ls!(input_path)) do
       input_path
       |> Path.join(filename)
-      |> File.stream!(read_ahead: read_ahead)
+      |> File.stream!(read_ahead: read_ahead, modes: [:read_ahead, {:encoding, :latin1}])
       |> NimbleCSV.Semicolon.parse_stream()
       |> Stream.with_index(2)
       |> Stream.map(fn {line, line_index} -> {line, line_index, filename, today} end)

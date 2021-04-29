@@ -23,6 +23,18 @@ defmodule HealthBoard.Updaters.Supervisor do
   defp dynamic_children(args) do
     args
     |> Keyword.fetch!(:children)
-    |> Enum.map(&{Module.concat(Updaters, Keyword.fetch!(&1, :module)), Keyword.get(&1, :args, [])})
+    |> Enum.flat_map(&child/1)
+  end
+
+  defp child(child_args) do
+    args = Keyword.get(child_args, :args, [])
+
+    case Keyword.fetch!(child_args, :module) do
+      FluSyndromeUpdater ->
+        [{Updaters.FluSyndromeUpdater, args}, {Updaters.FluSyndromeUpdater.Extractor, args}]
+
+      module ->
+        {Module.concat(Updaters, module), args}
+    end
   end
 end
