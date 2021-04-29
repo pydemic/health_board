@@ -7,7 +7,7 @@ defmodule HealthBoardWeb.Endpoint do
     signing_salt: "BNGdPqFm"
   ]
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket, websocket: [log: false, connect_info: [session: @session_options]]
 
   plug Plug.Static,
     at: "/",
