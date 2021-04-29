@@ -34,7 +34,7 @@ defmodule HealthBoard.Updaters.Supervisor do
         [{Updaters.FluSyndromeUpdater, args}, {Updaters.FluSyndromeUpdater.Extractor, args}]
 
       module ->
-        {Module.concat(Updaters, module), args}
+        [{Module.concat(Updaters, module), args}]
     end
   end
 end
