@@ -9,6 +9,29 @@
   <%= live_title_tag assigns[:page_title] || "", suffix: " - Painel Saúde" %>
   <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>" />
   <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+      https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyDc_1-JdrcsFG8IitMhNYw21VSiTCq069c",
+      authDomain: "covid-painelsaude.firebaseapp.com",
+      projectId: "covid-painelsaude",
+      storageBucket: "covid-painelsaude.appspot.com",
+      messagingSenderId: "447116874340",
+      appId: "1:447116874340:web:978c22254b8b97791e8571",
+      measurementId: "G-ZMEW7J88DQ"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
 </head>
 
 <body>
