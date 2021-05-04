@@ -223,6 +223,7 @@ defmodule HealthBoard.Releases.Helper do
     []
     |> maybe_append(:reattempt_initial_milliseconds, Env.integer("REATTEMPT_INITIAL_MILLISECONDS", prefix: prefix))
     |> maybe_append(:path, Env.string("PATH", prefix: prefix))
+    |> maybe_append(:extractions_path, Env.string("EXTRACTIONS_PATH", prefix: prefix))
     |> maybe_append(:update_at_hour, Env.integer("UPDATE_AT_HOUR", prefix: prefix))
     |> maybe_append(:source_id, Env.integer("SOURCE_ID", prefix: prefix))
     |> maybe_append(:source_sid, Env.string("SOURCE_SID", prefix: prefix))

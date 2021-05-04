@@ -24,6 +24,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
           last_error: any,
           last_stacktrace: Exception.stacktrace(),
           path: String.t(),
+          extractions_path: String.t(),
           update_at_hour: integer,
           source_sid: String.t(),
           source_id: integer,
@@ -50,6 +51,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
             last_error: nil,
             last_stacktrace: nil,
             path: Path.join(File.cwd!(), ".misc/sandbox/updates/flu_syndrome"),
+            extractions_path: Path.join(File.cwd!(), ".misc/sandbox/extractions"),
             update_at_hour: 3,
             source_sid: "e_sus_sg",
             source_id: nil,
@@ -271,7 +273,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
   end
 
   defp backup_path(state), do: Path.join(state.path, "backup")
-  defp extractions_path(state), do: Path.join(state.path, "extractions")
+  defp extractions_path(state), do: Path.join(state.extractions_path, "covid")
   defp input_path(state), do: Path.join(state.path, "input")
   defp output_path(state), do: Path.join(state.path, "output")
 end

@@ -1,7 +1,7 @@
 defmodule HealthBoard.Updaters.FluSyndromeUpdater.Extractor do
   require Logger
 
-  @filename "consolidado_esus"
+  @filename "sg"
   @headers [
     "municipioIBGE",
     "dataInicioSintomas",
