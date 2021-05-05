@@ -124,7 +124,7 @@ defmodule HealthBoard.Updaters.Helpers do
   end
 
   defp milliseconds_to_midnight(offset) do
-    :timer.hours(24 + offset) - rem(:os.system_time(:millisecond), :timer.hours(24))
+    rem(:timer.hours(24 + offset) - rem(:os.system_time(:millisecond), :timer.hours(24)), :timer.hours(24))
   end
 
   defp humanize_milliseconds(milliseconds) do

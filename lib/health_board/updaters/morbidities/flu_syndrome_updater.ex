@@ -7,6 +7,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
   @args_keys [
     :reattempt_initial_milliseconds,
     :path,
+    :extractions_path,
     :update_at_hour,
     :source_id,
     :source_sid,
@@ -52,7 +53,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
             last_stacktrace: nil,
             path: Path.join(File.cwd!(), ".misc/sandbox/updates/flu_syndrome"),
             extractions_path: Path.join(File.cwd!(), ".misc/sandbox/extractions"),
-            update_at_hour: 3,
+            update_at_hour: 17,
             source_sid: "e_sus_sg",
             source_id: nil,
             header: nil,
