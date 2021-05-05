@@ -1,9 +1,10 @@
 FROM pydemic/health_board:release AS release
-FROM erlang:22.3.4-alpine
+FROM erlang:22.3.4-slim
 
 WORKDIR /app
 
-RUN apk add coreutils zip
+RUN apt-get update
+RUN apt-get -y install coreutils zip libc-bin csvtool
 
 COPY --from=release /app/_build/prod/rel/health_board .
 COPY start.sh start.sh
