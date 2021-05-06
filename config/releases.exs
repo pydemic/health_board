@@ -263,11 +263,11 @@ defmodule HealthBoard.Releases.Helper do
     |> maybe_append(:update_at_hour, Env.integer("UPDATE_AT_HOUR", prefix: prefix))
     |> maybe_append(:source_id, Env.integer("SOURCE_ID", prefix: prefix))
     |> maybe_append(:source_sid, Env.string("SOURCE_SID", prefix: prefix))
-    |> flu_syndrome_updater_consolidator_settings(prefix)
-    |> flu_syndrome_updater_header_api_settings(prefix)
+    |> covid_vaccines_updater_consolidator_settings(prefix)
+    |> covid_vaccines_updater_header_api_settings(prefix)
     |> case do
       [] -> updaters_children
-      settings -> [[module: CovidReportsUpdater, args: settings] | updaters_children]
+      settings -> [[module: CovidVaccinesUpdater, args: settings] | updaters_children]
     end
   end
 
