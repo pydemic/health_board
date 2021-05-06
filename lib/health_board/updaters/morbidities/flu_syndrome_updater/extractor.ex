@@ -104,10 +104,17 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater.Extractor do
 
   defp finish_extraction(file_path) do
     dir_path = Path.dirname(file_path)
-    filename = Path.basename(file_path, ".csv")
+    filename = Path.basename(file_path, ".csv") <> ".zip"
+    zip_file_path = Path.join(dir_path, filename)
+
+    File.rm_rf!(zip_file_path)
 
     Logger.info("Zipping file")
 
-    {_result, 0} = System.cmd("zip", ~w(#{Path.join(dir_path, filename)} #{file_path}))
+    {_result, 0} =
+      System.cmd("sh", [
+        "-c",
+        "zip -q -j " <> zip_file_path <> " " <> file_path
+      ])
   end
 end
