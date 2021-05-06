@@ -48,7 +48,7 @@ defmodule HealthBoard.Updaters.CovidVaccinesUpdater do
             last_stacktrace: nil,
             path: Path.join(File.cwd!(), ".misc/sandbox/updates/covid_vaccines"),
             extractions_path: Path.join(File.cwd!(), ".misc/sandbox/extractions"),
-            update_at_hour: 3,
+            update_at_hour: 14,
             source_sid: "covid_vaccines",
             source_id: nil,
             header: nil,
