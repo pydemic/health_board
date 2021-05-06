@@ -1,8 +1,8 @@
-defmodule HealthBoard.Updaters.FluSyndromeUpdater do
+defmodule HealthBoard.Updaters.CovidVaccinesUpdater do
   use GenServer, restart: :permanent
   require Logger
   alias HealthBoard.Contexts.Dashboards
-  alias HealthBoard.Updaters.{FluSyndromeUpdater, Helpers, Reseeder}
+  alias HealthBoard.Updaters.{CovidVaccinesUpdater, Helpers}
 
   @args_keys [
     :reattempt_initial_milliseconds,
@@ -11,11 +11,10 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
     :update_at_hour,
     :source_id,
     :source_sid,
-    :consolidator_opts,
     :header_api_opts
   ]
 
-  @type t :: %FluSyndromeUpdater{
+  @type t :: %CovidVaccinesUpdater{
           status: atom,
           statuses: list(atom),
           error?: boolean,
@@ -31,7 +30,6 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
           source_id: integer,
           header: map | nil,
           last_header: map | nil,
-          consolidator_opts: keyword,
           header_api_opts: keyword
         }
 
@@ -39,11 +37,8 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
             statuses: [
               :fetch_header,
               :download_data,
-              :consolidate_data,
-              :seed_data,
               :extract_data,
-              :update_source,
-              :backup_data
+              :update_source
             ],
             error?: false,
             attempts: 0,
@@ -51,26 +46,23 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
             reattempt_initial_milliseconds: 60_000,
             last_error: nil,
             last_stacktrace: nil,
-            path: Path.join(File.cwd!(), ".misc/sandbox/updates/flu_syndrome"),
+            path: Path.join(File.cwd!(), ".misc/sandbox/updates/covid_vaccines"),
             extractions_path: Path.join(File.cwd!(), ".misc/sandbox/extractions"),
-            update_at_hour: 17,
-            source_sid: "e_sus_sg",
+            update_at_hour: 3,
+            source_sid: "covid_vaccines",
             source_id: nil,
             header: nil,
             last_header: nil,
-            consolidator_opts: [],
             header_api_opts: []
 
   @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(args) do
-    GenServer.start(FluSyndromeUpdater, args, name: FluSyndromeUpdater)
+    GenServer.start(CovidVaccinesUpdater, args, name: CovidVaccinesUpdater)
   end
 
   @impl GenServer
   @spec init(keyword) :: {:ok, t()}
   def init(args) do
-    FluSyndromeUpdater.Consolidator.init()
-
     {:ok,
      args
      |> new()
@@ -84,24 +76,8 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
   end
 
   @spec new(keyword | map) :: t()
-  def new(fields) when is_list(fields), do: struct(FluSyndromeUpdater, Keyword.take(fields, @args_keys))
-  def new(fields) when is_map(fields), do: struct(FluSyndromeUpdater, Map.take(fields, @args_keys))
-
-  @spec reset(t()) :: t()
-  def reset(state) do
-    if state.status == :seed_data do
-      rollback_data(state)
-    end
-
-    new(state)
-  end
-
-  defp rollback_data(state) do
-    case Reseeder.reseed(backup_path(state)) do
-      :ok -> Logger.info("Data rolled back")
-      _error -> Logger.error("Failed to rollback data")
-    end
-  end
+  def new(fields) when is_list(fields), do: struct(CovidVaccinesUpdater, Keyword.take(fields, @args_keys))
+  def new(fields) when is_map(fields), do: struct(CovidVaccinesUpdater, Map.take(fields, @args_keys))
 
   @spec schedule(t()) :: t()
   def schedule(state) do
@@ -114,7 +90,7 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
   def fetch_header(%{header_api_opts: opts, header: current_header} = state) do
     Logger.info("Fetching header")
 
-    case FluSyndromeUpdater.HeaderAPI.get(opts) do
+    case CovidVaccinesUpdater.HeaderAPI.get(opts) do
       {:ok, header} -> struct(state, header: header, last_header: current_header)
       {:error, error} -> Helpers.handle_error(state, "Failed to fetch header", error)
     end
@@ -179,39 +155,6 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
     end
   end
 
-  @spec consolidate_data(t()) :: t()
-  def consolidate_data(%{consolidator_opts: opts} = state) do
-    Logger.info("Consolidating data")
-
-    output_path = output_path(state)
-
-    File.rm_rf!(output_path)
-    File.mkdir_p!(output_path)
-
-    FluSyndromeUpdater.ConsolidatorManager.consolidate(
-      Keyword.merge(opts,
-        init: false,
-        setup: true,
-        input_path: input_path(state),
-        output_path: output_path
-      )
-    )
-
-    state
-  rescue
-    error -> Helpers.handle_error(state, "Failed to consolidate", error, __STACKTRACE__)
-  end
-
-  @spec seed_data(t()) :: t()
-  def seed_data(state) do
-    Logger.info("Seeding data")
-
-    case Reseeder.reseed(output_path(state)) do
-      :ok -> state
-      {:error, {error, stacktrace}} -> Helpers.handle_error(state, "Failed to seed", error, stacktrace)
-    end
-  end
-
   @spec update_source(t()) :: t()
   def update_source(%{header: %{updated_at: updated_at}, source_id: source_id} = state) do
     Logger.info("Updating source")
@@ -228,53 +171,15 @@ defmodule HealthBoard.Updaters.FluSyndromeUpdater do
     state
   end
 
-  @spec backup_data(t()) :: t()
-  def backup_data(state) do
-    Logger.info("Backing up data")
-
-    output_path = output_path(state)
-
-    if File.dir?(output_path) do
-      backup_path = backup_path(state)
-
-      if File.dir?(backup_path) do
-        temporary_backup_path = "/tmp/flu_syndrome_updater_backup"
-
-        File.rm_rf!(temporary_backup_path)
-        File.cp_r!(backup_path, temporary_backup_path)
-        File.rm_rf!(backup_path)
-
-        try do
-          File.cp_r!(output_path, backup_path)
-        rescue
-          _error -> File.cp_r!(temporary_backup_path, backup_path)
-        end
-
-        File.rm_rf!(temporary_backup_path)
-      else
-        File.mkdir_p!(backup_path)
-        File.cp_r!(output_path, backup_path)
-      end
-    end
-
-    File.rm_rf!(output_path)
-
-    state
-  rescue
-    error -> Helpers.handle_error(state, "Failed to backup data", error, __STACKTRACE__)
-  end
-
   @spec extract_data(t()) :: t()
   def extract_data(state) do
     Logger.info("Extracting data for specific contexts")
 
-    FluSyndromeUpdater.Extractor.extract(input_path(state), extractions_path(state))
+    CovidVaccinesUpdater.Extractor.extract(input_path(state), extractions_path(state))
 
     state
   end
 
-  defp backup_path(state), do: Path.join(state.path, "backup")
   defp extractions_path(state), do: Path.join(state.extractions_path, "covid")
   defp input_path(state), do: Path.join(state.path, "input")
-  defp output_path(state), do: Path.join(state.path, "output")
 end

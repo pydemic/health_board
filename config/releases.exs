@@ -148,6 +148,7 @@ defmodule HealthBoard.Releases.Helper do
     |> covid_reports_updater_settings(prefix)
     |> icu_occupations_updater_settings(prefix)
     |> flu_syndrome_updater_settings(prefix)
+    |> covid_vaccines_updater_settings(prefix)
     |> sars_updater_settings(prefix)
     |> case do
       [] -> health_board_settings
@@ -250,6 +251,41 @@ defmodule HealthBoard.Releases.Helper do
     []
     |> maybe_append(:read_ahead, Env.string("URL", prefix: prefix))
     |> maybe_append_to_keyword(:header_api_opts, flu_syndrome_updater_settings)
+  end
+
+  defp covid_vaccines_updater_settings(updaters_children, prefix) do
+    prefix = prefix ++ ["COVID_VACCINES"]
+
+    []
+    |> maybe_append(:reattempt_initial_milliseconds, Env.integer("REATTEMPT_INITIAL_MILLISECONDS", prefix: prefix))
+    |> maybe_append(:path, Env.string("PATH", prefix: prefix))
+    |> maybe_append(:extractions_path, Env.string("EXTRACTIONS_PATH", prefix: prefix))
+    |> maybe_append(:update_at_hour, Env.integer("UPDATE_AT_HOUR", prefix: prefix))
+    |> maybe_append(:source_id, Env.integer("SOURCE_ID", prefix: prefix))
+    |> maybe_append(:source_sid, Env.string("SOURCE_SID", prefix: prefix))
+    |> flu_syndrome_updater_consolidator_settings(prefix)
+    |> flu_syndrome_updater_header_api_settings(prefix)
+    |> case do
+      [] -> updaters_children
+      settings -> [[module: CovidReportsUpdater, args: settings] | updaters_children]
+    end
+  end
+
+  defp covid_vaccines_updater_consolidator_settings(covid_vaccines_updater_settings, prefix) do
+    prefix = prefix ++ ["CONSOLIDATOR"]
+
+    []
+    |> maybe_append(:read_ahead, Env.integer("READ_AHEAD", prefix: prefix))
+    |> maybe_append(:split_command, Env.string("SPLIT_COMMAND", prefix: prefix))
+    |> maybe_append_to_keyword(:consolidator_opts, covid_vaccines_updater_settings)
+  end
+
+  defp covid_vaccines_updater_header_api_settings(covid_vaccines_updater_settings, prefix) do
+    prefix = prefix ++ ["HEADER_API"]
+
+    []
+    |> maybe_append(:read_ahead, Env.string("URL", prefix: prefix))
+    |> maybe_append_to_keyword(:header_api_opts, covid_vaccines_updater_settings)
   end
 
   defp sars_updater_settings(updaters_children, prefix) do
