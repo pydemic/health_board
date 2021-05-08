@@ -7,6 +7,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
   @args_keys [
     :reattempt_initial_milliseconds,
     :path,
+    :extractions_path,
     :update_at_hour,
     :source_id,
     :source_sid,
@@ -24,6 +25,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
           last_error: any,
           last_stacktrace: Exception.stacktrace(),
           path: String.t(),
+          extractions_path: String.t(),
           update_at_hour: integer,
           source_sid: String.t(),
           source_id: integer,
@@ -39,6 +41,7 @@ defmodule HealthBoard.Updaters.SARSUpdater do
               :download_data,
               :consolidate_data,
               :seed_data,
+              :extract_data,
               :update_source,
               :backup_data
             ],
@@ -49,7 +52,8 @@ defmodule HealthBoard.Updaters.SARSUpdater do
             last_error: nil,
             last_stacktrace: nil,
             path: Path.join(File.cwd!(), ".misc/sandbox/updates/sars"),
-            update_at_hour: 3,
+            extractions_path: Path.join(File.cwd!(), ".misc/sandbox/extractions"),
+            update_at_hour: 16,
             source_sid: "sivep_srag",
             source_id: nil,
             header: nil,
@@ -260,7 +264,17 @@ defmodule HealthBoard.Updaters.SARSUpdater do
     error -> Helpers.handle_error(state, "Failed to backup data", error, __STACKTRACE__)
   end
 
+  @spec extract_data(t()) :: t()
+  def extract_data(state) do
+    Logger.info("Extracting data for specific contexts")
+
+    HealthBoard.Updaters.SARSUpdater.Extractor.extract(input_path(state), extractions_path(state))
+
+    state
+  end
+
   defp backup_path(state), do: Path.join(state.path, "backup")
+  defp extractions_path(state), do: Path.join(state.extractions_path, "covid")
   defp input_path(state), do: Path.join(state.path, "input")
   defp output_path(state), do: Path.join(state.path, "output")
 end
