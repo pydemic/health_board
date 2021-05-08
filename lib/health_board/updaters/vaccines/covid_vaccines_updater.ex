@@ -21,6 +21,7 @@ defmodule HealthBoard.Updaters.CovidVaccinesUpdater do
           attempts: integer,
           reattempt_after_milliseconds: integer,
           reattempt_initial_milliseconds: integer,
+          check_again_milliseconds: integer,
           last_error: any,
           last_stacktrace: Exception.stacktrace(),
           path: String.t(),
@@ -44,11 +45,12 @@ defmodule HealthBoard.Updaters.CovidVaccinesUpdater do
             attempts: 0,
             reattempt_after_milliseconds: 0,
             reattempt_initial_milliseconds: 60_000,
+            check_again_milliseconds: 1_800_000,
             last_error: nil,
             last_stacktrace: nil,
             path: Path.join(File.cwd!(), ".misc/sandbox/updates/covid_vaccines"),
             extractions_path: Path.join(File.cwd!(), ".misc/sandbox/extractions"),
-            update_at_hour: 14,
+            update_at_hour: 20,
             source_sid: "covid_vaccines",
             source_id: nil,
             header: nil,
@@ -84,6 +86,11 @@ defmodule HealthBoard.Updaters.CovidVaccinesUpdater do
     Helpers.schedule_at_hour(state, state.update_at_hour)
   end
 
+  @spec schedule_check_again(t()) :: t()
+  def schedule_check_again(state) do
+    Helpers.schedule(state, state.check_again_milliseconds)
+  end
+
   # Steps
 
   @spec fetch_header(t()) :: t()
@@ -113,7 +120,14 @@ defmodule HealthBoard.Updaters.CovidVaccinesUpdater do
       struct(state, last_header: header)
     else
       Logger.info("Database is updated")
-      struct(state, status: :idle)
+
+      {{_year, _month, _day}, {hour, _minute, _second}} = :calendar.universal_time()
+
+      if hour >= state.update_at_hour do
+        struct(state, status: :check_again)
+      else
+        struct(state, status: :idle)
+      end
     end
   rescue
     error -> Helpers.handle_error(state, "Failed to download data", error, __STACKTRACE__)

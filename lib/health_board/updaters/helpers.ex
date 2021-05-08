@@ -19,6 +19,7 @@ defmodule HealthBoard.Updaters.Helpers do
     case state do
       %{status: :new} -> struct(module.new(state), status: List.first(state.statuses))
       %{status: :idle} -> struct(state, status: List.first(state.statuses))
+      %{status: :check_again} -> struct(state, status: List.first(state.statuses))
       %{error?: true} -> struct(state, error?: false)
       state -> state
     end
@@ -42,9 +43,15 @@ defmodule HealthBoard.Updaters.Helpers do
       nil ->
         Logger.info("Successfully updated data")
 
-        state
-        |> struct(status: :idle, attempts: 0)
-        |> module.schedule()
+        if state.status != :check_again do
+          state
+          |> struct(status: :idle, attempts: 0)
+          |> module.schedule()
+        else
+          state
+          |> struct(status: :new)
+          |> module.schedule_check_again()
+        end
 
       status ->
         state
