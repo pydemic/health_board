@@ -27,7 +27,7 @@ defmodule HealthBoard.Updaters.CovidVaccinesUpdater.Extractor do
     slice_file(
       file_path,
       output_file_path,
-      "'%(2),%(28),%(31),%(12),%(8),%(3),%(5),%(29)\n'"
+      "'%(28),%(31),%(12),%(8),%(3),%(5),%(29),%(22),%(24)\n'"
     )
   end
 
